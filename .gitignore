@@ -1,6 +1,6 @@
 *.iml
-.idea
-!.idea/runConfigurations
+.idea/*
+!.idea/runConfigurations/
 .classpath
 *.jar
 target

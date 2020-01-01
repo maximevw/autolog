@@ -42,6 +42,10 @@
                     <artifactId>org.springframework.boot</artifactId>
                     <groupId>spring-boot-starter-logging</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>logback-classic</artifactId>
+                    <groupId>ch.qos.logback</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -130,11 +134,20 @@
             <!-- Compilation -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <!-- Only compile original source code and ignore delomboked files (since Delombok Maven plugin is
-                    active here) to avoid classes duplication at compiling time.-->
-                    <compileSourceRoots>${project.build.sourceDirectory}</compileSourceRoots>
-                </configuration>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Only compile original source code and ignore delomboked files (since Delombok Maven
+                            plugin is active here) to avoid classes duplication at compiling time.-->
+                            <compileSourceRoots>${project.build.sourceDirectory}</compileSourceRoots>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Enforcer -->
