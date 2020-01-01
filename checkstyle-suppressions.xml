@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Don't check files in resources -->
+    <suppress files="[/\\]src[/\\]test[/\\]resources[/\\].*" checks=".*"/>
+
+    <!-- Differentiation for method names between source files and unit tests -->
+    <suppress files="[/\\]src[/\\]test[/\\].*" id="methodNameStandard" />
+    <suppress files="[/\\]src[/\\]main[/\\].*" id="methodNameUnitTests" />
+
+    <!-- Exceptions for the implementations of LoggerInterface -->
+    <suppress files="[/\\]com[/\\]github[/\\]maximevw[/\\]autolog[/\\]core[/\\]logger[/\\]adapters[/\\].*"
+              checks="FinalClass" />
+
+    <!-- Exceptions for test files -->
+    <suppress files="[/\\]src[/\\]test[/\\].*" checks="MagicNumber" />
+    <suppress files="[/\\]src[/\\]test[/\\].*" checks="MultipleStringLiterals" />
+    <suppress files="[/\\]src[/\\]test[/\\].*" checks="MethodLength" />
+    <suppress files="LogTestingClass.java" checks="ParameterName" />
+    <suppress files="JaxRsApiTestClass.java" checks="MissingJavadocMethod" />
+    <suppress files="SpringWebApiTestClass.java" checks="MissingJavadocMethod" />
+</suppressions>

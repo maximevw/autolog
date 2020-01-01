@@ -1,0 +1,4 @@
+com.github.maximevw.autolog.core.annotations.processors.AutoLogMethodInOutProcessor
+com.github.maximevw.autolog.core.annotations.processors.AutoLogMethodInputProcessor
+com.github.maximevw.autolog.core.annotations.processors.AutoLogMethodOutputProcessor
+com.github.maximevw.autolog.core.annotations.processors.AutoLogPerformanceProcessor
