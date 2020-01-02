@@ -74,7 +74,7 @@ are wrapped in singleton adapters implementing `LoggerInterface`. By default, Au
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
 
-In a Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
+In Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration
 class `AutologAutoConfiguration`.
 
