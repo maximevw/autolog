@@ -1,5 +1,6 @@
 # Autolog
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.txt)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/maximevw/autolog/Autolog%20CI%20Workflow)
 ![Code Coverage](autolog-coverage-reporting/resources/jacoco.svg)
 
 A library providing capabilities for automatic logging in Java applications.
