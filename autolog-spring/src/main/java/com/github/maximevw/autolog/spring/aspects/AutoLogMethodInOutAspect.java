@@ -27,6 +27,7 @@ import com.github.maximevw.autolog.core.configuration.MethodInputLoggingConfigur
 import com.github.maximevw.autolog.core.configuration.MethodOutputLoggingConfiguration;
 import com.github.maximevw.autolog.core.logger.LoggerManager;
 import com.github.maximevw.autolog.core.logger.MethodCallLogger;
+import org.apiguardian.api.API;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -49,6 +50,7 @@ import java.lang.reflect.Method;
  * proxy-based aspects</a> to be aware of the limitations implied by Spring AOP.
  * </p>
  */
+@API(status = API.Status.STABLE, since = "1.0.0")
 @Aspect
 @Component
 public class AutoLogMethodInOutAspect {

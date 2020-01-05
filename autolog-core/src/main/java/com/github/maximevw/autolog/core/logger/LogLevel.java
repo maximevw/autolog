@@ -20,9 +20,12 @@
 
 package com.github.maximevw.autolog.core.logger;
 
+import org.apiguardian.api.API;
+
 /**
  * Available log levels.
  */
+@API(status = API.Status.STABLE, since = "1.0.0")
 public enum LogLevel {
 	/**
 	 * The {@code TRACE} level designates finest-grained informational events.

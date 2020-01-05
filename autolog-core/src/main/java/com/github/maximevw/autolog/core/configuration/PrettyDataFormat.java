@@ -20,9 +20,12 @@
 
 package com.github.maximevw.autolog.core.configuration;
 
+import org.apiguardian.api.API;
+
 /**
  * Allowed formats for prettifying of logged data.
  */
+@API(status = API.Status.STABLE, since = "1.0.0")
 public enum PrettyDataFormat {
 	/**
 	 * The data will be formatted by using JSON.

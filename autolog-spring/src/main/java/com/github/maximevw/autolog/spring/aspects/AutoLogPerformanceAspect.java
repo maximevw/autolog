@@ -30,6 +30,7 @@ import com.github.maximevw.autolog.core.logger.MethodPerformanceLogger;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimer;
 import org.apache.commons.lang3.StringUtils;
+import org.apiguardian.api.API;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -50,6 +51,7 @@ import java.lang.reflect.Method;
  * proxy-based aspects</a> to be aware of the limitations implied by Spring AOP.
  * </p>
  */
+@API(status = API.Status.STABLE, since = "1.0.0")
 @Aspect
 @Component
 public class AutoLogPerformanceAspect {
