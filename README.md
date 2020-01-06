@@ -1,7 +1,9 @@
 # Autolog
 [![Apache 2.0 License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.txt)
+[![Maven Central](https://img.shields.io/maven-central/v/com.github.maximevw/autolog)](https://search.maven.org/search?q=g:com.github.maximevw%20AND%20autolog)
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/maximevw/autolog/Autolog%20CI%20Workflow)
 ![Code Coverage](autolog-coverage-reporting/resources/jacoco.svg)
+[![Javadoc](https://javadoc.io/badge2/com.github.maximevw/autolog-core/javadoc.svg)](https://javadoc.io/doc/com.github.maximevw/autolog-core)
 
 A library providing capabilities for automatic logging in Java applications.
 
@@ -24,7 +26,8 @@ Using Autolog requires **JDK 11 or greater**.
 
 ### Installing
 
-You can install Autolog in your application using one of the following Maven dependencies:
+The latest release of Autolog is available on Maven Central. You can install Autolog in your application using one of
+the following Maven dependencies:
 * In a Spring application:
 ```xml
 <dependency>
