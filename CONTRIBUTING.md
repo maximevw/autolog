@@ -52,8 +52,8 @@ mvn test
 
 #### Maven profiles
 
-Autolog project provides some useful profiles to help developers to guarantee the quality of the code, of the tests and
-reduce potential vulnerabilities:
+Autolog project provides some useful profiles to help developers to guarantee the quality of the code, of the tests,
+reduce potential vulnerabilities, ...
 * **Dependency check**: to detect vulnerabilities in third party dependencies, you can run the build with the profile
 `dependency-check` executing the plugin `dependency-check-maven` from OWASP and generating a report in `target/owasp`
 directory.
@@ -66,9 +66,13 @@ whole project. However, the coverage reports can be generated separately for eac
 ```
 mvn clean install -Pwith-coverage-by-module
 ```
+* **Bundle**: to bundle jar for each module including dependencies.
+```
+mvn clean package -Pbundle
+```
 
-*Note*: a profile `release` also exists and is designed to prepare and build release versions of Autolog (compilation,
-signing artifacts, ...). It is reserved for the project owners.
+*Note*: a profile `release` also exists and is designed to prepare, build and deploy release versions of Autolog
+(compilation, signing artifacts, ...). It is reserved for the project owners.
 
 ### Submit a pull request
 
