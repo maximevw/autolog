@@ -85,12 +85,12 @@ Once your changes and tests are ready for review, submit them:
 2. Check your code is documented (especially if it modifies the public API) and respect the coding style of the project.
 
 3. Rebase your changes: update your local repository with the most recent code from the original repository, and rebase
-your branch on top of the latest master branch. It is better that your initial changes are squashed into a single
-commit. If more changes are required to validate the pull request, we invite you to add them as separate commits.
+your branch on top of the latest `release/next` branch. It is better that your initial changes are squashed into a
+single commit. If more changes are required to validate the pull request, we invite you to add them as separate commits.
 
-4. Finally, push your local changes to your forked repository and submit a pull request with a title which sums up the
-changes that you have made (try to not exceed 50 characters), and provide more details in the body. If necessary, also
-mention the number of the issue solved by your changes, e.g. "Closes #123".
+4. Finally, push your local changes to your forked repository and submit a pull request into the branch `release/next`
+with a title which sums up the changes that you have made (try to not exceed 50 characters), and provide more details in
+the body. If necessary, also mention the number of the issue solved by your changes, e.g. "Closes #123".
 
 ### Coding conventions and documentation
 
