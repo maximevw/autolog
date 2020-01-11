@@ -34,8 +34,12 @@ import java.lang.reflect.Method;
 
 /**
  * This class wraps an instance of {@link Logger} to be used by Autolog.
+ *
+ * @deprecated Use {@link Log4j2Adapter} with Log4J2 instead. Indeed, Log4J is deprecated and now classified as highly
+ * 			   vulnerable (see <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-17571">CVE-2019-17571</a>).
  */
-@API(status = API.Status.STABLE, since = "1.0.0")
+@Deprecated
+@API(status = API.Status.DEPRECATED, since = "1.1.0")
 @Log4j(topic = "Autolog")
 public class Log4jAdapter implements LoggerInterface {
 
