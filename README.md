@@ -33,7 +33,7 @@ the following Maven dependencies:
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-spring</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 * In a classic Java application, you can use logging methods provided by Autolog without automation by AOP (not
@@ -42,7 +42,7 @@ recommended):
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -73,10 +73,10 @@ is able to log the information at different places simultaneously. The real logg
 are wrapped in singleton adapters implementing `LoggerInterface`. By default, Autolog provides the following adapters:
 * `JavaLoggerAdapter`: wraps an instance of the classic `java.util.logging.Logger`
 * `Log4j2Adapter`: wraps an instance of `org.apache.logging.log4j.Logger`
-* `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
 * `Slf4jAdapter`: wraps an instance of `org.slf4j.Logger`
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
+* *(Deprecated - don't use anymore)* `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
 
 In Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration
