@@ -49,7 +49,7 @@ recommended):
 ## Usage
 ### Autolog annotations
 
-Basically, Autolog provides two type of annotations used to automatically generates log thanks to [AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
+Basically, Autolog provides two types of annotations used to automatically generates log thanks to [AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
 (using [Spring AOP](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#aop) implementation
 in the module `autolog-spring`):
 
@@ -144,6 +144,8 @@ DEBUG Performance summary report for /hello:
 DEBUG > /hello executed in 10 ms
 DEBUG |_ > HelloService.sayHello executed in 6 ms
 ```
+
+More examples are available in this [GitHub repository](https://github.com/maximevw/autolog-examples).
 
 ## Contributing
 
