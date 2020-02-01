@@ -33,7 +33,7 @@ the following Maven dependencies:
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-spring</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 * In a classic Java application, you can use logging methods provided by Autolog without automation by AOP (not
@@ -42,14 +42,14 @@ recommended):
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
 ## Usage
 ### Autolog annotations
 
-Basically, Autolog provides two type of annotations used to automatically generates log thanks to [AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
+Basically, Autolog provides two types of annotations used to automatically generates log thanks to [AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
 (using [Spring AOP](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#aop) implementation
 in the module `autolog-spring`):
 
@@ -73,10 +73,10 @@ is able to log the information at different places simultaneously. The real logg
 are wrapped in singleton adapters implementing `LoggerInterface`. By default, Autolog provides the following adapters:
 * `JavaLoggerAdapter`: wraps an instance of the classic `java.util.logging.Logger`
 * `Log4j2Adapter`: wraps an instance of `org.apache.logging.log4j.Logger`
-* `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
 * `Slf4jAdapter`: wraps an instance of `org.slf4j.Logger`
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
+* *(Deprecated - don't use anymore)* `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
 
 In Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration
@@ -144,6 +144,8 @@ DEBUG Performance summary report for /hello:
 DEBUG > /hello executed in 10 ms
 DEBUG |_ > HelloService.sayHello executed in 6 ms
 ```
+
+More examples are available in this [GitHub repository](https://github.com/maximevw/autolog-examples).
 
 ## Contributing
 
