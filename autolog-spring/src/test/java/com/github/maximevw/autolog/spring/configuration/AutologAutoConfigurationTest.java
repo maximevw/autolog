@@ -21,7 +21,7 @@
 package com.github.maximevw.autolog.spring.configuration;
 
 import com.github.maximevw.autolog.core.logger.LoggerManager;
-import com.github.maximevw.autolog.core.logger.adapters.Log4jAdapter;
+import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
 import com.github.maximevw.autolog.core.logger.adapters.Slf4jAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.SystemOutAdapter;
 import org.junit.jupiter.api.BeforeAll;
@@ -87,7 +87,7 @@ class AutologAutoConfigurationTest {
 			/*
 			 * Define 2 valid loggers:
 			 * - (Case V1) Slf4jAdapter without fully qualified name
-			 * - (Case V2) Log4jAdapter with fully qualified name
+			 * - (Case V2) Log4j2Adapter with fully qualified name
 			 * and 4 invalid loggers:
 			 * - (Case I1) an empty class name
 			 * - (Case I2) a not-existing class (com.github.maximevw.FakeLoggerClass)
@@ -96,7 +96,7 @@ class AutologAutoConfigurationTest {
 			 *   get a singleton instance (com.github.maximevw.autolog.test.TestInvalidLoggerAdapter)
 			 */
 			.withPropertyValues("autolog.loggers:Slf4jAdapter,"
-				+ "com.github.maximevw.autolog.core.logger.adapters.Log4jAdapter,,java.lang.Object,"
+				+ "com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter,,java.lang.Object,"
 				+ "com.github.maximevw.FakeLoggerClass,com.github.maximevw.autolog.test.TestInvalidLoggerAdapter")
 			.run(context -> {
 				final LoggerManager loggerManager = context.getBean(LoggerManager.class);
@@ -105,7 +105,7 @@ class AutologAutoConfigurationTest {
 				// Check for Case V1.
 				assertThat(loggerManager.getRegisteredLoggers(), hasItem(instanceOf(Slf4jAdapter.class)));
 				// Check for Case V2.
-				assertThat(loggerManager.getRegisteredLoggers(), hasItem(instanceOf(Log4jAdapter.class)));
+				assertThat(loggerManager.getRegisteredLoggers(), hasItem(instanceOf(Log4j2Adapter.class)));
 
 				// Check logs for Case I1.
 				assertThat(stdOut.toString(), containsString("[WARN] Autolog: Empty class name for logger interface, "

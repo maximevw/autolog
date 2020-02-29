@@ -88,16 +88,16 @@
         <compile-testing.version>0.18</compile-testing.version>
         <guava.version>28.2-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <jackson-databind.version>2.10.1</jackson-databind.version>
-        <jackson-dataformat-xml.version>2.10.1</jackson-dataformat-xml.version>
+        <jackson-databind.version>2.10.2</jackson-databind.version>
+        <jackson-dataformat-xml.version>2.10.2</jackson-dataformat-xml.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <javax-ws-rs.version>2.1.1</javax-ws-rs.version>
-        <junit-jupiter.version>5.5.2</junit-jupiter.version>
-        <junit-platform.version>1.5.2</junit-platform.version>
+        <junit-jupiter.version>5.6.0</junit-jupiter.version>
+        <junit-platform.version>1.6.0</junit-platform.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.13.0</log4j2.version>
-        <lombok.version>1.18.10</lombok.version>
+        <lombok.version>1.18.12</lombok.version>
         <lombok-maven-plugin.version>1.18.10.0</lombok-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -113,8 +113,8 @@
         <owasp-dependency-check.version>5.2.4</owasp-dependency-check.version>
         <slf4j.version>1.7.30</slf4j.version>
         <slf4j-test.version>1.2.0</slf4j-test.version>
-        <spring.version>5.2.2.RELEASE</spring.version>
-        <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+        <spring.version>5.2.3.RELEASE</spring.version>
+        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
     </properties>
 
     <dependencyManagement>
@@ -432,6 +432,7 @@
                     </dependencies>
                     <configuration>
                         <configLocation>checkstyle.xml</configLocation>
+                        <consoleOutput>true</consoleOutput>
                         <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                         <!-- Only apply the check to the original sources and not the generated ones (by delomboking
                         for example). -->

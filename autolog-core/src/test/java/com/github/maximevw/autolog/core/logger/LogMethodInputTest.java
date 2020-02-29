@@ -180,7 +180,7 @@ class LogMethodInputTest {
 	@MethodSource("provideMethodsAndConfigurations")
 	void givenMethod_whenLogMethodInputAsStructuredMessage_generatesLog(
 		final MethodInputLoggingConfiguration configuration, final Method method, final String expectedMethodName,
-		final String expectedArgsList, final Object[] args) {
+		@SuppressWarnings("unused") final String expectedArgsList, final Object[] args) {
 		configuration.setStructuredMessage(true);
 		sut.logMethodInput(configuration, method, args);
 
@@ -321,7 +321,14 @@ class LogMethodInputTest {
 				LogTestingClass.class.getMethod("methodInputCollectionAndMap", Collection.class, Map.class),
 				"LogTestingClass.methodInputCollectionAndMap",
 				"collection=0 item(s), map=0 key-value pair(s)",
-				new Object[]{Collections.EMPTY_LIST, Map.of()})
+				new Object[]{Collections.EMPTY_LIST, Map.of()}),
+			// Default configuration and method with different arguments to mask (totally or partially).
+			Arguments.of(MethodInputLoggingConfiguration.builder().build(),
+				LogTestingClass.class.getMethod("methodInputWithMaskedArgs", String.class, String.class, String.class,
+					int.class, double.class, String.class),
+				"LogTestingClass.methodInputWithMaskedArgs",
+				"argStr1=********, argStr2=###, argStr3=p******d, argInt=**, argDbl=***, argNotMasked=value",
+				new Object[]{"password", "maskable", "password", 15, 3.6d, "value"})
 		);
 	}
 }

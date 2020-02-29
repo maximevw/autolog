@@ -20,6 +20,7 @@
 
 package com.github.maximevw.autolog.core.logger;
 
+import com.github.maximevw.autolog.core.annotations.Mask;
 import com.github.maximevw.autolog.core.configuration.MethodInputLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.MethodOutputLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
@@ -71,10 +72,17 @@ public class MethodCallLogger {
         final Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             final Parameter parameter = parameters[i];
+            Object argValue = argsValues[i];
+
+            // Apply mask to the argument value if required and applicable.
+            if (parameter.isAnnotationPresent(Mask.class)) {
+				argValue = MaskingUtils.maskValue(argValue, parameter.getAnnotation(Mask.class));
+			}
+
             if (parameter.isNamePresent()) {
-                argsList.add(Pair.of(parameter.getName(), argsValues[i]));
+                argsList.add(Pair.of(parameter.getName(), argValue));
             } else {
-                argsList.add(Pair.of(String.format(LoggingUtils.AUTO_GENERATED_ARG_NAME_FORMATTER, i), argsValues[i]));
+                argsList.add(Pair.of(String.format(LoggingUtils.AUTO_GENERATED_ARG_NAME_FORMATTER, i), argValue));
                 LoggingUtils.report("Unable to get parameter name. Exclusions and restrictions will be ignored. "
 					+ "Compile your application in debug mode (javac with -g argument).");
             }

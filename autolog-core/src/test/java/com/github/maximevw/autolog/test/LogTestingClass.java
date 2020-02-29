@@ -20,6 +20,7 @@
 
 package com.github.maximevw.autolog.test;
 
+import com.github.maximevw.autolog.core.annotations.Mask;
 import com.github.maximevw.autolog.core.configuration.MethodPerformanceLoggingConfiguration;
 import com.github.maximevw.autolog.core.logger.MethodCallLogger;
 import com.github.maximevw.autolog.core.logger.MethodPerformanceLogger;
@@ -103,6 +104,24 @@ public class LogTestingClass {
 	 * @param map			Fake map argument for test purpose.
 	 */
 	public void methodInputCollectionAndMap(final Collection<String> collection, final Map<String, Integer> map) {
+		// Method for testing purpose only.
+	}
+
+	/**
+	 * Test method with maskable input arguments and without returned value.
+	 *
+	 * @param argStr1 		{@code String} argument masked with default parameters.
+	 * @param argStr2 		{@code String} argument masked with "###".
+	 * @param argStr3 		{@code String} argument masked except first and last characters.
+	 * @param argInt		{@code int} value masked with default parameters.
+	 * @param argDbl		{@code double} value masked with default parameters.
+	 * @param argNotMasked 	Argument not masked.
+	 */
+	public void methodInputWithMaskedArgs(@Mask final String argStr1,
+										  @Mask(character = '#', fixedLength = 3) final String argStr2,
+										  @Mask(preservedCharacters = Mask.KEEP_FIRST_AND_LAST_CHARS)
+										  final String argStr3, @Mask final int argInt, @Mask final double argDbl,
+										  final String argNotMasked) {
 		// Method for testing purpose only.
 	}
 

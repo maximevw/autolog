@@ -48,6 +48,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Unit tests for the class {@link LoggerManager}.
  */
+@SuppressWarnings("deprecation")
 class LoggerManagerTest {
 
 	private static ByteArrayOutputStream stdOut = new ByteArrayOutputStream();

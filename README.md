@@ -188,14 +188,6 @@ Find below a non-exhaustive (and not sorted by priority) list of features we've 
   In addition to the Spring AOP implementation, a new module `autolog-aspectj` provides aspects to handle Autolog
   annotations in applications using AspectJ without Spring Framework.
 
-* **Arguments masking**
-
-  When the input data of a method call are logged by Autolog, some method arguments (e.g. sensitive data like passwords)
-  can be partially or totally masked. For example, the result would be:
-  ```
-  Entering exampleMethod(username=john, password=***, cardNumber=416********5)
-  ```
-
 * **Logstash Logback encoder**
 
   For applications using Logback implementation of Slf4j and feeding Logstash with these logs, add the possibility to
