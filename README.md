@@ -74,6 +74,8 @@ are wrapped in singleton adapters implementing `LoggerInterface`. By default, Au
 * `JavaLoggerAdapter`: wraps an instance of the classic `java.util.logging.Logger`
 * `Log4j2Adapter`: wraps an instance of `org.apache.logging.log4j.Logger`
 * `Slf4jAdapter`: wraps an instance of `org.slf4j.Logger`
+* `LogbackWithLogstashAdapter`: wraps an instance of `org.slf4j.Logger` which should use Logback implementation with
+Logstash encoder
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
 * *(Deprecated - don't use anymore)* `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
