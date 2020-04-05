@@ -24,19 +24,26 @@ import com.github.maximevw.autolog.core.annotations.AutoLogMethodInOut;
 import com.github.maximevw.autolog.core.configuration.MethodOutputLoggingConfiguration;
 import com.github.maximevw.autolog.core.logger.adapters.Slf4jAdapter;
 import com.github.maximevw.autolog.test.LogTestingClass;
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import uk.org.lidalia.slf4jext.Level;
 import uk.org.lidalia.slf4jtest.TestLogger;
 import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
@@ -139,18 +146,24 @@ class LogMethodOutputTest {
 	/**
 	 * Verifies the effective logging of the end of invocation of a method without returned value.
 	 *
+	 * @param withDataLoggedInContext Whether the method output data must be stored in the log context.
 	 * @throws NoSuchMethodException if method {@link LogTestingClass#methodReturningVoid()} is not defined.
 	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
-	@Test
-	void givenMethodReturningVoid_whenLogMethodOutput_generatesLog() throws NoSuchMethodException {
-		sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(),
+	@ParameterizedTest
+	@ValueSource(strings = {"true", "false"})
+	void givenMethodReturningVoid_whenLogMethodOutput_generatesLog(final boolean withDataLoggedInContext)
+		throws NoSuchMethodException {
+		sut.logMethodOutput(MethodOutputLoggingConfiguration.builder()
+				.dataLoggedInContext(withDataLoggedInContext)
+				.build(),
 			LogTestingClass.class.getMethod("methodReturningVoid"), null);
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message", is(AutoLogMethodInOut.VOID_OUTPUT_DEFAULT_MESSAGE_TEMPLATE)),
 			hasProperty("arguments", hasItem("LogTestingClass.methodReturningVoid")),
-			hasProperty("level", is(Level.INFO))
+			hasProperty("level", is(Level.INFO)),
+			buildMdcMatcher(withDataLoggedInContext, "LogTestingClass.methodReturningVoid", "void")
 		)));
 	}
 
@@ -162,7 +175,7 @@ class LogMethodOutputTest {
 	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
 	@Test
-	void givenMethodReturningVoid_whenLogMethodOutputAsStrucutredMessage_generatesLog() throws NoSuchMethodException {
+	void givenMethodReturningVoid_whenLogMethodOutputAsStructuredMessage_generatesLog() throws NoSuchMethodException {
 		sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().structuredMessage(true).build(),
 			LogTestingClass.class.getMethod("methodReturningVoid"), null);
 
@@ -179,19 +192,25 @@ class LogMethodOutputTest {
 	/**
 	 * Verifies the effective logging of output data for a given method.
 	 *
+	 * @param withDataLoggedInContext Whether the method output data must be stored in the log context.
 	 * @throws NoSuchMethodException if method {@link LogTestingClass#methodOutputData()} is not defined.
 	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
-	@Test
-	void givenMethod_whenLogMethodOutput_generatesLog() throws NoSuchMethodException {
-		sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(),
+	@ParameterizedTest
+	@ValueSource(strings = {"true", "false"})
+	void givenMethod_whenLogMethodOutput_generatesLog(final boolean withDataLoggedInContext)
+		throws NoSuchMethodException {
+		sut.logMethodOutput(MethodOutputLoggingConfiguration.builder()
+				.dataLoggedInContext(withDataLoggedInContext)
+				.build(),
 			LogTestingClass.class.getMethod("methodOutputData"), "test");
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message", is(AutoLogMethodInOut.OUTPUT_DEFAULT_MESSAGE_TEMPLATE)),
 			hasProperty("arguments", hasItem("LogTestingClass.methodOutputData")),
 			hasProperty("arguments", hasItem("\"test\"")),
-			hasProperty("level", is(Level.INFO))
+			hasProperty("level", is(Level.INFO)),
+			buildMdcMatcher(withDataLoggedInContext, "LogTestingClass.methodOutputData", "\"test\"")
 		)));
 	}
 
@@ -216,4 +235,25 @@ class LogMethodOutputTest {
 		)));
 	}
 
+	/**
+	 * Builds a matcher to verify the content of MDC in a method output log entry.
+	 *
+	 * @param withDataLoggedInContext 	Whether the method output data must be stored in the log context.
+	 * @param expectedMethodName		The expected value of the key {@code invokedMethod}.
+	 * @param expectedOutputValue		The expected value of the key {@code outputValue}.
+	 * @return The matcher verifying the content of MDC in the log entry.
+	 */
+	private static Matcher<Map<?, ?>> buildMdcMatcher(final boolean withDataLoggedInContext,
+													  final String expectedMethodName,
+													  final String expectedOutputValue) {
+		Matcher<Map<?, ?>> mdcMatcher = hasProperty("mdc", anEmptyMap());
+		if (withDataLoggedInContext) {
+			mdcMatcher = hasProperty("mdc", allOf(
+				aMapWithSize(2),
+				hasEntry("invokedMethod", expectedMethodName),
+				hasEntry("outputValue", expectedOutputValue)
+			));
+		}
+		return mdcMatcher;
+	}
 }

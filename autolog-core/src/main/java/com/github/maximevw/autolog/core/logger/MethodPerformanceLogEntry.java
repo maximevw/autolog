@@ -139,6 +139,15 @@ public class MethodPerformanceLogEntry {
 	}
 
 	/**
+	 * Whether the log entry has comments.
+	 *
+	 * @return {@code true} if the log entry has at least one comment, {@code false} otherwise.
+	 */
+	public boolean hasComments() {
+		return comments != null && !comments.isEmpty();
+	}
+
+	/**
 	 * Calculates the average duration of processing for one item (when the number of processed items is defined).
 	 */
 	public void computeAverageExecutionTime() {

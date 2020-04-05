@@ -23,8 +23,11 @@ package com.github.maximevw.autolog.core.annotations;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.LogLevel;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
+import net.logstash.logback.argument.StructuredArguments;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
+import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -224,8 +227,25 @@ public @interface AutoLogPerformance {
 
 	/**
 	 * @return Whether the format of the logged message is fully structured (using the format defined by the parameter
-	 * {@link #prettyFormat()}) and not "human readable".
+	 * {@link #prettyFormat()}) and not "human readable". By default: {@code false}.
 	 */
 	boolean structuredMessage() default false;
 
+	/**
+	 * @return Whether the performance data should also be logged into the log context when it is possible (i.e.
+	 * 		   using {@link MDC} for SLF4J implementations, {@link StructuredArguments} for Logback with Logstash
+	 * 		   encoder or {@link CloseableThreadContext} for Log4j2). By default: {@code false}.
+	 * 		   <p>
+	 * 		       The data stored in the log context are:
+	 * 		       <ul>
+	 * 		           <li>method name (property {@code invokedMethod})</li>
+	 * 		           <li>duration of the execution in milliseconds (property {@code executionTimeInMs})</li>
+	 * 		           <li>execution status (property {@code failed})</li>
+	 * 		           <li>comments (if available, property {@code comments})</li>
+	 * 		           <li>number of processed items (if available, property {@code processedItems})</li>
+	 * 		       </ul>
+	 * 		   </p>
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	boolean logDataInContext() default false;
 }

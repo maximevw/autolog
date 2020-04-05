@@ -22,6 +22,8 @@ package com.github.maximevw.autolog.core.logger;
 
 import org.apiguardian.api.API;
 
+import java.util.Map;
+
 /**
  * Interface wrapping a real logger instance.
  * <p>
@@ -47,12 +49,40 @@ public interface LoggerInterface {
 	void trace(String format, Object... arguments);
 
 	/**
+	 * Logs a message at the TRACE level, including structured contextual data, according to the specified format and
+	 * arguments.
+	 *
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	default void trace(String format, Map<String, String> contextualData, Object... arguments) {
+		trace(format, arguments);
+	}
+
+	/**
 	 * Logs a message at the DEBUG level according to the specified format and arguments.
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
 	 */
 	void debug(String format, Object... arguments);
+
+	/**
+	 * Logs a message at the DEBUG level, including structured contextual data, according to the specified format and
+	 * arguments.
+	 *
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #debug(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	default void debug(String format, Map<String, String> contextualData, Object... arguments) {
+		debug(format, arguments);
+	}
 
 	/**
 	 * Logs a message at the INFO level according to the specified format and arguments.
@@ -63,12 +93,40 @@ public interface LoggerInterface {
 	void info(String format, Object... arguments);
 
 	/**
+	 * Logs a message at the INFO level, including structured contextual data, according to the specified format and
+	 * arguments.
+	 *
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #info(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	default void info(String format, Map<String, String> contextualData, Object... arguments) {
+		info(format, arguments);
+	}
+
+	/**
 	 * Logs a message at the WARN level according to the specified format and arguments.
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
 	 */
 	void warn(String format, Object... arguments);
+
+	/**
+	 * Logs a message at the WARN level, including structured contextual data, according to the specified format and
+	 * arguments.
+	 *
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #warn(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	default void warn(String format, Map<String, String> contextualData, Object... arguments) {
+		warn(format, arguments);
+	}
 
 	/**
 	 * Logs a message at the ERROR level according to the specified format and arguments.
@@ -78,4 +136,17 @@ public interface LoggerInterface {
 	 */
 	void error(String format, Object... arguments);
 
+	/**
+	 * Logs a message at the WARN level, including structured contextual data, according to the specified format and
+	 * arguments.
+	 *
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #error(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	default void error(String format, Map<String, String> contextualData, Object... arguments) {
+		error(format, arguments);
+	}
 }

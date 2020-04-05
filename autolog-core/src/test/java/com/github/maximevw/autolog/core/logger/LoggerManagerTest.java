@@ -23,6 +23,7 @@ package com.github.maximevw.autolog.core.logger;
 import com.github.maximevw.autolog.core.logger.adapters.JavaLoggerAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4jAdapter;
+import com.github.maximevw.autolog.core.logger.adapters.LogbackWithLogstashAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Slf4jAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.SystemOutAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.XSlf4jAdapter;
@@ -32,17 +33,20 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -58,6 +62,7 @@ class LoggerManagerTest {
 	private static Log4jAdapter log4jAdapter;
 	private static Log4j2Adapter log4j2Adapter;
 	private static JavaLoggerAdapter javaLogAdapter;
+	private static LogbackWithLogstashAdapter logbackWithLogstashAdapter;
 
 	private LoggerManager sut;
 
@@ -87,6 +92,7 @@ class LoggerManagerTest {
 		log4jAdapter = spy(Log4jAdapter.getInstance());
 		log4j2Adapter = spy(Log4j2Adapter.getInstance());
 		javaLogAdapter = spy(JavaLoggerAdapter.getInstance());
+		logbackWithLogstashAdapter = spy(LogbackWithLogstashAdapter.getInstance());
 	}
 
 	/**
@@ -107,6 +113,7 @@ class LoggerManagerTest {
 	void givenAlreadyRegisteredLoggerInterface_whenRegister_ignoresItAndWarns() {
 		assertThat(sut.getRegisteredLoggers(), is(empty()));
 		final LoggerInterface loggerInterface = mock(LoggerInterface.class);
+		// For test purpose, register twice the same logger interface.
 		sut.register(loggerInterface);
 		sut.register(loggerInterface);
 		assertThat(stdOut.toString(), containsString(
@@ -136,9 +143,23 @@ class LoggerManagerTest {
 	 */
 	private Set<LoggerInterface> prepareLogWithLevelTest(final LogLevel level) {
 		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4jAdapter,
-			log4j2Adapter, javaLogAdapter);
+			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		sut.logWithLevel(level, "This is a test: {}.", level.name());
+		return loggers;
+	}
+
+	/**
+	 * Registers all the available loggers able to manage a log context in the {@link LoggerManager} then logs a
+	 * message with a specified level and contextual data.
+	 *
+	 * @param level The log level to use.
+	 * @return The set of registered loggers.
+	 */
+	private Set<LoggerInterface> prepareLogWithLevelAndContextualDataTest(final LogLevel level) {
+		final Set<LoggerInterface> loggers = Set.of(slf4jAdapter, log4j2Adapter, logbackWithLogstashAdapter);
+		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
+		sut.logWithLevel(level, "This is a test: {}.", Map.of("testContext", level.name()), level.name());
 		return loggers;
 	}
 
@@ -164,6 +185,29 @@ class LoggerManagerTest {
 	}
 
 	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level TRACE is
+	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#trace(String, Map, Object...)} is invoked.
+	 *
+	 * @param loggerInterface The logger interface to check.
+	 */
+	private void verifyLogTraceWithContextualDataCalled(final LoggerInterface loggerInterface) {
+		verify(loggerInterface, times(1)).trace(eq("This is a test: {}."),
+			argThat(argument -> argument.containsKey("testContext")
+				&& argument.get("testContext").equals(LogLevel.TRACE.name())), eq(LogLevel.TRACE.name()));
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level TRACE is
+	 * effectively logged by each logger registered in the {@link LoggerManager}.
+	 */
+	@Test
+	void givenLoggerManagerWithAdapters_whenLogTraceWithContextualData_callsLogMethodInEachAdapter() {
+		final Set<LoggerInterface> loggers = prepareLogWithLevelAndContextualDataTest(LogLevel.TRACE);
+		loggers.forEach(this::verifyLogTraceWithContextualDataCalled);
+	}
+
+	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level DEBUG is effectively
 	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#debug(String, Object...)} is
 	 * invoked.
@@ -182,6 +226,29 @@ class LoggerManagerTest {
 	void givenLoggerManagerWithAdapters_whenLogDebug_callsLogMethodInEachAdapter() {
 		final Set<LoggerInterface> loggers = prepareLogWithLevelTest(LogLevel.DEBUG);
 		loggers.forEach(this::verifyLogDebugCalled);
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level DEBUG is
+	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#debug(String, Map, Object...)} is invoked.
+	 *
+	 * @param loggerInterface The logger interface to check.
+	 */
+	private void verifyLogDebugWithContextualDataCalled(final LoggerInterface loggerInterface) {
+		verify(loggerInterface, times(1)).debug(eq("This is a test: {}."),
+			argThat(argument -> argument.containsKey("testContext")
+				&& argument.get("testContext").equals(LogLevel.DEBUG.name())), eq(LogLevel.DEBUG.name()));
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level DEBUG is
+	 * effectively logged by each logger registered in the {@link LoggerManager}.
+	 */
+	@Test
+	void givenLoggerManagerWithAdapters_whenLogDebugWithContextualData_callsLogMethodInEachAdapter() {
+		final Set<LoggerInterface> loggers = prepareLogWithLevelAndContextualDataTest(LogLevel.DEBUG);
+		loggers.forEach(this::verifyLogDebugWithContextualDataCalled);
 	}
 
 	/**
@@ -206,6 +273,29 @@ class LoggerManagerTest {
 	}
 
 	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level INFO is
+	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#info(String, Map, Object...)} is invoked.
+	 *
+	 * @param loggerInterface The logger interface to check.
+	 */
+	private void verifyLogInfoWithContextualDataCalled(final LoggerInterface loggerInterface) {
+		verify(loggerInterface, times(1)).info(eq("This is a test: {}."),
+			argThat(argument -> argument.containsKey("testContext")
+				&& argument.get("testContext").equals(LogLevel.INFO.name())), eq(LogLevel.INFO.name()));
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level INFO is
+	 * effectively logged by each logger registered in the {@link LoggerManager}.
+	 */
+	@Test
+	void givenLoggerManagerWithAdapters_whenLogInfoWithContextualData_callsLogMethodInEachAdapter() {
+		final Set<LoggerInterface> loggers = prepareLogWithLevelAndContextualDataTest(LogLevel.INFO);
+		loggers.forEach(this::verifyLogInfoWithContextualDataCalled);
+	}
+
+	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level WARN is effectively
 	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#warn(String, Object...)} is
 	 * invoked.
@@ -224,6 +314,29 @@ class LoggerManagerTest {
 	void givenLoggerManagerWithAdapters_whenLogWarn_callsLogMethodInEachAdapter() {
 		final Set<LoggerInterface> loggers = prepareLogWithLevelTest(LogLevel.WARN);
 		loggers.forEach(this::verifyLogWarnCalled);
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level WARN is
+	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#warn(String, Map, Object...)} is invoked.
+	 *
+	 * @param loggerInterface The logger interface to check.
+	 */
+	private void verifyLogWarnWithContextualDataCalled(final LoggerInterface loggerInterface) {
+		verify(loggerInterface, times(1)).warn(eq("This is a test: {}."),
+			argThat(argument -> argument.containsKey("testContext")
+				&& argument.get("testContext").equals(LogLevel.WARN.name())), eq(LogLevel.WARN.name()));
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level WARN is
+	 * effectively logged by each logger registered in the {@link LoggerManager}.
+	 */
+	@Test
+	void givenLoggerManagerWithAdapters_whenLogWarnWithContextualData_callsLogMethodInEachAdapter() {
+		final Set<LoggerInterface> loggers = prepareLogWithLevelAndContextualDataTest(LogLevel.WARN);
+		loggers.forEach(this::verifyLogWarnWithContextualDataCalled);
 	}
 
 	/**
@@ -248,6 +361,29 @@ class LoggerManagerTest {
 	}
 
 	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level ERROR is
+	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#error(String, Map, Object...)} is invoked.
+	 *
+	 * @param loggerInterface The logger interface to check.
+	 */
+	private void verifyLogErrorWithContextualDataCalled(final LoggerInterface loggerInterface) {
+		verify(loggerInterface, times(1)).error(eq("This is a test: {}."),
+			argThat(argument -> argument.containsKey("testContext")
+				&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(LogLevel.ERROR.name()));
+	}
+
+	/**
+	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level ERROR is
+	 * effectively logged by each logger registered in the {@link LoggerManager}.
+	 */
+	@Test
+	void givenLoggerManagerWithAdapters_whenLogErrorWithContextualData_callsLogMethodInEachAdapter() {
+		final Set<LoggerInterface> loggers = prepareLogWithLevelAndContextualDataTest(LogLevel.ERROR);
+		loggers.forEach(this::verifyLogErrorWithContextualDataCalled);
+	}
+
+	/**
 	 * Verifies that logging a message and a {@link Throwable} at level ERROR is effectively logged each loggers
 	 * registered in the {@link LoggerManager}, i.e. the method {@link LoggerInterface#error(String, Object...)} is
 	 * invoked.
@@ -255,12 +391,28 @@ class LoggerManagerTest {
 	@Test
 	void givenLoggerManagerWithAdapters_whenLogThrowable_callsLogMethodInEachAdapter() {
 		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4jAdapter,
-			log4j2Adapter, javaLogAdapter);
+			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", throwable);
 		loggers.forEach(loggerInterface -> verify(loggerInterface, only()).error(eq("This is a test."), eq(throwable)));
 		// Check that the stack trace is printed by SystemOutAdapter.
 		verify(throwable, atLeastOnce()).printStackTrace();
+	}
+
+	/**
+	 * Verifies that logging a message and a {@link Throwable} with contextual data at level ERROR is effectively
+	 * logged each loggers able to manage a log context registered in the {@link LoggerManager}, i.e. the method
+	 * {@link LoggerInterface#error(String, Map, Object...)} is invoked.
+	 */
+	@Test
+	void givenLoggerManagerWithAdapters_whenLogThrowableWithContextualData_callsLogMethodInEachAdapter() {
+		final Set<LoggerInterface> loggers = Set.of(slf4jAdapter, log4j2Adapter, logbackWithLogstashAdapter);
+		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
+		final Throwable throwable = spy(new Throwable("Something went wrong."));
+		sut.logWithLevel(LogLevel.ERROR, "This is a test.", Map.of("testContext", LogLevel.ERROR.name()), throwable);
+		loggers.forEach(loggerInterface -> verify(loggerInterface, times(1))
+			.error(eq("This is a test."), argThat(argument -> argument.containsKey("testContext")
+				&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(throwable)));
 	}
 }

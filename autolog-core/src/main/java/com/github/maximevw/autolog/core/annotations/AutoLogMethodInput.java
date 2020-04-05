@@ -22,7 +22,10 @@ package com.github.maximevw.autolog.core.annotations;
 
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.LogLevel;
+import net.logstash.logback.argument.StructuredArguments;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
+import org.slf4j.MDC;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -182,7 +185,7 @@ public @interface AutoLogMethodInput {
 	/**
 	 * @return Whether the format of the logged message is fully structured (using the format defined by the parameter
 	 *         {@link #prettyFormat()}) and not "human readable" (that's to say using the message template defined by
-	 *         the parameter {@link #messageTemplate()}).
+	 *         the parameter {@link #messageTemplate()}). By default: {@code false}.
 	 * <p>
 	 *     <i>Note: </i>When the structured format is active, the values of the following parameters are ignored:
 	 *     {@link #messageTemplate()} and {@link #prettify()}.
@@ -191,4 +194,20 @@ public @interface AutoLogMethodInput {
 	 * @see com.github.maximevw.autolog.core.logger.MethodInputLogEntry
 	 */
 	boolean structuredMessage() default false;
+
+	/**
+	 * @return Whether the input data should also be logged into the log context when it is possible (i.e. using
+	 * 		   {@link MDC} for SLF4J implementations, {@link StructuredArguments} for Logback with Logstash encoder or
+	 * 		   {@link CloseableThreadContext} for Log4j2). By default: {@code false}.
+	 * 		   <p>
+	 * 		       The data stored in the log context are:
+	 * 		       <ul>
+	 * 		           <li>method name (property {@code invokedMethod})</li>
+	 * 		           <li>the values of the method arguments in accordance with the rules defined by the other
+	 * 		           parameters of this annotation.</li>
+	 * 		       </ul>
+	 * 		   </p>
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	boolean logDataInContext() default false;
 }

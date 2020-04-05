@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class manages the loggers used by Autolog.
@@ -82,22 +83,50 @@ public class LoggerManager {
 	/**
 	 * Logs a message with the specified log level.
 	 *
-	 * @param logLevel  The level to use for logging.
-	 * @param message   The message to log. It can contains placeholders ("<code>{}</code>") which will be replaced by
-	 *                  values of {@code arguments}.
-	 *                  <p>
-	 *                  	<i>Note:</i> The message template syntax is the same as the one used by SLF4J.
-	 *                  </p>
-	 * @param arguments The arguments to include in the log message.
+	 * @param logLevel  		The level to use for logging.
+	 * @param message   		The message to log. It can contains placeholders ("<code>{}</code>") which will be
+	 *                          replaced by values of {@code arguments}.
+	 *                          <p>
+	 *                              <i>Note:</i> The message template syntax is the same as the one used by SLF4J.
+	 *                  		</p>
+	 * @param arguments 		The arguments to include in the log message.
 	 * @see org.slf4j.Logger
 	 * @see org.slf4j.helpers.MessageFormatter
 	 */
 	void logWithLevel(final LogLevel logLevel, final String message, final Object... arguments) {
+		logWithLevel(logLevel, message, null, arguments);
+	}
+
+	/**
+	 * Logs a message with the specified log level and the given contextual values.
+	 *
+	 * @param logLevel  		The level to use for logging.
+	 * @param message   		The message to log. It can contains placeholders ("<code>{}</code>") which will be
+	 *                          replaced by values of {@code arguments}.
+	 *                          <p>
+	 *                              <i>Note:</i> The message template syntax is the same as the one used by SLF4J.
+	 *                  		</p>
+	 * @param contextualData 	The structured data stored into the log context, when it is possible (see
+	 *                          implementations of {@link LoggerInterface} for details).
+	 * @param arguments 		The arguments to include in the log message.
+	 * @see org.slf4j.Logger
+	 * @see org.slf4j.helpers.MessageFormatter
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	void logWithLevel(final LogLevel logLevel, final String message, final Map<String, String> contextualData,
+					  final Object... arguments) {
 		final String logMethodName = logLevel.name().toLowerCase();
 		this.registeredLoggers.forEach(logger -> {
 			try {
-				final Method logMethod = logger.getClass().getMethod(logMethodName, String.class, Object[].class);
-				logMethod.invoke(logger, StringUtils.defaultString(message, StringUtils.EMPTY), arguments);
+				final Method logMethod;
+				if (contextualData == null) {
+					logMethod = logger.getClass().getMethod(logMethodName, String.class, Object[].class);
+					logMethod.invoke(logger, StringUtils.defaultString(message, StringUtils.EMPTY), arguments);
+				} else {
+					logMethod = logger.getClass().getMethod(logMethodName, String.class, Map.class, Object[].class);
+					logMethod.invoke(logger, StringUtils.defaultString(message, StringUtils.EMPTY), contextualData,
+						arguments);
+				}
 			} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				LoggingUtils.reportError(String.format("Unable to invoke logging method %s() on class: %s.",
 					logLevel.name().toLowerCase(), logger.getClass().getName()), e);

@@ -84,6 +84,16 @@
             <artifactId>log4j-api</artifactId>
         </dependency>
 
+        <!-- Logback and Logstash encoder -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.mockito</groupId>

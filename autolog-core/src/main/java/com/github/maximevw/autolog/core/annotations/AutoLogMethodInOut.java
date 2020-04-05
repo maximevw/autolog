@@ -22,7 +22,10 @@ package com.github.maximevw.autolog.core.annotations;
 
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.LogLevel;
+import net.logstash.logback.argument.StructuredArguments;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
+import org.slf4j.MDC;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -267,7 +270,7 @@ public @interface AutoLogMethodInOut {
 	 * @return Whether the format of the logged message is fully structured (using the format defined by the parameter
 	 *         {@link #prettyFormat()}) and not "human readable" (that's to say using the message templates defined by
 	 *         the parameters {@link #inputMessageTemplate()}, {@link #outputMessageTemplate()} and
-	 *         {@link #voidOutputMessageTemplate()}).
+	 *         {@link #voidOutputMessageTemplate()}). By default: {@code false}.
 	 * <p>
 	 *     <i>Note: </i>When the structured format is active, the values of the following parameters are ignored:
 	 *     {@link #inputMessageTemplate()}, {@link #outputMessageTemplate()}, {@link #voidOutputMessageTemplate()},
@@ -278,4 +281,26 @@ public @interface AutoLogMethodInOut {
 	 * @see com.github.maximevw.autolog.core.logger.MethodOutputLogEntry
 	 */
 	boolean structuredMessage() default false;
+
+	/**
+	 * @return Whether the input and output data should also be logged into the log context when it is possible (i.e.
+	 * 		   using {@link MDC} for SLF4J implementations, {@link StructuredArguments} for Logback with Logstash
+	 * 		   encoder or {@link CloseableThreadContext} for Log4j2). By default: {@code false}.
+	 * 		   <p>
+	 * 		       The data stored in the log context are:
+	 * 		       <ul>
+	 * 		           <li>method name (property {@code invokedMethod})</li>
+	 * 		           <li>for the input of the method, the values of the method arguments in accordance with the
+	 * 		           rules defined by the other parameters of this annotation.</li>
+	 * 		           <li>for the output of the method, the output value of the method (property {@code outputValue})
+	 * 		           in accordance with the rules defined by the other parameters of this annotation. If the method
+	 * 		           returns nothing, the property {@code outputValue} will be set to {@code void}.</li>
+	 * 		           <li>if an exception or an error is thrown by the invoked method, the class of the exception
+	 * 		           is stored in the property {@code throwableType} and the property {@code outputValue} will be
+	 * 		           set to {@code n/a}.</li>
+	 * 		       </ul>
+	 * 		   </p>
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	boolean logDataInContext() default false;
 }

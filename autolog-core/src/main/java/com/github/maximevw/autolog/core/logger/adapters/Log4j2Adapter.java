@@ -22,8 +22,11 @@ package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.Logger;
 import org.apiguardian.api.API;
+
+import java.util.Map;
 
 /**
  * This class wraps an instance of {@link Logger} to be used by Autolog.
@@ -51,8 +54,22 @@ public class Log4j2Adapter implements LoggerInterface {
 	}
 
 	@Override
+	public void trace(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
+			trace(format, arguments);
+		}
+	}
+
+	@Override
 	public void debug(final String format, final Object... arguments) {
 		log.debug(format, arguments);
+	}
+
+	@Override
+	public void debug(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
+			debug(format, arguments);
+		}
 	}
 
 	@Override
@@ -61,13 +78,34 @@ public class Log4j2Adapter implements LoggerInterface {
 	}
 
 	@Override
+	public void info(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
+			info(format, arguments);
+		}
+	}
+
+	@Override
 	public void warn(final String format, final Object... arguments) {
 		log.warn(format, arguments);
 	}
 
 	@Override
+	public void warn(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
+			warn(format, arguments);
+		}
+	}
+
+	@Override
 	public void error(final String format, final Object... arguments) {
 		log.error(format, arguments);
+	}
+
+	@Override
+	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
+			error(format, arguments);
+		}
 	}
 
 	private static class Log4j2AdapterInstanceHolder {

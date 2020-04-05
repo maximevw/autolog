@@ -29,7 +29,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.logstash.logback.argument.StructuredArguments;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
+import org.slf4j.MDC;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -122,7 +125,7 @@ public class MethodOutputLoggingConfiguration {
 	/**
 	 * Whether the format of the logged message is fully structured (using the format defined by the parameter
 	 * {@link #getPrettyFormat()}) and not "human readable" (that's to say using the message templates defined by the
-	 * parameters {@link #getMessageTemplate()} and {@link #getVoidOutputMessageTemplate()}).
+	 * parameters {@link #getMessageTemplate()} and {@link #getVoidOutputMessageTemplate()}). By default: {@code false}.
 	 * <p>
 	 *     <i>Note: </i>When the structured format is active, the values of the following parameters are ignored:
 	 *     {@link #getMessageTemplate()} and {@link #getVoidOutputMessageTemplate()}.
@@ -132,6 +135,26 @@ public class MethodOutputLoggingConfiguration {
 	 */
 	@Builder.Default
 	private boolean structuredMessage = false;
+
+	/**
+	 * Whether the output data should also be logged into the log context when it is possible (i.e. using {@link MDC}
+	 * for SLF4J implementations, {@link StructuredArguments} for Logback with Logstash encoder or
+	 * {@link CloseableThreadContext} for Log4j2). By default: {@code false}.
+	 * <p>
+	 *     The data stored in the log context are:
+	 *     <ul>
+	 *         <li>method name (property {@code invokedMethod})</li>
+	 *         <li>the output value of the method (property {@code outputValue}) in accordance with the rules defined by
+	 *         the other parameters of this annotation. If the method returns nothing, the property {@code outputValue}
+	 *         will be set to {@code void}.</li>
+	 * 		   <li>if an exception or an error is thrown by the invoked method, the class of the exception is stored in
+	 * 		   the property {@code throwableType} and the property {@code outputValue} will be set to {@code n/a}.</li>
+	 *     </ul>
+	 *  </p>
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Builder.Default
+	private boolean dataLoggedInContext = false;
 
     /**
      * Builds a new instance of configuration for auto-logging of output value of methods calls based on an annotation
@@ -158,6 +181,7 @@ public class MethodOutputLoggingConfiguration {
                 .prettyFormat(prettyDataFormat)
                 .throwableLogged(autoLogMethodInOut.logThrowable())
 				.structuredMessage(autoLogMethodInOut.structuredMessage())
+				.dataLoggedInContext(autoLogMethodInOut.logDataInContext())
                 .build();
     }
 
@@ -178,6 +202,7 @@ public class MethodOutputLoggingConfiguration {
                 .prettyFormat(autoLogMethodOutput.prettyFormat())
                 .throwableLogged(autoLogMethodOutput.logThrowable())
 				.structuredMessage(autoLogMethodOutput.structuredMessage())
+				.dataLoggedInContext(autoLogMethodOutput.logDataInContext())
                 .build();
     }
 }

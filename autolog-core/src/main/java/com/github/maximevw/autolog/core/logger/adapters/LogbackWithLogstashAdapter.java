@@ -2,7 +2,7 @@
  * #%L
  * Autolog core module
  * %%
- * Copyright (C) 2019 Maxime WIEWIORA
+ * Copyright (C) 2019 - 2020 Maxime WIEWIORA
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,35 +22,38 @@ package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
 import lombok.extern.slf4j.Slf4j;
+import net.logstash.logback.argument.StructuredArgument;
+import net.logstash.logback.encoder.LogstashEncoder;
 import org.apiguardian.api.API;
 import org.slf4j.Logger;
-import org.slf4j.MDC;
-import org.slf4j.MDC.MDCCloseable;
 
-import java.io.Closeable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 /**
- * This class wraps an instance of {@link Logger} to be used by Autolog.
+ * This class wraps an instance of {@link Logger} (using Logback implementation with {@link LogstashEncoder}) to be
+ * used by Autolog.
+ * <p>
+ *     If you are using Logback implementation of SLF4J without {@link LogstashEncoder}, use {@link Slf4jAdapter}
+ *     instead.
+ * </p>
  */
-@API(status = API.Status.STABLE, since = "1.0.0")
+@API(status = API.Status.STABLE, since = "1.1.0")
 @Slf4j(topic = "Autolog")
-public class Slf4jAdapter implements LoggerInterface {
+public class LogbackWithLogstashAdapter implements LoggerInterface {
 
-	private Slf4jAdapter() {
+	private LogbackWithLogstashAdapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
 	}
 
 	/**
-	 * Gets an instance of the SLF4J wrapper for Autolog.
+	 * Gets an instance of the Logback with Logstash encoder wrapper for Autolog.
 	 *
-	 * @return A singleton instance of the SLF4J wrapper.
+	 * @return A singleton instance of the Logback with Logstash encoder wrapper.
 	 */
-	public static Slf4jAdapter getInstance() {
-		return Slf4jAdapterInstanceHolder.INSTANCE;
+	public static LogbackWithLogstashAdapter getInstance() {
+		return LogbackWithLogstashAdapterInstanceHolder.INSTANCE;
 	}
 
 	@Override
@@ -60,9 +63,7 @@ public class Slf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		try (var ignored = buildMdcCloseable(contextualData)) {
-			trace(format, arguments);
-		}
+		trace(format, arguments, toStructuredArguments(contextualData));
 	}
 
 	@Override
@@ -72,9 +73,7 @@ public class Slf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void debug(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		try (var ignored = buildMdcCloseable(contextualData)) {
-			debug(format, arguments);
-		}
+		debug(format, arguments, toStructuredArguments(contextualData));
 	}
 
 	@Override
@@ -84,9 +83,7 @@ public class Slf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void info(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		try (var ignored = buildMdcCloseable(contextualData)) {
-			info(format, arguments);
-		}
+		info(format, arguments, toStructuredArguments(contextualData));
 	}
 
 	@Override
@@ -96,9 +93,7 @@ public class Slf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void warn(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		try (var ignored = buildMdcCloseable(contextualData)) {
-			warn(format, arguments);
-		}
+		warn(format, arguments, toStructuredArguments(contextualData));
 	}
 
 	@Override
@@ -108,44 +103,24 @@ public class Slf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		try (var ignored = buildMdcCloseable(contextualData)) {
-			error(format, arguments);
-		}
+		error(format, arguments, toStructuredArguments(contextualData));
 	}
 
 	/**
-	 * Populates Mapped Diagnostic Context ({@link MDC}) with provided data and returns a list of {@link MDCCloseable}
-	 * wrapped into a {@link MDCCloseables} instance.
+	 * Maps the data to store in the log context to an array of {@link StructuredArgument} passed as argument of the
+	 * logging method.
 	 *
-	 * @param contextualData The data to store into the log context.
-	 * @return A {@link MDCCloseables} instance.
+	 * @param contextualData The structured data stored into the log context.
+	 * @return An array of {@link StructuredArgument}.
 	 */
-	private MDCCloseables buildMdcCloseable(final Map<String, String> contextualData) {
-		return new MDCCloseables(
-			contextualData.entrySet().stream()
-				.map(entry -> MDC.putCloseable(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList())
-		);
+	private Object[] toStructuredArguments(final Map<String, String> contextualData) {
+		return contextualData.entrySet().stream()
+			.map(entry -> keyValue(entry.getKey(), entry.getValue()))
+			.toArray();
 	}
 
-	private static class Slf4jAdapterInstanceHolder {
-		private static final Slf4jAdapter INSTANCE = new Slf4jAdapter();
-	}
-
-	/**
-	 * {@link Closeable} class wrapping a list of {@link MDCCloseable} instances.
-	 */
-	private static class MDCCloseables implements Closeable {
-		private List<MDCCloseable> mdcCloseables = new ArrayList<>();
-
-		MDCCloseables(final List<MDCCloseable> mdcCloseables) {
-			this.mdcCloseables.addAll(mdcCloseables);
-		}
-
-		@Override
-		public void close() {
-			mdcCloseables.forEach(MDCCloseable::close);
-		}
+	private static class LogbackWithLogstashAdapterInstanceHolder {
+		private static final LogbackWithLogstashAdapter INSTANCE = new LogbackWithLogstashAdapter();
 	}
 
 }

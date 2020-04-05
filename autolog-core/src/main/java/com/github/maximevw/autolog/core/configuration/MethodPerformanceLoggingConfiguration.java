@@ -29,8 +29,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.logstash.logback.argument.StructuredArguments;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
+import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -174,12 +177,31 @@ public class MethodPerformanceLoggingConfiguration {
 
 	/**
 	 * Whether the format of the logged message is fully structured (using the format defined by the parameter
-	 * {@link #getPrettyFormat()}) and not "human readable".
+	 * {@link #getPrettyFormat()}) and not "human readable". By default: {@code false}.
 	 *
 	 * @see com.github.maximevw.autolog.core.logger.MethodPerformanceLogEntry
 	 */
 	@Builder.Default
 	private boolean structuredMessage = false;
+
+	/**
+	 * Whether the performance data should also be logged into the log context when it is possible (i.e. using
+	 * {@link MDC} for SLF4J implementations, {@link StructuredArguments} for Logback with Logstash encoder or
+	 * {@link CloseableThreadContext} for Log4j2). By default: {@code false}.
+	 * <p>
+	 *     The data stored in the log context are:
+	 *     <ul>
+	 *         <li>method name (property {@code invokedMethod})</li>
+	 * 		   <li>duration of the execution in milliseconds (property {@code executionTimeInMs})</li>
+	 * 		   <li>execution status (property {@code failed})</li>
+	 * 		   <li>comments (if available, property {@code comments})</li>
+	 * 		   <li>number of processed items (if available, property {@code processedItems})</li>
+	 *     </ul>
+	 *  </p>
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Builder.Default
+	private boolean dataLoggedInContext = false;
 
 	/**
 	 * Builds a new instance of configuration for auto-logging of performance data of methods invocations based on an
@@ -200,6 +222,7 @@ public class MethodPerformanceLoggingConfiguration {
 			.additionalDataProvider(autoLogPerformance.additionalDataProvider())
 			.prettyFormat(autoLogPerformance.prettyFormat())
 			.structuredMessage(autoLogPerformance.structuredMessage())
+			.dataLoggedInContext(autoLogPerformance.logDataInContext())
 			.build();
 	}
 }

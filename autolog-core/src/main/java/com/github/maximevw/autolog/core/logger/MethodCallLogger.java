@@ -32,7 +32,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,8 @@ import java.util.stream.Collectors;
  */
 @API(status = API.Status.STABLE, since = "1.0.0")
 public class MethodCallLogger {
+
+	private static final String INVOKED_METHOD_PROPERTY = "invokedMethod";
 
 	private LoggerManager loggerManager;
 
@@ -111,17 +115,32 @@ public class MethodCallLogger {
      */
     public void logMethodInput(@NonNull final MethodInputLoggingConfiguration configuration,
                                @NonNull final String methodName, @NonNull final List<Pair<String, Object>> args) {
+		final Map<String, String> methodArgsMap = LoggingUtils.mapMethodArguments(args, configuration);
+
+		// Build the map of data to store in the log context if required.
+		Map<String, String> contextualData = null;
+		if (configuration.isDataLoggedInContext()) {
+			contextualData = new HashMap<>() {
+				{
+					put(INVOKED_METHOD_PROPERTY, methodName);
+					putAll(methodArgsMap);
+				}
+			};
+		}
+
+	    // Effectively log the input data.
     	if (configuration.isStructuredMessage()) {
     		final MethodInputLogEntry structuredMessage = MethodInputLogEntry.builder()
 				.calledMethod(methodName)
-				.inputParameters(LoggingUtils.mapMethodArguments(args, configuration))
+				.inputParameters(methodArgsMap)
 				.build();
     		loggerManager.logWithLevel(configuration.getLogLevel(),
 				LoggingUtils.prettify(structuredMessage,
-					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)));
+					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
+				contextualData);
 		} else {
-			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getMessageTemplate(), methodName,
-				LoggingUtils.formatMethodArguments(args, configuration));
+			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getMessageTemplate(), contextualData,
+				methodName, LoggingUtils.formatMethodArguments(args, configuration));
 		}
     }
 
@@ -159,6 +178,13 @@ public class MethodCallLogger {
     	final String formattedOutputValue = LoggingUtils.formatData(outputValue, configuration.getPrettyFormat(),
 			configuration.isCollectionsAndMapsExpanded());
 
+		// Build the map of data to store in the log context if required.
+		Map<String, String> contextualData = null;
+		if (configuration.isDataLoggedInContext()) {
+			contextualData = buildOutputContextualData(methodName, formattedOutputValue);
+		}
+
+		// Effectively log the output data.
 		if (configuration.isStructuredMessage()) {
 			final MethodOutputLogEntry structuredMessage = MethodOutputLogEntry.builder()
 				.calledMethod(methodName)
@@ -166,10 +192,11 @@ public class MethodCallLogger {
 				.build();
 			loggerManager.logWithLevel(configuration.getLogLevel(),
 				LoggingUtils.prettify(structuredMessage,
-					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)));
+					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
+				contextualData);
 		} else {
-			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getMessageTemplate(), methodName,
-				formattedOutputValue);
+			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getMessageTemplate(), contextualData,
+				methodName, formattedOutputValue);
 		}
     }
 
@@ -186,6 +213,13 @@ public class MethodCallLogger {
      */
     public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
                                 @NonNull final String methodName) {
+		// Build the map of data to store in the log context if required.
+		Map<String, String> contextualData = null;
+		if (configuration.isDataLoggedInContext()) {
+			contextualData = buildOutputContextualData(methodName, Void.TYPE.getName());
+		}
+
+		// Effectively log the output data.
 		if (configuration.isStructuredMessage()) {
 			final MethodOutputLogEntry structuredMessage = MethodOutputLogEntry.builder()
 				.calledMethod(methodName)
@@ -193,10 +227,11 @@ public class MethodCallLogger {
 				.build();
 			loggerManager.logWithLevel(configuration.getLogLevel(),
 				LoggingUtils.prettify(structuredMessage,
-					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)));
+					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
+				contextualData);
 		} else {
 			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getVoidOutputMessageTemplate(),
-				methodName);
+				contextualData, methodName);
 		}
     }
 
@@ -209,9 +244,18 @@ public class MethodCallLogger {
      */
     public void logThrowable(@NonNull final MethodOutputLoggingConfiguration configuration,
 							 @NonNull final Method method, @NonNull final Throwable throwable) {
+    	final String methodName = LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed());
+
+		// Build the map of data to store in the log context if required.
+		Map<String, String> contextualData = null;
+		if (configuration.isDataLoggedInContext()) {
+			contextualData = buildThrowableContextualData(methodName, throwable.getClass());
+		}
+
+		// Effectively log the Throwable.
 		if (configuration.isStructuredMessage()) {
 			final MethodOutputLogEntry structuredMessage = MethodOutputLogEntry.builder()
-				.calledMethod(LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()))
+				.calledMethod(methodName)
 				.thrown(throwable.getClass())
 				.thrownMessage(throwable.getMessage())
 				.stackTrace(Arrays.stream(throwable.getStackTrace())
@@ -220,20 +264,66 @@ public class MethodCallLogger {
 				.build();
 			loggerManager.logWithLevel(LogLevel.ERROR,
 				LoggingUtils.prettify(structuredMessage,
-					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)));
+					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
+				contextualData);
 		} else {
-			logThrowable(throwable);
+			logThrowable(throwable, contextualData);
 		}
     }
 
     /**
      * Logs an exception or an error thrown during a method invocation.
      *
-     * @param throwable The exception or error to log.
+     * @param throwable 	 The exception or error to log.
+     * @param contextualData The data to store into the log context.
      */
-    public void logThrowable(@NonNull final Throwable throwable) {
+    public void logThrowable(@NonNull final Throwable throwable, final Map<String, String> contextualData) {
     	loggerManager.logWithLevel(LogLevel.ERROR, MethodOutputLoggingConfiguration.THROWABLE_MESSAGE_TEMPLATE,
-			throwable.getClass().getName(), throwable.getMessage(), throwable);
+			contextualData, throwable.getClass().getName(), throwable.getMessage(), throwable);
     }
+
+	/**
+	 * Logs an exception or an error thrown during a method invocation.
+	 *
+	 * @param throwable 	 The exception or error to log.
+	 */
+	public void logThrowable(@NonNull final Throwable throwable) {
+		logThrowable(throwable, null);
+	}
+
+	/**
+	 * Builds a map of contextual data for logging of the output value of a method invocation.
+	 *
+	 * @param methodName	The name of the invoked method.
+	 * @param outputValue	The string representation of the output value.
+	 * @return The map of contextual data to store in the log context.
+	 */
+	private static Map<String, String> buildOutputContextualData(final String methodName, final String outputValue) {
+		return new HashMap<>() {
+			{
+				put(INVOKED_METHOD_PROPERTY, methodName);
+				put("outputValue", outputValue);
+			}
+		};
+	}
+
+	/**
+	 * Builds a map of contextual data for logging of the information related to a {@link Throwable} thrown during a
+	 * method invocation.
+	 *
+	 * @param methodName	The name of the invoked method.
+	 * @param throwableType The class of the throwen exception or error.
+	 * @return The map of contextual data to store in the log context.
+	 */
+	private static Map<String, String> buildThrowableContextualData(final String methodName,
+																	final Class<? extends Throwable> throwableType) {
+		return new HashMap<>() {
+			{
+				put(INVOKED_METHOD_PROPERTY, methodName);
+				put("outputValue", "n/a");
+				put("throwableType", throwableType.getName());
+			}
+		};
+	}
 
 }

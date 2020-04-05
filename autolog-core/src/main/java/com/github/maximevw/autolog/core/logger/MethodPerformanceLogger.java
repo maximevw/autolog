@@ -32,7 +32,9 @@ import org.apiguardian.api.API;
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -171,10 +173,31 @@ public class MethodPerformanceLogger {
 	 */
 	private void logPerformanceInformation(final MethodPerformanceLoggingConfiguration configuration,
 										   final MethodPerformanceLogEntry methodPerformanceLogEntry) {
+		// Build the map of data to store in the log context if required.
+		Map<String, String> contextualData = null;
+		if (configuration.isDataLoggedInContext()) {
+			contextualData = new HashMap<>() {
+				{
+					put("invokedMethod", methodPerformanceLogEntry.getInvokedMethod());
+					put("executionTimeInMs", String.valueOf(methodPerformanceLogEntry.getExecutionTimeInMs()));
+					put("failed", String.valueOf(methodPerformanceLogEntry.isFailed()));
+					if (methodPerformanceLogEntry.hasComments()) {
+						put("comments", String.join(LoggingUtils.LIST_ITEMS_DELIMITER,
+							methodPerformanceLogEntry.getComments()));
+					}
+					if (methodPerformanceLogEntry.getProcessedItems() != null) {
+						put("processedItems", String.valueOf(methodPerformanceLogEntry.getProcessedItems()));
+					}
+				}
+			};
+		}
+
+		// Effectively log the performance data.
 		if (configuration.isStructuredMessage()) {
 			loggerManager.logWithLevel(configuration.getLogLevel(),
 				LoggingUtils.prettify(methodPerformanceLogEntry,
-					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)));
+					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
+				contextualData);
 		} else {
 			final List<Object> performanceMessageArgs = new ArrayList<>();
 			String performanceMessageTemplate = "Method {}";
@@ -208,10 +231,11 @@ public class MethodPerformanceLogger {
 
 			if (!methodPerformanceLogEntry.getComments().isEmpty()) {
 				performanceMessageTemplate = performanceMessageTemplate.concat(" Details: {}.");
-				performanceMessageArgs.add(String.join(", ", methodPerformanceLogEntry.getComments()));
+				performanceMessageArgs.add(String.join(LoggingUtils.LIST_ITEMS_DELIMITER,
+					methodPerformanceLogEntry.getComments()));
 			}
 
-			loggerManager.logWithLevel(configuration.getLogLevel(), performanceMessageTemplate,
+			loggerManager.logWithLevel(configuration.getLogLevel(), performanceMessageTemplate, contextualData,
 				performanceMessageArgs.toArray());
 		}
 	}

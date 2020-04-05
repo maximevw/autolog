@@ -29,7 +29,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import net.logstash.logback.argument.StructuredArguments;
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
+import org.slf4j.MDC;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -132,7 +135,7 @@ public class MethodInputLoggingConfiguration {
 	/**
 	 * Whether the format of the logged message is fully structured (using the format defined by the parameter
 	 * {@link #getPrettyFormat()}) and not "human readable" (that's to say using the message template defined by the
-	 * parameter {@link #getMessageTemplate()}).
+	 * parameter {@link #getMessageTemplate()}). By default: {@code false}.
 	 * <p>
 	 *     <i>Note: </i>When the structured format is active, the values of the following parameters are ignored:
 	 *     {@link #getMessageTemplate()} and {@link #getPrettifiedValues()}.
@@ -142,6 +145,23 @@ public class MethodInputLoggingConfiguration {
 	 */
 	@Builder.Default
 	private boolean structuredMessage = false;
+
+	/**
+	 * Whether the input data should also be logged into the log context when it is possible (i.e. using {@link MDC}
+	 * for SLF4J implementations, {@link StructuredArguments} for Logback with Logstash encoder or
+	 * {@link CloseableThreadContext} for Log4j2). By default: {@code false}.
+	 * <p>
+	 *     The data stored in the log context are:
+	 *     <ul>
+	 *         <li>method name (property {@code invokedMethod})</li>
+	 *         <li>the values of the method arguments in accordance with the rules defined by the other parameters of
+	 *         the configuration.</li>
+	 *     </ul>
+	 *  </p>
+	 */
+	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Builder.Default
+	private boolean dataLoggedInContext = false;
 
     /**
      * Builds a new instance of configuration for auto-logging of input data of methods calls based on an annotation
@@ -163,6 +183,7 @@ public class MethodInputLoggingConfiguration {
                         .collect(Collectors.toUnmodifiableSet()))
                 .prettyFormat(autoLogMethodInOut.prettyFormat())
 				.structuredMessage(autoLogMethodInOut.structuredMessage())
+				.dataLoggedInContext(autoLogMethodInOut.logDataInContext())
                 .build();
     }
 
@@ -184,6 +205,7 @@ public class MethodInputLoggingConfiguration {
                 .prettifiedValues(Set.of(autoLogMethodInput.prettify()))
                 .prettyFormat(autoLogMethodInput.prettyFormat())
 				.structuredMessage(autoLogMethodInput.structuredMessage())
+				.dataLoggedInContext(autoLogMethodInput.logDataInContext())
                 .build();
     }
 }

@@ -66,6 +66,11 @@ import java.util.stream.Collectors;
 public final class LoggingUtils {
 
 	/**
+	 * Comma delimiter for string representation of list of values.
+	 */
+	static final String LIST_ITEMS_DELIMITER = ", ";
+
+	/**
 	 * Formatter to auto-generate method argument name when the original name is not available.
 	 * This formatter contains a placeholder for the argument index in the list of method parameters.
 	 */
@@ -79,7 +84,6 @@ public final class LoggingUtils {
 	private static final String UNKNOWN_METHOD_NAME = "anonymous";
 	private static final String METHOD_NAME_FORMATTER = "%s.%s";
 	private static final String ARG_VALUE_FORMATTER = "%s=%s";
-	private static final String ARGS_LIST_DELIMITER = ", ";
 
 	private static final String DURATION_PATTERN_DAYS = "d' day(s) 'H' h 'm' m 's' s 'S' ms'";
 	private static final String DURATION_PATTERN_HOURS = "H' h 'm' m 's' s 'S' ms'";
@@ -162,7 +166,7 @@ public final class LoggingUtils {
 			.filter(entry -> isLoggableArgument(entry.getKey(), configuration))
 			.map(entry -> String.format(ARG_VALUE_FORMATTER, entry.getKey(),
 				formatMethodArgumentIfRequired(entry.getKey(), entry.getValue(), configuration)))
-			.collect(Collectors.joining(ARGS_LIST_DELIMITER));
+			.collect(Collectors.joining(LIST_ITEMS_DELIMITER));
 	}
 
 	/**

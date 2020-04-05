@@ -26,6 +26,7 @@ import com.github.maximevw.autolog.core.logger.adapters.Slf4jAdapter;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimer;
 import com.github.maximevw.autolog.test.LogTestingClass;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,10 +46,15 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesRegex;
@@ -270,8 +276,8 @@ class LogPerformanceTest {
 	 * @param method					The invoked method for which the performance is logged.
 	 * @param expectedMessageMatchers	The set of matchers to verify the logged message.
 	 * @param expectedArgsMatchers		The set of matchers to verify the arguments of the log event.
+	 * @param expectedMdcMatcher		The matcher to verify the MDC values of the log event. It can be {@code null}.
 	 * @param methodArgs				The arguments to pass to the invoked method.
-	 * @throws InvocationTargetException if the invoked method has thrown an exception.
 	 * @throws IllegalAccessException if the invoked method cannot be executed.
 	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, Method)
 	 * @see MethodPerformanceLogger#stopAndLog(MethodPerformanceLoggingConfiguration, PerformanceTimer)
@@ -282,8 +288,9 @@ class LogPerformanceTest {
 															final Method method,
 															final Matcher<? super Object>[] expectedMessageMatchers,
 															final Matcher<? super Object>[] expectedArgsMatchers,
+															final Matcher<? super Object> expectedMdcMatcher,
 															final Object[] methodArgs)
-		throws InvocationTargetException, IllegalAccessException {
+		throws IllegalAccessException {
 		final PerformanceTimer timer = sut.start(configuration, method);
 
 		assertNotNull(timer);
@@ -292,32 +299,82 @@ class LogPerformanceTest {
 		assertTrue(timer.isRunning());
 
 		final LogTestingClass logTestingClass = new LogTestingClass();
-		final Object methodResult = method.invoke(logTestingClass, methodArgs);
-		// If an additional data provider has been set in the configuration, consider that the result of the executed
-		// method returns is the instance of the additional data provider and complete the performance log entry in
-		// consequence.
-		if (methodResult instanceof AdditionalDataProvider && configuration.getAdditionalDataProvider() != null) {
-			timer.getPerformanceLogEntry().setProcessedItems(
-				((AdditionalDataProvider) methodResult).getProcessedItems());
-			timer.getPerformanceLogEntry().addComments(((AdditionalDataProvider) methodResult).getComments()
-				.toArray(new String[]{}));
+		try {
+			final Object methodResult = method.invoke(logTestingClass, methodArgs);
+			// If an additional data provider has been set in the configuration, consider that the result of the
+			// executed method returns is the instance of the additional data provider and complete the performance log
+			// entry in consequence.
+			if (methodResult instanceof AdditionalDataProvider && configuration.getAdditionalDataProvider() != null) {
+				timer.getPerformanceLogEntry().setProcessedItems(
+					((AdditionalDataProvider) methodResult).getProcessedItems());
+				timer.getPerformanceLogEntry().addComments(((AdditionalDataProvider) methodResult).getComments()
+					.toArray(new String[]{}));
+			}
+		} catch (final InvocationTargetException e) {
+			// If the invoked method threw an exception, update the log entry and just log the error in the standard
+			// error output (it is not the purpose of this test to log the exception properly).
+			timer.getPerformanceLogEntry().setFailed(true);
+			System.err.println(e.getMessage());
+		} finally {
+			sut.stopAndLog(configuration, timer);
 		}
-		sut.stopAndLog(configuration, timer);
 
 		assertFalse(timer.isRunning());
 
+		Matcher<? super Object> mdcMatcher = hasProperty("mdc", anEmptyMap());
+		if (configuration.isDataLoggedInContext() && expectedMdcMatcher != null) {
+			mdcMatcher = expectedMdcMatcher;
+		}
 		final Matcher<? super Object> messageMatcher = hasProperty("message", allOf(List.of(expectedMessageMatchers)));
 		final Matcher<? super Object> argumentsMatcher = hasProperty("arguments", allOf(List.of(expectedArgsMatchers)));
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			messageMatcher, argumentsMatcher,
+			messageMatcher, argumentsMatcher, mdcMatcher,
 			hasProperty("level", is(Level.valueOf(configuration.getLogLevel().name()))
 			))));
 	}
 
 	/**
+	 * Builds a matcher to verify the content of MDC in a performance log entry.
+	 *
+	 * @param expectedMethodName		The expected value of the key {@code invokedMethod}.
+	 * @param isExpectedMethodFailed	The expected value of the key {@code failed}.
+	 * @param expectedComments			The expected value of the key {@code comments}. This value is nullable: if
+	 *                                  {@code null}, the matcher will verify that the key is not present.
+	 * @param expectedProcessedItems    The expected value of the key {@code processedItems}. This value is nullable:
+	 *                                  if {@code null}, the matcher will verify that the key is not present.
+	 * @return The matcher verifying the content of MDC in the log entry.
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private static Matcher<? super Object> buildMdcMatcher(final String expectedMethodName,
+														   final boolean isExpectedMethodFailed,
+														   final String expectedComments,
+														   final Integer expectedProcessedItems) {
+		int expectedNumberOfMdcProperties = 3;
+		Matcher[] matchers = new Matcher[]{
+			hasEntry("invokedMethod", expectedMethodName),
+			hasEntry(is("executionTimeInMs"), matchesRegex("\\d+")),
+			hasEntry("failed", String.valueOf(isExpectedMethodFailed))
+		};
+		if (expectedComments != null) {
+			matchers = ArrayUtils.add(matchers, hasEntry("comments", expectedComments));
+			expectedNumberOfMdcProperties++;
+		} else {
+			matchers = ArrayUtils.add(matchers, not(hasKey("comments")));
+		}
+		if (expectedProcessedItems != null) {
+			matchers = ArrayUtils.add(matchers, hasEntry("processedItems", String.valueOf(expectedProcessedItems)));
+			expectedNumberOfMdcProperties++;
+		} else {
+			matchers = ArrayUtils.add(matchers, not(hasKey("processedItems")));
+		}
+		matchers = ArrayUtils.add(matchers, aMapWithSize(expectedNumberOfMdcProperties));
+		return hasProperty("mdc", allOf(List.of(matchers)));
+	}
+
+	/**
 	 * Builds arguments for the parameterized test relative to the logging of the performance data for a given method:
 	 * {@link #givenConfiguration_whenLogPerformance_generatesLog(MethodPerformanceLoggingConfiguration, Method,
-	 * Matcher[], Matcher[], Object[])}
+	 * Matcher[], Matcher[], Matcher, Object[])}
 	 *
 	 * @return The arguments to execute the different test cases.
 	 * @throws NoSuchMethodException if the invoked method is not defined in {@link LogTestingClass}.
@@ -335,6 +392,22 @@ class LogPerformanceTest {
 					hasItem(matchesRegex("\\d+ ms")),
 					hasItem(instanceOf(LocalDateTime.class))
 				},
+				null,
+				new Object[]{}),
+			// Default configuration with population of log context and call to a method throwing exception.
+			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
+					.dataLoggedInContext(true)
+					.build(),
+				LogTestingClass.class.getMethod("methodThrowingThrowable"),
+				new Matcher[]{
+					is("Method {} failed after {} (started: {}, ended: {}).")
+				},
+				new Matcher[]{
+					hasItem(is("LogTestingClass.methodThrowingThrowable")),
+					hasItem(matchesRegex("\\d+ ms")),
+					hasItem(instanceOf(LocalDateTime.class))
+				},
+				buildMdcMatcher("LogTestingClass.methodThrowingThrowable", true, null, null),
 				new Object[]{}),
 			// Don't display enclosing class name, not default log level and log comments.
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
@@ -352,10 +425,12 @@ class LogPerformanceTest {
 					hasItem(instanceOf(LocalDateTime.class)),
 					hasItem(is("comment1, comment2"))
 				},
+				null,
 				new Object[]{}),
-			// Log performance data as structured message JSON-formatted.
+			// Log performance data as structured message JSON-formatted and populate the log context.
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
 					.structuredMessage(true)
+					.dataLoggedInContext(true)
 					.build(),
 				LogTestingClass.class.getMethod("noOp"),
 				new Matcher[]{
@@ -366,6 +441,7 @@ class LogPerformanceTest {
 					containsString("\"endTime\":")
 				},
 				new Matcher[]{},
+				buildMdcMatcher("LogTestingClass.noOp", false, null, null),
 				new Object[]{}),
 			// Log performance data as structured message XML-formatted.
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
@@ -382,13 +458,16 @@ class LogPerformanceTest {
 					matchesRegex(".+<endTime>.+</endTime>.+")
 				},
 				new Matcher[]{},
+				null,
 				new Object[]{}),
 			// Method processing 100 items with configured additional data provider: the additional data provider
 			// doesn't exist in the tested class. Indeed, we just define a fake name to simulate its behaviour since
 			// the additional data provider is managed by aspect programming to complete the log performance entry.
 			// See implementation of givenConfiguration_whenLogPerformance_generatesLog() for more details.
+			// It also populates the log context.
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
 					.additionalDataProvider("useMethodResultAsNumberOfProcessedItems")
+					.dataLoggedInContext(true)
 					.build(),
 				LogTestingClass.class.getMethod("methodUsingAdditionalDataProvider", int.class),
 				new Matcher[]{
@@ -401,6 +480,8 @@ class LogPerformanceTest {
 					hasItem(instanceOf(LocalDateTime.class)),
 					hasItem(is("additionalDataProviderUsed")),
 				},
+				buildMdcMatcher("LogTestingClass.methodUsingAdditionalDataProvider", false,
+					"additionalDataProviderUsed", 100),
 				new Object[]{100}),
 			// Method processing 0 item with configured additional data provider. See test case above for more details.
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
@@ -417,6 +498,7 @@ class LogPerformanceTest {
 					hasItem(instanceOf(LocalDateTime.class)),
 					hasItem(is("additionalDataProviderUsed")),
 				},
+				null,
 				new Object[]{0})
 		);
 	}
@@ -458,7 +540,7 @@ class LogPerformanceTest {
 			hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
 			hasProperty("arguments", hasItem(containsString(expectedMethodName))),
 			hasProperty("arguments", hasItem(containsString(httpMethod)))
-			)));
+		)));
 	}
 
 	/**
