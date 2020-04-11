@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItemInArray;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isA;
@@ -64,8 +64,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class LogWithContextTest {
 
-	private TestLogger slf4jLogger = TestLoggerFactory.getTestLogger("Autolog");
-	private Logger log4j2Logger = (Logger) LogManager.getLogger("Autolog");
+	private final TestLogger slf4jLogger = TestLoggerFactory.getTestLogger("Autolog");
+	private final Logger log4j2Logger = (Logger) LogManager.getLogger("Autolog");
 	@Mock
 	private Appender mockAppender;
 
@@ -151,20 +151,17 @@ class LogWithContextTest {
 		final LoggingEvent capturedLogEvent = slf4jLogger.getLoggingEvents().get(0);
 		assertThat(capturedLogEvent.getMessage(), is("This is a test log: {}."));
 		// Retrieve the log context and check its content.
-		// In this specific case, we should have 2 arguments:
-		// - The first one is an array containing the standard message arguments.
-		// - The second on is an array containing the StructuredArguments (appearing here as ObjectAppendingMarker
-		// objects).
+		// In this specific case, we should have 3 arguments:
+		// - The first one is the standard message argument.
+		// - The next ones are the StructuredArguments (appearing here as ObjectAppendingMarker objects).
 		assertNotNull(capturedLogEvent.getArguments());
-		assertThat(capturedLogEvent.getArguments().size(), is(2));
-		final Object messageArguments = capturedLogEvent.getArguments().get(0);
-		assertThat((Object[]) messageArguments, hasItemInArray(is(logLevel.name())));
-		final Object structuredArguments = capturedLogEvent.getArguments().get(1);
-		assertThat((Object[]) structuredArguments, allOf(
-			hasItemInArray(allOf(isA(ObjectAppendingMarker.class),
+		assertThat(capturedLogEvent.getArguments().size(), is(3));
+		assertThat(capturedLogEvent.getArguments(), allOf(
+			hasItem(is(logLevel.name())),
+			hasItem(allOf(isA(ObjectAppendingMarker.class),
 				hasProperty("fieldName", is("testKey1")),
 				hasProperty("fieldValue", is("testValue1")))),
-			hasItemInArray(allOf(isA(ObjectAppendingMarker.class),
+			hasItem(allOf(isA(ObjectAppendingMarker.class),
 				hasProperty("fieldName", is("testKey2")),
 				hasProperty("fieldValue", is("testValue2"))))
 		));

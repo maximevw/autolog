@@ -136,7 +136,7 @@ public class Slf4jAdapter implements LoggerInterface {
 	 * {@link Closeable} class wrapping a list of {@link MDCCloseable} instances.
 	 */
 	private static class MDCCloseables implements Closeable {
-		private List<MDCCloseable> mdcCloseables = new ArrayList<>();
+		private final List<MDCCloseable> mdcCloseables = new ArrayList<>();
 
 		MDCCloseables(final List<MDCCloseable> mdcCloseables) {
 			this.mdcCloseables.addAll(mdcCloseables);

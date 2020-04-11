@@ -24,6 +24,7 @@ import com.github.maximevw.autolog.core.logger.LoggerInterface;
 import lombok.extern.slf4j.Slf4j;
 import net.logstash.logback.argument.StructuredArgument;
 import net.logstash.logback.encoder.LogstashEncoder;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apiguardian.api.API;
 import org.slf4j.Logger;
 
@@ -63,7 +64,7 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		trace(format, arguments, toStructuredArguments(contextualData));
+		trace(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -73,7 +74,7 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 
 	@Override
 	public void debug(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		debug(format, arguments, toStructuredArguments(contextualData));
+		debug(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -83,7 +84,7 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 
 	@Override
 	public void info(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		info(format, arguments, toStructuredArguments(contextualData));
+		info(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 
 	@Override
 	public void warn(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		warn(format, arguments, toStructuredArguments(contextualData));
+		warn(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 
 	@Override
 	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		error(format, arguments, toStructuredArguments(contextualData));
+		error(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	/**
