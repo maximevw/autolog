@@ -12,6 +12,7 @@ annotations `AutoLogMethodInput` or `AutoLogMethodInOut`.
   - `MDC` for SLF4J implementations
   - `StructuredArguments` for Logback with Logstash encoder (using the dedicated `LogbackWithLogstashAdapter`)
   - `CloseableThreadContext` for Log4j2
+- _Experimental feature_: add `JdbcAdapter` to persist log events into a database using JDBC.
 ### Deprecated
 - Deprecate `Log4jAdapter` (since Log4J library is deprecated and now classified as highly vulnerable, see
 [CVE-2019-17571](https://nvd.nist.gov/vuln/detail/CVE-2019-17571">)).

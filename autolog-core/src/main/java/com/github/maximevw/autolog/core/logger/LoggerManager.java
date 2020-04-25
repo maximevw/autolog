@@ -46,7 +46,7 @@ public class LoggerManager {
 	 * Registered loggers.
 	 */
 	@Getter
-	private List<LoggerInterface> registeredLoggers = new ArrayList<>();
+	private final List<LoggerInterface> registeredLoggers = new ArrayList<>();
 
 	/**
 	 * Registers an additional logger.

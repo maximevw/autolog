@@ -28,7 +28,8 @@ import java.util.Map;
  * Interface wrapping a real logger instance.
  * <p>
  *     Any class implementing this interface should implement the singleton pattern since the {@link LoggerManager}
- *     accepts to register only one instance of each available implementation of {@code LoggerInterface}.
+ *     accepts to register only one instance of each available implementation of {@code LoggerInterface}. The method
+ *     to implement in order to get a singleton instance is {@code getInstance()}.
  * </p>
  * <p>
  *     <i>Note: </i> The message template syntax used in the arguments {@code format} of the methods described in this

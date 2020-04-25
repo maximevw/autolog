@@ -65,6 +65,9 @@ These annotations can be located on classes or methods (or both, in this case th
 method level gets the priority). For further information about the configuration of each annotation, please consult the
 Javadoc.
 
+* **`@Mask`**: only located on method arguments, it allows masking (totally or partially) the values of arguments logged
+thanks to the annotation `@AutoLogMethodInOut` or `@AutoLogMethodInput`.
+
 ### Loggers management
 
 Each time Autolog will log something, it will use the loggers configured in a **`LoggerManager`** instance (which is a
@@ -78,7 +81,8 @@ are wrapped in singleton adapters implementing `LoggerInterface`. By default, Au
 Logstash encoder
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
-* *(Deprecated - don't use anymore)* `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
+* _(Experimental)_ `JdbcAdapter`: persists log events into a database using JDBC.
+* _(Deprecated - don't use anymore)_ `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
 
 In Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration
@@ -195,11 +199,9 @@ Find below a non-exhaustive (and not sorted by priority) list of features we've 
   Make the messages relative to the performance information of methods invocations customizable (as for the input/output
   data annotations).
 
-* **Additional loggers**
+* **Additional logger**
 
-  Provide new implementations of `LoggerInterface`:
-  * `JdbcLogAdapter`: to directly store the generated logs in a database using JDBC.
-  * `KafkaAdapter`: to directly publish the generated logs in Kafka topics.
+  Provide new implementation `KafkaAdapter` of `LoggerInterface` to directly publish the generated logs in Kafka topics.
 
 * **Log HTTP requests and responses**
 

@@ -20,7 +20,9 @@
 
 package com.github.maximevw.autolog.core.logger;
 
+import com.github.maximevw.autolog.core.configuration.adapters.JdbcAdapterConfiguration;
 import com.github.maximevw.autolog.core.logger.adapters.JavaLoggerAdapter;
+import com.github.maximevw.autolog.core.logger.adapters.JdbcAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4jAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.LogbackWithLogstashAdapter;
@@ -31,8 +33,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,6 +46,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -48,6 +55,7 @@ import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Unit tests for the class {@link LoggerManager}.
@@ -55,7 +63,7 @@ import static org.mockito.Mockito.verify;
 @SuppressWarnings("deprecation")
 class LoggerManagerTest {
 
-	private static ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
+	private static final ByteArrayOutputStream STD_OUT = new ByteArrayOutputStream();
 	private static SystemOutAdapter sysOutAdapter;
 	private static Slf4jAdapter slf4jAdapter;
 	private static XSlf4jAdapter xslf4jAdapter;
@@ -63,6 +71,7 @@ class LoggerManagerTest {
 	private static Log4j2Adapter log4j2Adapter;
 	private static JavaLoggerAdapter javaLogAdapter;
 	private static LogbackWithLogstashAdapter logbackWithLogstashAdapter;
+	private static JdbcAdapter jdbcAdapter;
 
 	private LoggerManager sut;
 
@@ -72,7 +81,7 @@ class LoggerManagerTest {
 	@BeforeAll
 	static void init() {
 		// Redirect standard system output to check Autolog warnings/errors.
-		final PrintStream outStream = new PrintStream(stdOut);
+		final PrintStream outStream = new PrintStream(STD_OUT);
 		System.setOut(outStream);
 	}
 
@@ -81,9 +90,11 @@ class LoggerManagerTest {
 	 * <p>
 	 *     It resets the subject under test ({@link LoggerManager}) and the the loggers.
 	 * </p>
+	 *
+	 * @throws SQLException if the configuration of {@link JdbcAdapter} instance cannot be correctly mocked.
 	 */
 	@BeforeEach
-	void reset() {
+	void reset() throws SQLException {
 		sut = new LoggerManager();
 
 		sysOutAdapter = spy(SystemOutAdapter.getInstance());
@@ -93,6 +104,17 @@ class LoggerManagerTest {
 		log4j2Adapter = spy(Log4j2Adapter.getInstance());
 		javaLogAdapter = spy(JavaLoggerAdapter.getInstance());
 		logbackWithLogstashAdapter = spy(LogbackWithLogstashAdapter.getInstance());
+
+		// Configure JdbcAdapter with a mocked data source.
+		final DataSource mockedDataSource = mock(DataSource.class);
+		final Connection mockedConnection = mock(Connection.class);
+		when(mockedDataSource.getConnection()).thenReturn(mockedConnection);
+		when(mockedConnection.prepareStatement(anyString())).thenReturn(mock(PreparedStatement.class));
+		jdbcAdapter = spy(JdbcAdapter.getInstance(
+			JdbcAdapterConfiguration.builder()
+				.dataSource(mockedDataSource)
+				.build()
+		));
 	}
 
 	/**
@@ -116,7 +138,7 @@ class LoggerManagerTest {
 		// For test purpose, register twice the same logger interface.
 		sut.register(loggerInterface);
 		sut.register(loggerInterface);
-		assertThat(stdOut.toString(), containsString(
+		assertThat(STD_OUT.toString(), containsString(
 			String.format("[WARN] Autolog: Logger of type %s already registered.",
 				loggerInterface.getClass().getSimpleName())
 		));
@@ -143,7 +165,7 @@ class LoggerManagerTest {
 	 */
 	private Set<LoggerInterface> prepareLogWithLevelTest(final LogLevel level) {
 		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4jAdapter,
-			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter);
+			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		sut.logWithLevel(level, "This is a test: {}.", level.name());
 		return loggers;
@@ -391,7 +413,7 @@ class LoggerManagerTest {
 	@Test
 	void givenLoggerManagerWithAdapters_whenLogThrowable_callsLogMethodInEachAdapter() {
 		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4jAdapter,
-			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter);
+			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", throwable);

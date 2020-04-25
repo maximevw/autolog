@@ -46,8 +46,8 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class LoggingUtilsTest {
 
-	private static ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-	private static ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+	private static final ByteArrayOutputStream STD_OUT = new ByteArrayOutputStream();
+	private static final ByteArrayOutputStream STD_ERR = new ByteArrayOutputStream();
 
 	/**
 	 * Initializes the context for all the tests in this class.
@@ -55,8 +55,8 @@ class LoggingUtilsTest {
 	@BeforeAll
 	static void init() {
 		// Redirect standard system output and standard error output.
-		final PrintStream outStream = new PrintStream(stdOut);
-		final PrintStream errStream = new PrintStream(stdErr);
+		final PrintStream outStream = new PrintStream(STD_OUT);
+		final PrintStream errStream = new PrintStream(STD_ERR);
 		System.setOut(outStream);
 		System.setErr(errStream);
 	}
@@ -67,7 +67,7 @@ class LoggingUtilsTest {
 	@Test
 	void givenMessage_whenReportDebugMessage_logsMessageInStandardOutput() {
 		LoggingUtils.report("Test message.");
-		assertThat(stdOut.toString(), containsString("[DEBUG] Autolog: Test message."));
+		assertThat(STD_OUT.toString(), containsString("[DEBUG] Autolog: Test message."));
 	}
 
 	/**
@@ -79,7 +79,7 @@ class LoggingUtilsTest {
 	@ValueSource(strings = {"TRACE", "DEBUG", "INFO", "WARN", "ERROR"})
 	void givenMessageAndLevel_whenReportMessage_logsMessageInStandardOutput(final String level) {
 		LoggingUtils.report("Test message.", LogLevel.valueOf(level));
-		assertThat(stdOut.toString(), containsString(String.format("[%s] Autolog: Test message.", level)));
+		assertThat(STD_OUT.toString(), containsString(String.format("[%s] Autolog: Test message.", level)));
 	}
 
 	/**
@@ -89,7 +89,7 @@ class LoggingUtilsTest {
 	void givenMessageAndThrowable_whenReportError_logsMessageInErrorOutput() {
 		final Throwable throwable = mock(Throwable.class);
 		LoggingUtils.reportError("Test error message.", throwable);
-		assertThat(stdErr.toString(), containsString("[ERROR] Autolog: Test error message."));
+		assertThat(STD_ERR.toString(), containsString("[ERROR] Autolog: Test error message."));
 		verify(throwable, times(1)).printStackTrace();
 	}
 
