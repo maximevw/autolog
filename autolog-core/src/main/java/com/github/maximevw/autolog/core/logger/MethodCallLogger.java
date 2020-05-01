@@ -312,7 +312,7 @@ public class MethodCallLogger {
 	 * method invocation.
 	 *
 	 * @param methodName	The name of the invoked method.
-	 * @param throwableType The class of the throwen exception or error.
+	 * @param throwableType The class of the thrown exception or error.
 	 * @return The map of contextual data to store in the log context.
 	 */
 	private static Map<String, String> buildThrowableContextualData(final String methodName,

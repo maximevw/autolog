@@ -21,9 +21,14 @@
 package com.github.maximevw.autolog.spring.configuration;
 
 import com.github.maximevw.autolog.core.logger.LoggerManager;
+import com.github.maximevw.autolog.core.logger.adapters.JdbcAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
 import com.github.maximevw.autolog.core.logger.adapters.Slf4jAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.SystemOutAdapter;
+import com.github.maximevw.autolog.spring.configuration.converters.LoggerInterfaceConverter;
+import com.github.maximevw.autolog.test.TestConfigurableLoggerAdapter;
+import com.github.maximevw.autolog.test.TestConfigurableLoggerAdapterConfigurationConverter;
+import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -44,11 +49,15 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class AutologAutoConfigurationTest {
 
-	private static ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
-	private static ByteArrayOutputStream stdErr = new ByteArrayOutputStream();
+	private static final ByteArrayOutputStream STD_OUT = new ByteArrayOutputStream();
+	private static final ByteArrayOutputStream STD_ERR = new ByteArrayOutputStream();
 
 	private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
 		.withBean(LoggerInterfaceConverter.class)
+		// Add a DataSource bean for configuration of JdbcAdapter.
+		.withBean("primaryDataSource", HikariDataSource.class)
+		// Add a converter for custom configurable logger interface TestConfigurableLoggerAdapter.
+		.withBean(TestConfigurableLoggerAdapterConfigurationConverter.class)
 		.withConfiguration(AutoConfigurations.of(AutologAutoConfiguration.class));
 
 	/**
@@ -57,8 +66,8 @@ class AutologAutoConfigurationTest {
 	@BeforeAll
 	static void init() {
 		// Redirect standard system output and standard error output.
-		final PrintStream outStream = new PrintStream(stdOut);
-		final PrintStream errStream = new PrintStream(stdErr);
+		final PrintStream outStream = new PrintStream(STD_OUT);
+		final PrintStream errStream = new PrintStream(STD_ERR);
 		System.setOut(outStream);
 		System.setErr(errStream);
 	}
@@ -85,45 +94,63 @@ class AutologAutoConfigurationTest {
 	public void givenConfiguredLoggers_whenAutoconfigureLoggerManager_registersExpectedLoggers() {
 		this.contextRunner
 			/*
-			 * Define 2 valid loggers:
+			 * Define 4 valid loggers:
 			 * - (Case V1) Slf4jAdapter without fully qualified name
 			 * - (Case V2) Log4j2Adapter with fully qualified name
-			 * and 4 invalid loggers:
+			 * - (Case V3) JdbcAdapter without fully qualified name and a valid configuration
+			 * - (Case V4) custom test class com.github.maximevw.autolog.test.TestConfigurableLoggerAdapter with an
+			 *   empty configuration
+			 *
+			 * and 5 invalid loggers:
 			 * - (Case I1) an empty class name
 			 * - (Case I2) a not-existing class (com.github.maximevw.FakeLoggerClass)
 			 * - (Case I3) a valid class name not implementing LoggerInterface (java.lang.Object)
 			 * - (Case I4) a valid class name implementing LoggerInterface but not providing a getInstance() method to
 			 *   get a singleton instance (com.github.maximevw.autolog.test.TestInvalidLoggerAdapter)
+			 * - (Case I5) a invalid syntax (com.github.maximevw.InvalidSyntaxTestClass)
 			 */
-			.withPropertyValues("autolog.loggers:Slf4jAdapter,"
-				+ "com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter,,java.lang.Object,"
-				+ "com.github.maximevw.FakeLoggerClass,com.github.maximevw.autolog.test.TestInvalidLoggerAdapter")
+			.withPropertyValues("autolog.loggers:Slf4jAdapter"
+				+ ",com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter"
+				+ ",JdbcAdapter(dataSource=primaryDataSource; tablePrefix:APPLICATION)"
+				+ ",com.github.maximevw.autolog.test.TestConfigurableLoggerAdapter()"
+				+ ",,java.lang.Object,com.github.maximevw.FakeLoggerClass"
+				+ ",com.github.maximevw.autolog.test.TestInvalidLoggerAdapter"
+				+ ",com.github.maximevw.InvalidSyntaxTestClass[a=b]")
 			.run(context -> {
 				final LoggerManager loggerManager = context.getBean(LoggerManager.class);
 				assertNotNull(loggerManager);
-				assertThat(loggerManager.getRegisteredLoggers().size(), is(2));
+				assertThat(loggerManager.getRegisteredLoggers().size(), is(4));
 				// Check for Case V1.
 				assertThat(loggerManager.getRegisteredLoggers(), hasItem(instanceOf(Slf4jAdapter.class)));
 				// Check for Case V2.
 				assertThat(loggerManager.getRegisteredLoggers(), hasItem(instanceOf(Log4j2Adapter.class)));
+				// Check for Case V3.
+				assertThat(loggerManager.getRegisteredLoggers(), hasItem(instanceOf(JdbcAdapter.class)));
+				// Check for Case V4.
+				assertThat(loggerManager.getRegisteredLoggers(),
+					hasItem(instanceOf(TestConfigurableLoggerAdapter.class)));
 
 				// Check logs for Case I1.
-				assertThat(stdOut.toString(), containsString("[WARN] Autolog: Empty class name for logger interface, "
+				assertThat(STD_OUT.toString(), containsString("[WARN] Autolog: Empty class name for logger interface, "
 					+ "it will be skipped.")
 				);
 
 				// Check logs for Case I2.
-				assertThat(stdErr.toString(), containsString("[ERROR] Autolog: Unable to find logger interface: "
+				assertThat(STD_ERR.toString(), containsString("[ERROR] Autolog: Unable to find logger interface: "
 					+ "com.github.maximevw.FakeLoggerClass"));
 
 				// Check logs for Case I3.
-				assertThat(stdOut.toString(), containsString("[WARN] Autolog: java.lang.Object is not a valid logger: "
+				assertThat(STD_OUT.toString(), containsString("[WARN] Autolog: java.lang.Object is not a valid logger: "
 					+ "it doesn't implement LoggerInterface.")
 				);
 
 				// Check logs for Case I4.
-				assertThat(stdErr.toString(), containsString("[ERROR] Autolog: Unable to get an instance of logger "
+				assertThat(STD_ERR.toString(), containsString("[ERROR] Autolog: Unable to get an instance of logger "
 					+ "interface: com.github.maximevw.autolog.test.TestInvalidLoggerAdapter"));
+
+				// Check logs for Case I5.
+				assertThat(STD_ERR.toString(), containsString("[ERROR] Autolog: Invalid syntax for logger interface "
+					+ "definition: com.github.maximevw.InvalidSyntaxTestClass[a=b]"));
 			});
 	}
 }

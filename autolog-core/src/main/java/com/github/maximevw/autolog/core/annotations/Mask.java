@@ -108,7 +108,7 @@ public @interface Mask {
 	 * <h1>Restrictions</h1>
 	 * <p>
 	 *     If the number of preserved characters is equal or greater than the length of the value to mask, the rules of
-	 *     preservation will be altered to ensured that at least 1 character is masked.
+	 *     preservation will be altered to ensure that at least 1 character is masked.
 	 * </p>
 	 * <h1>Examples</h1>
 	 * <p>

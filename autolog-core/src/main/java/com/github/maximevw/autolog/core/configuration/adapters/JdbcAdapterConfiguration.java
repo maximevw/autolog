@@ -53,7 +53,7 @@ public class JdbcAdapterConfiguration implements LoggerInterfaceConfiguration {
 	/**
 	 * The prefix of the table name used to store the log events.
 	 * <p>
-	 *     For exemple, if the prefix is {@code "APP"} or {@code "APP_"}, the table name will be {@code APP_LOG_EVENTS}.
+	 *     For example, if the prefix is {@code "APP"} or {@code "APP_"}, the table name will be {@code APP_LOG_EVENTS}.
 	 * </p>
 	 */
 	private String tablePrefix;

@@ -107,7 +107,7 @@ public final class LoggingUtils {
 	/**
 	 * Logs a debug message in the standard output.
 	 *
-	 * @param message The messqge to log.
+	 * @param message The message to log.
 	 */
 	public static void report(final String message) {
 		report(message, LogLevel.DEBUG);
@@ -116,11 +116,20 @@ public final class LoggingUtils {
 	/**
 	 * Logs a message prefixed with a specific log level in the standard output.
 	 *
-	 * @param message 	The messqge to log.
+	 * @param message 	The message to log.
 	 * @param level		The log level to use.
 	 */
 	public static void report(final String message, final LogLevel level) {
 		System.out.println(String.format("[%s] Autolog: %s", level.name(), message));
+	}
+
+	/**
+	 * Logs an error in the error output.
+	 *
+	 * @param message	The message to log.
+	 */
+	public static void reportError(final String message) {
+		reportError(message, null);
 	}
 
 	/**
@@ -131,7 +140,9 @@ public final class LoggingUtils {
 	 */
 	public static void reportError(final String message, final Throwable throwable) {
 		System.err.println(String.format("[ERROR] Autolog: %s", message));
-		throwable.printStackTrace();
+		if (throwable != null) {
+			throwable.printStackTrace();
+		}
 	}
 
 	/**

@@ -20,6 +20,7 @@
 
 package com.github.maximevw.autolog.spring.configuration;
 
+import com.github.maximevw.autolog.core.logger.ConfigurableLoggerInterface;
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
 import com.github.maximevw.autolog.core.logger.LoggerManager;
 import lombok.Getter;
@@ -46,9 +47,15 @@ public class AutologProperties {
 	 *     {@code com.github.maximevw.autolog.core.logger.adapters}.
 	 * </p>
 	 * <p>
+	 *     For classes implementing {@link ConfigurableLoggerInterface}, since an additional configuration is required,
+	 *     the latter must be specified between parentheses immediately after the logger adapter class name. The
+	 *     additional configuration is a semi-colon-separated list of properties using the following format:
+	 *     {@code key=value}. Note that the line feed character can also be used to separate the items of this list.
+	 * </p>
+	 * <p>
 	 *     Example of value for the property {@code autolog.loggers}:
 	 *     <code>
-	 *         Slf4jAdapter,com.foo.bar.MyCustomLoggerAdapter
+	 *         Slf4jAdapter,com.foo.bar.MyCustomLoggerAdapter,JdbcAdapter(dataSource=myDataSource; tablePrefix=APP)
 	 *     </code>
 	 * </p>
 	 */

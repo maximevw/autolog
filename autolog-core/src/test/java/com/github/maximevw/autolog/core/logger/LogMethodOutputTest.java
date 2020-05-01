@@ -221,7 +221,7 @@ class LogMethodOutputTest {
 	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
 	@Test
-	void givenMethod_whenLogMethodOutputAsStrucutredMessage_generatesLog() throws NoSuchMethodException {
+	void givenMethod_whenLogMethodOutputAsStructuredMessage_generatesLog() throws NoSuchMethodException {
 		sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().structuredMessage(true).build(),
 			LogTestingClass.class.getMethod("methodOutputData"), "test");
 

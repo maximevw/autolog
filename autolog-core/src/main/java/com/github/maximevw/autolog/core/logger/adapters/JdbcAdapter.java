@@ -56,7 +56,7 @@ import java.time.Instant;
  *         </tr>
  *         <tr>
  *             <td>TOPIC</td>
- *             <td>VARCHAR(min. 8 charactrers)</td>
+ *             <td>VARCHAR(min. 8 characters)</td>
  *         </tr>
  *         <tr>
  *             <td>LOG_LEVEL</td>

@@ -92,7 +92,7 @@ class MaskingUtilsTest {
 	}
 
 	/**
-	 * Verifies that the given value is masked (or not if it's not applciable) according to the given masking rules.
+	 * Verifies that the given value is masked (or not if it's not applicable) according to the given masking rules.
 	 * @param valueToMask			The value to mask.
 	 * @param appliedMaskingRules	The masking rules defined into an instance of {@link Mask} annotation.
 	 * @param expectedResult		The expected value returned by the call to

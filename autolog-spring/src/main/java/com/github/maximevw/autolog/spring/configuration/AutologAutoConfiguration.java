@@ -23,6 +23,7 @@ package com.github.maximevw.autolog.spring.configuration;
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
 import com.github.maximevw.autolog.core.logger.LoggerManager;
 import com.github.maximevw.autolog.core.logger.adapters.SystemOutAdapter;
+import com.github.maximevw.autolog.spring.configuration.converters.LoggerInterfaceConverter;
 import org.apiguardian.api.API;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
