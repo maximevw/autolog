@@ -6,7 +6,7 @@
 
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog</artifactId>
-    <version>1.1.0-beta.1</version>
+    <version>1.1.0</version>
     <packaging>pom</packaging>
 
     <name>Autolog</name>
@@ -83,7 +83,7 @@
         <!-- Dependencies and plugins versions management -->
         <apiguardian.version>1.1.0</apiguardian.version>
         <aspectj.version>1.9.5</aspectj.version>
-        <checkstyle.version>8.31</checkstyle.version>
+        <checkstyle.version>8.32</checkstyle.version>
         <commons-lang.version>3.10</commons-lang.version>
         <commons-text.version>1.8</commons-text.version>
         <compile-testing.version>0.18</compile-testing.version>
@@ -600,6 +600,13 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <!-- Prevent `gpg` from using pinentry programs -->
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

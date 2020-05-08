@@ -7,7 +7,7 @@
     <parent>
         <artifactId>autolog</artifactId>
         <groupId>com.github.maximevw</groupId>
-        <version>1.1.0-beta.1</version>
+        <version>1.1.0</version>
     </parent>
 
     <artifactId>autolog-coverage-reporting</artifactId>
@@ -33,12 +33,12 @@
         <dependency>
             <groupId>com.github.maximevw</groupId>
             <artifactId>autolog-core</artifactId>
-            <version>1.1.0-beta.1</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.maximevw</groupId>
             <artifactId>autolog-spring</artifactId>
-            <version>1.1.0-beta.1</version>
+            <version>1.1.0</version>
         </dependency>
     </dependencies>
 
