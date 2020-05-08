@@ -15,11 +15,17 @@ jobs:
         uses: actions/setup-java@v1.3.0
         with:
           java-version: 11.0.5
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
 
       - name: Get release version from POM file
         run: echo ::set-env name=RELEASE_VERSION::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
       - name: Build, sign and deploy artifacts to Maven Central (OSSRH)
+        env:
+          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
         run: |
           echo "Import the GPG key..."
           echo "${{ secrets.GPG_KEY }}" | base64 -d > gpg_private.key
