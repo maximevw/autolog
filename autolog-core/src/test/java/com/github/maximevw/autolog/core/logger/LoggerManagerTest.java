@@ -32,6 +32,7 @@ import com.github.maximevw.autolog.core.logger.adapters.XSlf4jAdapter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
@@ -51,7 +52,6 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -187,13 +187,14 @@ class LoggerManagerTest {
 
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level TRACE is effectively
-	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#trace(String, Object...)} is
-	 * invoked.
+	 * logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#trace(String, String, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogTraceCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, only()).trace(eq("This is a test: {}."), eq(LogLevel.TRACE.name()));
+		verify(loggerInterface, times(1)).trace(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			eq(LogLevel.TRACE.name()));
 	}
 
 	/**
@@ -209,12 +210,12 @@ class LoggerManagerTest {
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level TRACE is
 	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
-	 * {@link LoggerInterface#trace(String, Map, Object...)} is invoked.
+	 * {@link LoggerInterface#trace(String, String, Map, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogTraceWithContextualDataCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, times(1)).trace(eq("This is a test: {}."),
+		verify(loggerInterface, times(1)).trace(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
 			argThat(argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.TRACE.name())), eq(LogLevel.TRACE.name()));
 	}
@@ -231,13 +232,14 @@ class LoggerManagerTest {
 
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level DEBUG is effectively
-	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#debug(String, Object...)} is
-	 * invoked.
+	 * logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#debug(String, String, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogDebugCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, only()).debug(eq("This is a test: {}."), eq(LogLevel.DEBUG.name()));
+		verify(loggerInterface, times(1)).debug(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			eq(LogLevel.DEBUG.name()));
 	}
 
 	/**
@@ -253,12 +255,12 @@ class LoggerManagerTest {
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level DEBUG is
 	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
-	 * {@link LoggerInterface#debug(String, Map, Object...)} is invoked.
+	 * {@link LoggerInterface#debug(String, String, Map, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogDebugWithContextualDataCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, times(1)).debug(eq("This is a test: {}."),
+		verify(loggerInterface, times(1)).debug(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
 			argThat(argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.DEBUG.name())), eq(LogLevel.DEBUG.name()));
 	}
@@ -275,13 +277,14 @@ class LoggerManagerTest {
 
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level INFO is effectively
-	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#info(String, Object...)} is
-	 * invoked.
+	 * logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#info(String, String, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogInfoCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, only()).info(eq("This is a test: {}."), eq(LogLevel.INFO.name()));
+		verify(loggerInterface, times(1)).info(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			eq(LogLevel.INFO.name()));
 	}
 
 	/**
@@ -297,12 +300,12 @@ class LoggerManagerTest {
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level INFO is
 	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
-	 * {@link LoggerInterface#info(String, Map, Object...)} is invoked.
+	 * {@link LoggerInterface#info(String, String, Map, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogInfoWithContextualDataCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, times(1)).info(eq("This is a test: {}."),
+		verify(loggerInterface, times(1)).info(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
 			argThat(argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.INFO.name())), eq(LogLevel.INFO.name()));
 	}
@@ -319,13 +322,14 @@ class LoggerManagerTest {
 
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level WARN is effectively
-	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#warn(String, Object...)} is
-	 * invoked.
+	 * logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#warn(String, String, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogWarnCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, only()).warn(eq("This is a test: {}."), eq(LogLevel.WARN.name()));
+		verify(loggerInterface, times(1)).warn(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			eq(LogLevel.WARN.name()));
 	}
 
 	/**
@@ -341,13 +345,13 @@ class LoggerManagerTest {
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level WARN is
 	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
-	 * {@link LoggerInterface#warn(String, Map, Object...)} is invoked.
+	 * {@link LoggerInterface#warn(String, String, Map, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogWarnWithContextualDataCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, times(1)).warn(eq("This is a test: {}."),
-			argThat(argument -> argument.containsKey("testContext")
+		verify(loggerInterface, times(1)).warn(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			argThat((ArgumentMatcher<Map<String, String>>) argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.WARN.name())), eq(LogLevel.WARN.name()));
 	}
 
@@ -363,13 +367,14 @@ class LoggerManagerTest {
 
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelTest(LogLevel)} at level ERROR is effectively
-	 * logged by the given {@link LoggerInterface}, i.e. the method {@link LoggerInterface#error(String, Object...)} is
-	 * invoked.
+	 * logged by the given {@link LoggerInterface}, i.e. the method
+	 * {@link LoggerInterface#error(String, String, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogErrorCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, only()).error(eq("This is a test: {}."), eq(LogLevel.ERROR.name()));
+		verify(loggerInterface, times(1)).error(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			eq(LogLevel.ERROR.name()));
 	}
 
 	/**
@@ -385,13 +390,13 @@ class LoggerManagerTest {
 	/**
 	 * Verifies that the message logged by {@link #prepareLogWithLevelAndContextualDataTest(LogLevel)} at level ERROR is
 	 * effectively logged by the given {@link LoggerInterface}, i.e. the method
-	 * {@link LoggerInterface#error(String, Map, Object...)} is invoked.
+	 * {@link LoggerInterface#error(String, String, Map, Object...)} is invoked.
 	 *
 	 * @param loggerInterface The logger interface to check.
 	 */
 	private void verifyLogErrorWithContextualDataCalled(final LoggerInterface loggerInterface) {
-		verify(loggerInterface, times(1)).error(eq("This is a test: {}."),
-			argThat(argument -> argument.containsKey("testContext")
+		verify(loggerInterface, times(1)).error(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
+			argThat((ArgumentMatcher<Map<String, String>>) argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(LogLevel.ERROR.name()));
 	}
 
@@ -417,7 +422,8 @@ class LoggerManagerTest {
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", throwable);
-		loggers.forEach(loggerInterface -> verify(loggerInterface, only()).error(eq("This is a test."), eq(throwable)));
+		loggers.forEach(loggerInterface -> verify(loggerInterface, times(1))
+			.error(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test."), eq(throwable)));
 		// Check that the stack trace is printed by SystemOutAdapter.
 		verify(throwable, atLeastOnce()).printStackTrace();
 	}
@@ -434,7 +440,8 @@ class LoggerManagerTest {
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", Map.of("testContext", LogLevel.ERROR.name()), throwable);
 		loggers.forEach(loggerInterface -> verify(loggerInterface, times(1))
-			.error(eq("This is a test."), argThat(argument -> argument.containsKey("testContext")
-				&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(throwable)));
+			.error(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test."),
+				argThat((ArgumentMatcher<Map<String, String>>) argument -> argument.containsKey("testContext")
+					&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(throwable)));
 	}
 }

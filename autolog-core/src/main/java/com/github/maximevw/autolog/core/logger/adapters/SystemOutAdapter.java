@@ -22,6 +22,7 @@ package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LogLevel;
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import org.apiguardian.api.API;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
@@ -47,36 +48,61 @@ public class SystemOutAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log(LogLevel.TRACE, format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.TRACE, format, arguments);
 	}
 
 	@Override
 	public void debug(final String format, final Object... arguments) {
-		log(LogLevel.DEBUG, format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.DEBUG, format, arguments);
 	}
 
 	@Override
 	public void info(final String format, final Object... arguments) {
-		log(LogLevel.INFO, format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.INFO, format, arguments);
 	}
 
 	@Override
 	public void warn(final String format, final Object... arguments) {
-		log(LogLevel.WARN, format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.WARN, format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Object... arguments) {
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
 		final FormattingTuple formattingTuple = MessageFormatter.arrayFormat(format, arguments);
-		System.err.println(String.format("ERROR: %s", formattingTuple.getMessage()));
+		System.err.println(String.format("[%s] ERROR: %s", topic, formattingTuple.getMessage()));
 		if (formattingTuple.getThrowable() != null) {
 			formattingTuple.getThrowable().printStackTrace();
 		}
 	}
 
-	private void log(final LogLevel level, final String format, final Object... arguments) {
+	private void log(final String topic, final LogLevel level, final String format, final Object... arguments) {
 		final FormattingTuple formattingTuple = MessageFormatter.arrayFormat(format, arguments);
-		System.out.println(String.format("%s: %s", level.name(), formattingTuple.getMessage()));
+		System.out.println(String.format("[%s] %s: %s", topic, level.name(), formattingTuple.getMessage()));
 	}
 
 	private static class SystemOutAdapterInstanceHolder {

@@ -21,9 +21,10 @@
 package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import lombok.extern.slf4j.Slf4j;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import org.apiguardian.api.API;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.MDC.MDCCloseable;
 
@@ -37,8 +38,7 @@ import java.util.stream.Collectors;
  * This class wraps an instance of {@link Logger} to be used by Autolog.
  */
 @API(status = API.Status.STABLE, since = "1.0.0")
-@Slf4j(topic = "Autolog")
-public class Slf4jAdapter implements LoggerInterface {
+public class Slf4jAdapter extends LoggerFactoryBasedAdapter<Logger> implements LoggerInterface {
 
 	private Slf4jAdapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
@@ -55,7 +55,12 @@ public class Slf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log.trace(format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).trace(format, arguments);
 	}
 
 	@Override
@@ -66,8 +71,21 @@ public class Slf4jAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void trace(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		try (var ignored = buildMdcCloseable(contextualData)) {
+			trace(topic, format, arguments);
+		}
+	}
+
+	@Override
 	public void debug(final String format, final Object... arguments) {
-		log.debug(format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).debug(format, arguments);
 	}
 
 	@Override
@@ -78,8 +96,21 @@ public class Slf4jAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void debug(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		try (var ignored = buildMdcCloseable(contextualData)) {
+			debug(topic, format, arguments);
+		}
+	}
+
+	@Override
 	public void info(final String format, final Object... arguments) {
-		log.info(format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).info(format, arguments);
 	}
 
 	@Override
@@ -90,8 +121,21 @@ public class Slf4jAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void info(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		try (var ignored = buildMdcCloseable(contextualData)) {
+			info(topic, format, arguments);
+		}
+	}
+
+	@Override
 	public void warn(final String format, final Object... arguments) {
-		log.warn(format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).warn(format, arguments);
 	}
 
 	@Override
@@ -102,14 +146,35 @@ public class Slf4jAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void warn(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		try (var ignored = buildMdcCloseable(contextualData)) {
+			warn(topic, format, arguments);
+		}
+	}
+
+	@Override
 	public void error(final String format, final Object... arguments) {
-		log.error(format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).error(format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
 		try (var ignored = buildMdcCloseable(contextualData)) {
 			error(format, arguments);
+		}
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		try (var ignored = buildMdcCloseable(contextualData)) {
+			error(topic, format, arguments);
 		}
 	}
 
@@ -126,6 +191,17 @@ public class Slf4jAdapter implements LoggerInterface {
 				.map(entry -> MDC.putCloseable(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toList())
 		);
+	}
+
+	/**
+	 * Gets an instance of SLF4J {@link Logger} with the given name.
+	 *
+	 * @param topic The logger name.
+	 * @return The configured instance of SLF4J logger.
+	 */
+	@Override
+	Logger getLoggerInstance(final String topic) {
+		return LoggerFactory.getLogger(topic);
 	}
 
 	private static class Slf4jAdapterInstanceHolder {

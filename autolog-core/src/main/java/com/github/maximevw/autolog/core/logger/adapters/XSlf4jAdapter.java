@@ -21,16 +21,16 @@
 package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import lombok.extern.slf4j.XSlf4j;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import org.apiguardian.api.API;
 import org.slf4j.ext.XLogger;
+import org.slf4j.ext.XLoggerFactory;
 
 /**
  * This class wraps an instance of {@link XLogger} to be used by Autolog.
  */
 @API(status = API.Status.STABLE, since = "1.0.0")
-@XSlf4j(topic = "Autolog")
-public class XSlf4jAdapter implements LoggerInterface {
+public class XSlf4jAdapter extends LoggerFactoryBasedAdapter<XLogger> implements LoggerInterface {
 
 	private XSlf4jAdapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
@@ -47,27 +47,63 @@ public class XSlf4jAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log.trace(format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).trace(format, arguments);
 	}
 
 	@Override
 	public void debug(final String format, final Object... arguments) {
-		log.debug(format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).debug(format, arguments);
 	}
 
 	@Override
 	public void info(final String format, final Object... arguments) {
-		log.info(format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).info(format, arguments);
 	}
 
 	@Override
 	public void warn(final String format, final Object... arguments) {
-		log.warn(format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).warn(format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Object... arguments) {
-		log.error(format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).error(format, arguments);
+	}
+
+	/**
+	 * Gets an instance of XSLF4J {@link XLogger} with the given name.
+	 *
+	 * @param topic The logger name.
+	 * @return The configured instance of XSLF4J logger.
+	 */
+	@Override
+	XLogger getLoggerInstance(final String topic) {
+		return XLoggerFactory.getXLogger(topic);
 	}
 
 	private static class XSlf4jAdapterInstanceHolder {

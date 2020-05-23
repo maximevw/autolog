@@ -21,7 +21,7 @@
 package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import lombok.extern.java.Log;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import org.apiguardian.api.API;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
@@ -33,8 +33,7 @@ import java.util.logging.Logger;
  * This class wraps an instance of {@link Logger} to be used by Autolog.
  */
 @API(status = API.Status.STABLE, since = "1.0.0")
-@Log(topic = "Autolog")
-public class JavaLoggerAdapter implements LoggerInterface {
+public class JavaLoggerAdapter extends LoggerFactoryBasedAdapter<Logger> implements LoggerInterface {
 
 	private JavaLoggerAdapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
@@ -51,32 +50,67 @@ public class JavaLoggerAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log(Level.FINEST, format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		log(topic, Level.FINEST, format, arguments);
 	}
 
 	@Override
 	public void debug(final String format, final Object... arguments) {
-		log(Level.FINE, format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		log(topic, Level.FINE, format, arguments);
 	}
 
 	@Override
 	public void info(final String format, final Object... arguments) {
-		log(Level.INFO, format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		log(topic, Level.INFO, format, arguments);
 	}
 
 	@Override
 	public void warn(final String format, final Object... arguments) {
-		log(Level.WARNING, format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		log(topic, Level.WARNING, format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Object... arguments) {
-		log(Level.SEVERE, format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
-	private void log(final Level javaLogLevel, final String format, final Object... arguments) {
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		log(topic, Level.SEVERE, format, arguments);
+	}
+
+	private void log(final String topic, final Level javaLogLevel, final String format, final Object... arguments) {
 		final FormattingTuple formattingTuple = MessageFormatter.arrayFormat(format, arguments);
-		log.log(javaLogLevel, formattingTuple.getMessage());
+		getLogger(topic).log(javaLogLevel, formattingTuple.getMessage());
+	}
+
+	/**
+	 * Gets an instance of classic Java {@link Logger} with the given name.
+	 *
+	 * @param topic The logger name.
+	 * @return The configured instance of classic Java logger.
+	 */
+	Logger getLoggerInstance(final String topic) {
+		return Logger.getLogger(topic);
 	}
 
 	private static class JavaLoggerAdapterInstanceHolder {

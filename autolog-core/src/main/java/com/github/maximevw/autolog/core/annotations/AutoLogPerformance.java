@@ -248,4 +248,10 @@ public @interface AutoLogPerformance {
 	 */
 	@API(status = API.Status.STABLE, since = "1.1.0")
 	boolean logDataInContext() default false;
+
+	/**
+	 * @return The logger name to use. If not specified, the default value "Autolog" will be used.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	String topic() default StringUtils.EMPTY;
 }

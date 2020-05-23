@@ -115,17 +115,40 @@ public class LoggerManager {
 	@API(status = API.Status.STABLE, since = "1.1.0")
 	void logWithLevel(final LogLevel logLevel, final String message, final Map<String, String> contextualData,
 					  final Object... arguments) {
+		logWithLevel(logLevel, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, message, contextualData, arguments);
+	}
+
+	/**
+	 * Logs a message with the specified log level, logger name and the given contextual values.
+	 *
+	 * @param logLevel  		The level to use for logging.
+	 * @param topic		  		The logger name.
+	 * @param message   		The message to log. It can contains placeholders ("<code>{}</code>") which will be
+	 *                          replaced by values of {@code arguments}.
+	 *                          <p>
+	 *                              <i>Note:</i> The message template syntax is the same as the one used by SLF4J.
+	 *                  		</p>
+	 * @param contextualData 	The structured data stored into the log context, when it is possible (see
+	 *                          implementations of {@link LoggerInterface} for details).
+	 * @param arguments 		The arguments to include in the log message.
+	 * @see org.slf4j.Logger
+	 * @see org.slf4j.helpers.MessageFormatter
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	void logWithLevel(final LogLevel logLevel, final String topic, final String message,
+					  final Map<String, String> contextualData, final Object... arguments) {
 		final String logMethodName = logLevel.name().toLowerCase();
 		this.registeredLoggers.forEach(logger -> {
 			try {
 				final Method logMethod;
 				if (contextualData == null) {
-					logMethod = logger.getClass().getMethod(logMethodName, String.class, Object[].class);
-					logMethod.invoke(logger, StringUtils.defaultString(message, StringUtils.EMPTY), arguments);
+					logMethod = logger.getClass().getMethod(logMethodName, String.class, String.class, Object[].class);
+					logMethod.invoke(logger, topic, StringUtils.defaultString(message, StringUtils.EMPTY), arguments);
 				} else {
-					logMethod = logger.getClass().getMethod(logMethodName, String.class, Map.class, Object[].class);
-					logMethod.invoke(logger, StringUtils.defaultString(message, StringUtils.EMPTY), contextualData,
-						arguments);
+					logMethod = logger.getClass().getMethod(logMethodName, String.class, String.class, Map.class,
+						Object[].class);
+					logMethod.invoke(logger, topic, StringUtils.defaultString(message, StringUtils.EMPTY),
+						contextualData, arguments);
 				}
 			} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 				LoggingUtils.reportError(String.format("Unable to invoke logging method %s() on class: %s.",

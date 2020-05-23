@@ -66,6 +66,11 @@ import java.util.stream.Collectors;
 public final class LoggingUtils {
 
 	/**
+	 * Default category for loggers used by Autolog.
+	 */
+	public static final String AUTOLOG_DEFAULT_TOPIC = "Autolog";
+
+	/**
 	 * Comma delimiter for string representation of list of values.
 	 */
 	static final String LIST_ITEMS_DELIMITER = ", ";

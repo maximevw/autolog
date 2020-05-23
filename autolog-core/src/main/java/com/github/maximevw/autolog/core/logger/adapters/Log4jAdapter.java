@@ -23,7 +23,6 @@ package com.github.maximevw.autolog.core.logger.adapters;
 import com.github.maximevw.autolog.core.logger.LogLevel;
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
 import com.github.maximevw.autolog.core.logger.LoggingUtils;
-import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
 import org.apiguardian.api.API;
 import org.slf4j.helpers.FormattingTuple;
@@ -40,8 +39,7 @@ import java.lang.reflect.Method;
  */
 @Deprecated
 @API(status = API.Status.DEPRECATED, since = "1.1.0")
-@Log4j(topic = "Autolog")
-public class Log4jAdapter implements LoggerInterface {
+public class Log4jAdapter extends LoggerFactoryBasedAdapter<Logger> implements LoggerInterface {
 
 	private Log4jAdapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
@@ -58,40 +56,77 @@ public class Log4jAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log(LogLevel.TRACE, format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.TRACE, format, arguments);
 	}
 
 	@Override
 	public void debug(final String format, final Object... arguments) {
-		log(LogLevel.DEBUG, format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.DEBUG, format, arguments);
 	}
 
 	@Override
 	public void info(final String format, final Object... arguments) {
-		log(LogLevel.INFO, format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.INFO, format, arguments);
 	}
 
 	@Override
 	public void warn(final String format, final Object... arguments) {
-		log(LogLevel.WARN, format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.WARN, format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Object... arguments) {
-		log(LogLevel.ERROR, format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
-	private void log(final LogLevel level, final String format, final Object... arguments) {
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.ERROR, format, arguments);
+	}
+
+	private void log(final String topic, final LogLevel level, final String format, final Object... arguments) {
 		final FormattingTuple formattingTuple = MessageFormatter.arrayFormat(format, arguments);
 		final String logMethodName = level.name().toLowerCase();
+		final Logger logger = getLogger(topic);
 
 		try {
-			final Method logMethod = log.getClass().getMethod(logMethodName, Object.class, Throwable.class);
-			logMethod.invoke(log, formattingTuple.getMessage(), formattingTuple.getThrowable());
+			final Method logMethod = logger.getClass().getMethod(logMethodName, Object.class, Throwable.class);
+			logMethod.invoke(logger, formattingTuple.getMessage(), formattingTuple.getThrowable());
 		} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			LoggingUtils.reportError(String.format("Unable to invoke logging method %s() on class: %s.",
-					logMethodName, log.getClass().getName()), e);
+					logMethodName, logger.getClass().getName()), e);
 		}
+	}
+
+	/**
+	 * Gets an instance of Log4J {@link Logger} with the given name.
+	 *
+	 * @param topic The logger name.
+	 * @return The configured instance of Log4J logger.
+	 */
+	@Override
+	Logger getLoggerInstance(final String topic) {
+		return Logger.getLogger(topic);
 	}
 
 	private static class Log4jAdapterInstanceHolder {

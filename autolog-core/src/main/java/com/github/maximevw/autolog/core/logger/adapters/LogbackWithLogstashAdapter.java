@@ -21,12 +21,13 @@
 package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import lombok.extern.slf4j.Slf4j;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import net.logstash.logback.argument.StructuredArgument;
 import net.logstash.logback.encoder.LogstashEncoder;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apiguardian.api.API;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -41,8 +42,7 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
  * </p>
  */
 @API(status = API.Status.STABLE, since = "1.1.0")
-@Slf4j(topic = "Autolog")
-public class LogbackWithLogstashAdapter implements LoggerInterface {
+public class LogbackWithLogstashAdapter extends LoggerFactoryBasedAdapter<Logger> implements LoggerInterface {
 
 	private LogbackWithLogstashAdapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
@@ -59,7 +59,12 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log.trace(format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).trace(format, arguments);
 	}
 
 	@Override
@@ -68,8 +73,19 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void trace(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		trace(topic, format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
+	}
+
+	@Override
 	public void debug(final String format, final Object... arguments) {
-		log.debug(format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).debug(format, arguments);
 	}
 
 	@Override
@@ -78,8 +94,19 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void debug(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		debug(topic, format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
+	}
+
+	@Override
 	public void info(final String format, final Object... arguments) {
-		log.info(format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).info(format, arguments);
 	}
 
 	@Override
@@ -88,8 +115,19 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void info(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		info(topic, format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
+	}
+
+	@Override
 	public void warn(final String format, final Object... arguments) {
-		log.warn(format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).warn(format, arguments);
 	}
 
 	@Override
@@ -98,13 +136,30 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 	}
 
 	@Override
+	public void warn(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		warn(topic, format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
+	}
+
+	@Override
 	public void error(final String format, final Object... arguments) {
-		log.error(format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).error(format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
 		error(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
+		error(topic, format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	/**
@@ -118,6 +173,17 @@ public class LogbackWithLogstashAdapter implements LoggerInterface {
 		return contextualData.entrySet().stream()
 			.map(entry -> keyValue(entry.getKey(), entry.getValue()))
 			.toArray();
+	}
+
+	/**
+	 * Gets an instance of SLF4J {@link Logger} with the given name.
+	 *
+	 * @param topic The logger name.
+	 * @return The configured instance of SLF4J logger.
+	 */
+	@Override
+	Logger getLoggerInstance(final String topic) {
+		return LoggerFactory.getLogger(topic);
 	}
 
 	private static class LogbackWithLogstashAdapterInstanceHolder {

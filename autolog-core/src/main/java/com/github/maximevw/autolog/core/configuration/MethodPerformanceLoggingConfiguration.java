@@ -22,6 +22,7 @@ package com.github.maximevw.autolog.core.configuration;
 
 import com.github.maximevw.autolog.core.annotations.AutoLogPerformance;
 import com.github.maximevw.autolog.core.logger.LogLevel;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -204,6 +205,13 @@ public class MethodPerformanceLoggingConfiguration {
 	private boolean dataLoggedInContext = false;
 
 	/**
+	 * The logger name to use. If not specified, the default value {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} will be
+	 * used.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	private String topic;
+
+	/**
 	 * Builds a new instance of configuration for auto-logging of performance data of methods invocations based on an
 	 * annotation {@link AutoLogPerformance}.
 	 *
@@ -223,6 +231,7 @@ public class MethodPerformanceLoggingConfiguration {
 			.prettyFormat(autoLogPerformance.prettyFormat())
 			.structuredMessage(autoLogPerformance.structuredMessage())
 			.dataLoggedInContext(autoLogPerformance.logDataInContext())
+			.topic(autoLogPerformance.topic())
 			.build();
 	}
 }

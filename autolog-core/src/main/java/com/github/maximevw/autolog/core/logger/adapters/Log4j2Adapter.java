@@ -21,8 +21,9 @@
 package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import lombok.extern.log4j.Log4j2;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apiguardian.api.API;
 
@@ -32,8 +33,7 @@ import java.util.Map;
  * This class wraps an instance of {@link Logger} to be used by Autolog.
  */
 @API(status = API.Status.STABLE, since = "1.0.0")
-@Log4j2(topic = "Autolog")
-public class Log4j2Adapter implements LoggerInterface {
+public class Log4j2Adapter extends LoggerFactoryBasedAdapter<Logger> implements LoggerInterface {
 
 	private Log4j2Adapter() {
 		// Private constructor to force usage of singleton instance via the method getInstance().
@@ -50,65 +50,132 @@ public class Log4j2Adapter implements LoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log.trace(format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).trace(format, arguments);
 	}
 
 	@Override
 	public void trace(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, contextualData, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
 		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
-			trace(format, arguments);
+			trace(topic, format, arguments);
 		}
 	}
 
 	@Override
 	public void debug(final String format, final Object... arguments) {
-		log.debug(format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).debug(format, arguments);
 	}
 
 	@Override
 	public void debug(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, contextualData, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
 		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
-			debug(format, arguments);
+			debug(topic, format, arguments);
 		}
 	}
 
 	@Override
 	public void info(final String format, final Object... arguments) {
-		log.info(format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).info(format, arguments);
 	}
 
 	@Override
 	public void info(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, contextualData, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
 		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
-			info(format, arguments);
+			info(topic, format, arguments);
 		}
 	}
 
 	@Override
 	public void warn(final String format, final Object... arguments) {
-		log.warn(format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).warn(format, arguments);
 	}
 
 	@Override
 	public void warn(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, contextualData, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
 		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
-			warn(format, arguments);
+			warn(topic, format, arguments);
 		}
 	}
 
 	@Override
 	public void error(final String format, final Object... arguments) {
-		log.error(format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		getLogger(topic).error(format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, contextualData, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Map<String, String> contextualData,
+					  final Object... arguments) {
 		try (var ignored = CloseableThreadContext.putAll(contextualData)) {
-			error(format, arguments);
+			error(topic, format, arguments);
 		}
+	}
+
+	/**
+	 * Gets an instance of Log4J2 {@link Logger} with the given name.
+	 *
+	 * @param topic The logger name.
+	 * @return The configured instance of Log4J2 logger.
+	 */
+	@Override
+	Logger getLoggerInstance(final String topic) {
+		return LogManager.getLogger(topic);
 	}
 
 	private static class Log4j2AdapterInstanceHolder {
 		private static final Log4j2Adapter INSTANCE = new Log4j2Adapter();
 	}
+
 }

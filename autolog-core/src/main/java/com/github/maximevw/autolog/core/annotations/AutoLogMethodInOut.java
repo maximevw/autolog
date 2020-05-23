@@ -23,6 +23,7 @@ package com.github.maximevw.autolog.core.annotations;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.LogLevel;
 import net.logstash.logback.argument.StructuredArguments;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
 import org.apiguardian.api.API;
 import org.slf4j.MDC;
@@ -303,4 +304,10 @@ public @interface AutoLogMethodInOut {
 	 */
 	@API(status = API.Status.STABLE, since = "1.1.0")
 	boolean logDataInContext() default false;
+
+	/**
+	 * @return The logger name to use. If not specified, the default value "Autolog" will be used.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	String topic() default StringUtils.EMPTY;
 }

@@ -23,6 +23,7 @@ package com.github.maximevw.autolog.core.configuration;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodInOut;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodInput;
 import com.github.maximevw.autolog.core.logger.LogLevel;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -163,6 +164,13 @@ public class MethodInputLoggingConfiguration {
 	@Builder.Default
 	private boolean dataLoggedInContext = false;
 
+	/**
+	 * The logger name to use. If not specified, the default value {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} will be
+	 * used.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	private String topic;
+
     /**
      * Builds a new instance of configuration for auto-logging of input data of methods calls based on an annotation
      * {@link AutoLogMethodInOut}.
@@ -184,6 +192,7 @@ public class MethodInputLoggingConfiguration {
                 .prettyFormat(autoLogMethodInOut.prettyFormat())
 				.structuredMessage(autoLogMethodInOut.structuredMessage())
 				.dataLoggedInContext(autoLogMethodInOut.logDataInContext())
+				.topic(autoLogMethodInOut.topic())
                 .build();
     }
 
@@ -206,6 +215,7 @@ public class MethodInputLoggingConfiguration {
                 .prettyFormat(autoLogMethodInput.prettyFormat())
 				.structuredMessage(autoLogMethodInput.structuredMessage())
 				.dataLoggedInContext(autoLogMethodInput.logDataInContext())
+				.topic(autoLogMethodInput.topic())
                 .build();
     }
 }

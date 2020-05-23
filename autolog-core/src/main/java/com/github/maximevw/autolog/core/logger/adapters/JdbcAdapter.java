@@ -116,27 +116,52 @@ public class JdbcAdapter implements ConfigurableLoggerInterface {
 
 	@Override
 	public void trace(final String format, final Object... arguments) {
-		log(LogLevel.TRACE, format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void trace(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.TRACE, format, arguments);
 	}
 
 	@Override
 	public void debug(final String format, final Object... arguments) {
-		log(LogLevel.DEBUG, format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void debug(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.DEBUG, format, arguments);
 	}
 
 	@Override
 	public void info(final String format, final Object... arguments) {
-		log(LogLevel.INFO, format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void info(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.INFO, format, arguments);
 	}
 
 	@Override
 	public void warn(final String format, final Object... arguments) {
-		log(LogLevel.WARN, format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void warn(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.WARN, format, arguments);
 	}
 
 	@Override
 	public void error(final String format, final Object... arguments) {
-		log(LogLevel.ERROR, format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
+
+	@Override
+	public void error(final String topic, final String format, final Object... arguments) {
+		log(topic, LogLevel.ERROR, format, arguments);
 	}
 
 	@Override
@@ -154,7 +179,7 @@ public class JdbcAdapter implements ConfigurableLoggerInterface {
 		}
 	}
 
-	private void log(final LogLevel logLevel, final String format, final Object... arguments) {
+	private void log(final String topic, final LogLevel logLevel, final String format, final Object... arguments) {
 		if (dataSource == null) {
 			LoggingUtils.report("No data source configured: unable to persist log event.", LogLevel.WARN);
 		} else {
@@ -163,7 +188,7 @@ public class JdbcAdapter implements ConfigurableLoggerInterface {
 				final String insertSqlQuery = SQL_STATEMENT_INSERT_LOG.replace(TABLE_PREFIX_PATTERN, this.tablePrefix);
 				final PreparedStatement insertStmt = connection.prepareStatement(insertSqlQuery);
 				insertStmt.setTimestamp(IDX_EVENT_TIMESTAMP, Timestamp.from(Instant.now()));
-				insertStmt.setString(IDX_TOPIC, "Autolog");
+				insertStmt.setString(IDX_TOPIC, topic);
 				insertStmt.setString(IDX_LOG_LEVEL, logLevel.name());
 				insertStmt.setString(IDX_MESSAGE, formattingTuple.getMessage());
 				insertStmt.execute();

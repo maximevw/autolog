@@ -23,6 +23,7 @@ package com.github.maximevw.autolog.core.logger.adapters;
 import com.github.maximevw.autolog.core.configuration.LoggerInterfaceConfiguration;
 import com.github.maximevw.autolog.core.configuration.adapters.JdbcAdapterConfiguration;
 import com.github.maximevw.autolog.core.logger.LogLevel;
+import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import net.logstash.logback.encoder.org.apache.commons.lang3.StringUtils;
 import org.h2.jdbcx.JdbcDataSource;
 import org.h2.tools.RunScript;
@@ -57,6 +58,8 @@ class JdbcAdapterTest {
 
 	private static final ByteArrayOutputStream STD_OUT = new ByteArrayOutputStream();
 	private static final ByteArrayOutputStream STD_ERR = new ByteArrayOutputStream();
+
+	private static final String CUSTOM_LOG_CATEGORY = "customCategory";
 
 	/**
 	 * Initializes the context for all the tests in this class.
@@ -118,7 +121,7 @@ class JdbcAdapterTest {
 	 * Verifies that any log event is persisted in database.
 	 *
 	 * @param tablePrefix The table prefix to use for the test.
-	 * @param logLevel	  The .
+	 * @param logLevel	  The log level to use for the test.
 	 * @throws SQLException if something went wrong during the initialization of the H2 in-memory database or during
 	 * 						the execution of the tested code.
 	 */
@@ -139,25 +142,7 @@ class JdbcAdapterTest {
 					.build()
 			);
 
-			switch (logLevel) {
-				case TRACE:
-					sut.trace("This is a test: {}", logLevel);
-					break;
-				case DEBUG:
-					sut.debug("This is a test: {}", logLevel);
-					break;
-				case INFO:
-					sut.info("This is a test: {}", logLevel);
-					break;
-				case WARN:
-					sut.warn("This is a test: {}", logLevel);
-					break;
-				case ERROR:
-					sut.error("This is a test: {}", logLevel);
-					break;
-				default:
-					fail("Unknown level of log: " + logLevel);
-			}
+			log(sut, logLevel);
 
 			try (Connection connection = h2DataSource.getConnection()) {
 				String tableName = "LOG_EVENTS";
@@ -169,15 +154,15 @@ class JdbcAdapterTest {
 				final ResultSet rsCount = connection.createStatement()
 					.executeQuery("SELECT COUNT(*) FROM " + tableName);
 				if (rsCount.next()) {
-					assertEquals(1, rsCount.getInt(1));
+					assertEquals(2, rsCount.getInt(1));
 				}
 				rsCount.close();
 
 				// Verify the correctness of persisted values.
 				final ResultSet rsLogEvents = connection.createStatement()
 					.executeQuery("SELECT TOPIC, LOG_LEVEL, MESSAGE FROM " + tableName);
-				if (rsLogEvents.next()) {
-					assertEquals("Autolog", rsLogEvents.getString(1));
+				while (rsLogEvents.next()) {
+					assertLogCategory(rsLogEvents.getString(1), rsLogEvents.getRow());
 					assertEquals(logLevel.name(), rsLogEvents.getString(2));
 					assertEquals("This is a test: " + logLevel.name(), rsLogEvents.getString(3));
 				}
@@ -202,5 +187,48 @@ class JdbcAdapterTest {
 			Arguments.of("TEST", LogLevel.WARN),
 			Arguments.of(null, LogLevel.ERROR)
 		);
+	}
+
+	private static void log(final JdbcAdapter sut, final LogLevel logLevel) {
+		// For each log level, insert two entries:
+		// - the first one using the default 'Autolog' category.
+		// - the second one using a custom log category.
+		switch (logLevel) {
+			case TRACE:
+				sut.trace("This is a test: {}", logLevel);
+				sut.trace(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
+				break;
+			case DEBUG:
+				sut.debug("This is a test: {}", logLevel);
+				sut.debug(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
+				break;
+			case INFO:
+				sut.info("This is a test: {}", logLevel);
+				sut.info(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
+				break;
+			case WARN:
+				sut.warn("This is a test: {}", logLevel);
+				sut.warn(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
+				break;
+			case ERROR:
+				sut.error("This is a test: {}", logLevel);
+				sut.error(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
+				break;
+			default:
+				fail("Unknown level of log: " + logLevel);
+		}
+	}
+
+	private static void assertLogCategory(final String actualValue, final int rowNumber) {
+		switch (rowNumber) {
+			case 1:
+				assertEquals(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, actualValue);
+				break;
+			case 2:
+				assertEquals(CUSTOM_LOG_CATEGORY, actualValue);
+				break;
+			default:
+				fail("Unexpected row number: " + rowNumber);
+		}
 	}
 }

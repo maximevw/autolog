@@ -50,6 +50,16 @@ public interface LoggerInterface {
 	void trace(String format, Object... arguments);
 
 	/**
+	 * Logs a message at the TRACE level with the given name, according to the specified format and arguments.
+	 *
+	 * @param topic		The logger name.
+	 * @param format	The format string.
+	 * @param arguments	The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	void trace(String topic, String format, Object... arguments);
+
+	/**
 	 * Logs a message at the TRACE level, including structured contextual data, according to the specified format and
 	 * arguments.
 	 *
@@ -64,12 +74,37 @@ public interface LoggerInterface {
 	}
 
 	/**
+	 * Logs a message at the TRACE level with the given name, including structured contextual data, according to
+	 * the specified format and arguments.
+	 *
+	 * @param topic				The logger name.
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	default void trace(String topic, String format, Map<String, String> contextualData, Object... arguments) {
+		trace(topic, format, arguments);
+	}
+
+	/**
 	 * Logs a message at the DEBUG level according to the specified format and arguments.
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
 	 */
 	void debug(String format, Object... arguments);
+
+	/**
+	 * Logs a message at the DEBUG level with the given name, according to the specified format and arguments.
+	 *
+	 * @param topic		The logger name.
+	 * @param format	The format string.
+	 * @param arguments	The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	void debug(String topic, String format, Object... arguments);
 
 	/**
 	 * Logs a message at the DEBUG level, including structured contextual data, according to the specified format and
@@ -86,12 +121,37 @@ public interface LoggerInterface {
 	}
 
 	/**
+	 * Logs a message at the DEBUG level with the given name, including structured contextual data, according to
+	 * the specified format and arguments.
+	 *
+	 * @param topic				The logger name.
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	default void debug(String topic, String format, Map<String, String> contextualData, Object... arguments) {
+		debug(topic, format, arguments);
+	}
+
+	/**
 	 * Logs a message at the INFO level according to the specified format and arguments.
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
 	 */
 	void info(String format, Object... arguments);
+
+	/**
+	 * Logs a message at the INFO level with the given name, according to the specified format and arguments.
+	 *
+	 * @param topic		The logger name.
+	 * @param format	The format string.
+	 * @param arguments	The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	void info(String topic, String format, Object... arguments);
 
 	/**
 	 * Logs a message at the INFO level, including structured contextual data, according to the specified format and
@@ -108,12 +168,37 @@ public interface LoggerInterface {
 	}
 
 	/**
+	 * Logs a message at the INFO level with the given name, including structured contextual data, according to
+	 * the specified format and arguments.
+	 *
+	 * @param topic				The logger name.
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	default void info(String topic, String format, Map<String, String> contextualData, Object... arguments) {
+		info(topic, format, arguments);
+	}
+
+	/**
 	 * Logs a message at the WARN level according to the specified format and arguments.
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
 	 */
 	void warn(String format, Object... arguments);
+
+	/**
+	 * Logs a message at the WARN level with the given name, according to the specified format and arguments.
+	 *
+	 * @param topic		The logger name.
+	 * @param format	The format string.
+	 * @param arguments	The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	void warn(String topic, String format, Object... arguments);
 
 	/**
 	 * Logs a message at the WARN level, including structured contextual data, according to the specified format and
@@ -130,12 +215,37 @@ public interface LoggerInterface {
 	}
 
 	/**
+	 * Logs a message at the WARN level with the given name, including structured contextual data, according to
+	 * the specified format and arguments.
+	 *
+	 * @param topic				The logger name.
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	default void warn(String topic, String format, Map<String, String> contextualData, Object... arguments) {
+		warn(topic, format, arguments);
+	}
+
+	/**
 	 * Logs a message at the ERROR level according to the specified format and arguments.
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
 	 */
 	void error(String format, Object... arguments);
+
+	/**
+	 * Logs a message at the ERROR level with the given name, according to the specified format and arguments.
+	 *
+	 * @param topic		The logger name.
+	 * @param format	The format string.
+	 * @param arguments	The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	void error(String topic, String format, Object... arguments);
 
 	/**
 	 * Logs a message at the WARN level, including structured contextual data, according to the specified format and
@@ -150,4 +260,20 @@ public interface LoggerInterface {
 	default void error(String format, Map<String, String> contextualData, Object... arguments) {
 		error(format, arguments);
 	}
+
+	/**
+	 * Logs a message at the ERROR level with the given name, including structured contextual data, according to
+	 * the specified format and arguments.
+	 *
+	 * @param topic				The logger name.
+	 * @param format			The format string.
+	 * @param contextualData	The structured data stored into the log context. When it is possible the default
+	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
+	 * @param arguments			The list of arguments.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	default void error(String topic, String format, Map<String, String> contextualData, Object... arguments) {
+		error(topic, format, arguments);
+	}
+
 }
