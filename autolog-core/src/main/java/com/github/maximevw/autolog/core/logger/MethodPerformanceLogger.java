@@ -20,6 +20,7 @@
 
 package com.github.maximevw.autolog.core.logger;
 
+import com.github.maximevw.autolog.core.configuration.MethodInputLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.MethodPerformanceLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimer;
@@ -72,11 +73,15 @@ public class MethodPerformanceLogger {
 			httpMethod = LoggingUtils.retrieveHttpMethod(method);
 		}
 
-		return start(configuration, methodName, httpMethod);
+		return start(configuration, LoggingUtils.computeTopic(method.getDeclaringClass(), configuration.getTopic(),
+			configuration.isCallerClassUsedAsTopic()), methodName, httpMethod);
 	}
 
 	/**
 	 * Starts a performance timer for a method invocation.
+	 * <p>
+	 *     This method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
+	 * </p>
 	 *
 	 * @param configuration     The configuration used for logging.
 	 * @param methodName        The name of the invoked method.
@@ -89,7 +94,23 @@ public class MethodPerformanceLogger {
 	 */
 	public PerformanceTimer start(@NonNull final MethodPerformanceLoggingConfiguration configuration,
 								  @NonNull final String methodName) {
-		return start(configuration, methodName, null);
+		return start(configuration, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, methodName, null);
+	}
+
+	/**
+	 * Starts a performance timer for a method invocation.
+	 *
+	 * @param configuration     The configuration used for logging.
+	 * @param callerClass		The declaring class of the invoked method.
+	 * @param methodName        The name of the invoked method.
+	 * @return An instance of the running performance timer.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	public PerformanceTimer start(@NonNull final MethodPerformanceLoggingConfiguration configuration,
+								  @NonNull final Class<?> callerClass, @NonNull final String methodName) {
+		return start(configuration, LoggingUtils.computeTopic(callerClass, configuration.getTopic(),
+			configuration.isCallerClassUsedAsTopic()),
+			LoggingUtils.getMethodName(methodName, callerClass, configuration.isClassNameDisplayed()), null);
 	}
 
 	/**
@@ -104,9 +125,33 @@ public class MethodPerformanceLogger {
 	 *                          </p>
 	 * @param httpMethod		The HTTP method of the API endpoint corresponding to the invoked method.
 	 * @return An instance of the running performance timer.
+	 * @deprecated Use {@link #start(MethodPerformanceLoggingConfiguration, String, String, String)} instead. This
+	 * 			   method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
 	 */
+	@Deprecated
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	public PerformanceTimer start(@NonNull final MethodPerformanceLoggingConfiguration configuration,
 								  @NonNull final String methodName, final String httpMethod) {
+		return start(configuration, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, methodName, httpMethod);
+	}
+
+	/**
+	 * Starts a performance timer for a method invocation.
+	 *
+	 * @param configuration     The configuration used for logging.
+	 * @param topic		        The logger name.
+	 * @param methodName        The name of the invoked method.
+	 *                          <p>
+	 *                              The parameter {@link MethodPerformanceLoggingConfiguration#isClassNameDisplayed()}
+	 *                              is ignored here. So, if the enclosing class name must be displayed, the method name
+	 *                              must already be prefixed with it.
+	 *                          </p>
+	 * @param httpMethod		The HTTP method of the API endpoint corresponding to the invoked method.
+	 * @return An instance of the running performance timer.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	public PerformanceTimer start(@NonNull final MethodPerformanceLoggingConfiguration configuration,
+								  final String topic, @NonNull final String methodName, final String httpMethod) {
 		String loggedMethodName = methodName;
 		if (StringUtils.isNotBlank(configuration.getName())) {
 			loggedMethodName = configuration.getName();
@@ -120,6 +165,7 @@ public class MethodPerformanceLogger {
 			.startTime(startTime)
 			.comments(configuration.getComments())
 			.failed(false)
+			.topic(topic)
 			.build();
 
 		stopWatch.start();
@@ -194,7 +240,7 @@ public class MethodPerformanceLogger {
 
 		// Effectively log the performance data.
 		if (configuration.isStructuredMessage()) {
-			loggerManager.logWithLevel(configuration.getLogLevel(),
+			loggerManager.logWithLevel(configuration.getLogLevel(), methodPerformanceLogEntry.getTopic(),
 				LoggingUtils.prettify(methodPerformanceLogEntry,
 					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
 				contextualData);
@@ -235,8 +281,8 @@ public class MethodPerformanceLogger {
 					methodPerformanceLogEntry.getComments()));
 			}
 
-			loggerManager.logWithLevel(configuration.getLogLevel(), performanceMessageTemplate, contextualData,
-				performanceMessageArgs.toArray());
+			loggerManager.logWithLevel(configuration.getLogLevel(), methodPerformanceLogEntry.getTopic(),
+				performanceMessageTemplate, contextualData, performanceMessageArgs.toArray());
 		}
 	}
 

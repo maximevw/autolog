@@ -92,14 +92,43 @@ public class MethodCallLogger {
             }
         }
 
-        logMethodInput(configuration, LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()),
-			argsList);
+        logMethodInput(configuration, LoggingUtils.computeTopic(method.getDeclaringClass(), configuration.getTopic(),
+				configuration.isCallerClassUsedAsTopic()),
+			LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()), argsList);
     }
 
-    /**
+	/**
+	 * Logs the input of a method invocation.
+	 *
+	 * @param configuration     The configuration used for logging.
+	 * @param methodName        The name of the invoked method.
+	 *                          <p>
+	 *                              The parameter {@link MethodInputLoggingConfiguration#isClassNameDisplayed()} is
+	 *                              ignored here. So, if the enclosing class name must be displayed, the method name
+	 *                              must already be prefixed with it.
+	 *                          </p>
+	 * @param args              The method input arguments.
+	 *                          <p>
+	 *                              The parameters {@link MethodInputLoggingConfiguration#getExcludedArguments()} and
+	 *                              {@link MethodInputLoggingConfiguration#getOnlyLoggedArguments()} will be applied on
+	 *                              the names defined as keys of each pair in the list.
+	 *                          </p>
+	 *
+	 * @deprecated Use {@link #logMethodInput(MethodInputLoggingConfiguration, String, String, List)} instead. This
+	 * 			   method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
+	 */
+	@Deprecated
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	public void logMethodInput(@NonNull final MethodInputLoggingConfiguration configuration,
+							   @NonNull final String methodName, @NonNull final List<Pair<String, Object>> args) {
+		logMethodInput(configuration, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, methodName, args);
+	}
+
+	/**
      * Logs the input of a method invocation.
      *
      * @param configuration     The configuration used for logging.
+	 * @param topic     		The logger name.
      * @param methodName        The name of the invoked method.
      *                          <p>
 	 *                              The parameter {@link MethodInputLoggingConfiguration#isClassNameDisplayed()} is
@@ -113,7 +142,8 @@ public class MethodCallLogger {
 	 *                              the names defined as keys of each pair in the list.
      *                          </p>
      */
-    public void logMethodInput(@NonNull final MethodInputLoggingConfiguration configuration,
+	@API(status = API.Status.STABLE, since = "1.2.0")
+    public void logMethodInput(@NonNull final MethodInputLoggingConfiguration configuration, final String topic,
                                @NonNull final String methodName, @NonNull final List<Pair<String, Object>> args) {
 		final Map<String, String> methodArgsMap = LoggingUtils.mapMethodArguments(args, configuration);
 
@@ -134,13 +164,14 @@ public class MethodCallLogger {
 				.calledMethod(methodName)
 				.inputParameters(methodArgsMap)
 				.build();
-    		loggerManager.logWithLevel(configuration.getLogLevel(),
+    		loggerManager.logWithLevel(configuration.getLogLevel(), topic,
 				LoggingUtils.prettify(structuredMessage,
 					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
 				contextualData);
 		} else {
-			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getMessageTemplate(), contextualData,
-				methodName, LoggingUtils.formatMethodArguments(args, configuration));
+			loggerManager.logWithLevel(configuration.getLogLevel(), topic,
+				configuration.getMessageTemplate(), contextualData, methodName,
+				LoggingUtils.formatMethodArguments(args, configuration));
 		}
     }
 
@@ -153,18 +184,44 @@ public class MethodCallLogger {
      */
     public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
                                 @NonNull final Method method, final Object outputValue) {
+    	final String topic = LoggingUtils.computeTopic(method.getDeclaringClass(), configuration.getTopic(),
+			configuration.isCallerClassUsedAsTopic());
         if (void.class.equals(method.getReturnType())) {
-            logMethodOutput(configuration, LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()));
+            logMethodOutput(configuration, topic,
+				LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()));
         } else {
-            logMethodOutput(configuration, LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()),
-                    outputValue);
+            logMethodOutput(configuration, topic,
+				LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed()), outputValue);
         }
     }
 
-    /**
+	/**
+	 * Logs the output value of a method invocation.
+	 *
+	 * @param configuration     The configuration used for logging.
+	 * @param methodName        The name of the invoked method.
+	 *                          <p>
+	 *                              The parameter {@link MethodOutputLoggingConfiguration#isClassNameDisplayed()} is
+	 *                              ignored here. So, if the enclosing class name must be displayed, the method name
+	 *                              must already be prefixed with it.
+	 *                          </p>
+	 * @param outputValue       The method output value.
+	 *
+	 * @deprecated Use {@link #logMethodOutput(MethodOutputLoggingConfiguration, String, String, Object)} instead. This
+	 * 			   method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
+	 */
+	@Deprecated
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
+								@NonNull final String methodName, final Object outputValue) {
+		logMethodOutput(configuration, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, methodName, outputValue);
+	}
+
+	/**
      * Logs the output value of a method invocation.
      *
      * @param configuration     The configuration used for logging.
+	 * @param topic     		The logger name.
      * @param methodName        The name of the invoked method.
      *                          <p>
 	 *                              The parameter {@link MethodOutputLoggingConfiguration#isClassNameDisplayed()} is
@@ -173,8 +230,9 @@ public class MethodCallLogger {
      *                          </p>
      * @param outputValue       The method output value.
      */
-    public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
-                                @NonNull final String methodName, final Object outputValue) {
+	@API(status = API.Status.STABLE, since = "1.2.0")
+    public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration, final String topic,
+								@NonNull final String methodName, final Object outputValue) {
     	final String formattedOutputValue = LoggingUtils.formatData(outputValue, configuration.getPrettyFormat(),
 			configuration.isCollectionsAndMapsExpanded());
 
@@ -190,20 +248,42 @@ public class MethodCallLogger {
 				.calledMethod(methodName)
 				.outputValue(formattedOutputValue)
 				.build();
-			loggerManager.logWithLevel(configuration.getLogLevel(),
+			loggerManager.logWithLevel(configuration.getLogLevel(), topic,
 				LoggingUtils.prettify(structuredMessage,
 					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
 				contextualData);
 		} else {
-			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getMessageTemplate(), contextualData,
-				methodName, formattedOutputValue);
+			loggerManager.logWithLevel(configuration.getLogLevel(), topic,
+				configuration.getMessageTemplate(), contextualData, methodName, formattedOutputValue);
 		}
     }
+
+	/**
+	 * Logs the end of the invocation of a method returning {@code void}.
+	 *
+	 * @param configuration     The configuration used for logging.
+	 * @param methodName        The name of the invoked method.
+	 *                          <p>
+	 *                              The parameter {@link MethodOutputLoggingConfiguration#isClassNameDisplayed()} is
+	 *                              ignored here. So, if the enclosing class name must be displayed, the method name
+	 *                              must already be prefixed with it.
+	 *                          </p>
+	 *
+	 * @deprecated Use {@link #logMethodOutput(MethodOutputLoggingConfiguration, String, String)} instead. This method
+	 * 			   always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
+	 */
+	@Deprecated
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
+								@NonNull final String methodName) {
+		logMethodOutput(configuration, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, methodName);
+	}
 
     /**
      * Logs the end of the invocation of a method returning {@code void}.
      *
      * @param configuration     The configuration used for logging.
+	 * @param topic     		The logger name.
      * @param methodName        The name of the invoked method.
 	 *                          <p>
 	 *                              The parameter {@link MethodOutputLoggingConfiguration#isClassNameDisplayed()} is
@@ -211,7 +291,8 @@ public class MethodCallLogger {
 	 *                              must already be prefixed with it.
 	 *                          </p>
      */
-    public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
+    @API(status = API.Status.STABLE, since = "1.2.0")
+    public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration, final String topic,
                                 @NonNull final String methodName) {
 		// Build the map of data to store in the log context if required.
 		Map<String, String> contextualData = null;
@@ -225,13 +306,13 @@ public class MethodCallLogger {
 				.calledMethod(methodName)
 				.outputValue(Void.TYPE.getName())
 				.build();
-			loggerManager.logWithLevel(configuration.getLogLevel(),
+			loggerManager.logWithLevel(configuration.getLogLevel(), topic,
 				LoggingUtils.prettify(structuredMessage,
 					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
 				contextualData);
 		} else {
-			loggerManager.logWithLevel(configuration.getLogLevel(), configuration.getVoidOutputMessageTemplate(),
-				contextualData, methodName);
+			loggerManager.logWithLevel(configuration.getLogLevel(), topic,
+				configuration.getVoidOutputMessageTemplate(), contextualData, methodName);
 		}
     }
 
@@ -245,6 +326,8 @@ public class MethodCallLogger {
     public void logThrowable(@NonNull final MethodOutputLoggingConfiguration configuration,
 							 @NonNull final Method method, @NonNull final Throwable throwable) {
     	final String methodName = LoggingUtils.getMethodName(method, configuration.isClassNameDisplayed());
+		final String topic = LoggingUtils.computeTopic(method.getDeclaringClass(), configuration.getTopic(),
+			configuration.isCallerClassUsedAsTopic());
 
 		// Build the map of data to store in the log context if required.
 		Map<String, String> contextualData = null;
@@ -262,24 +345,38 @@ public class MethodCallLogger {
 					.map(StackTraceElement::toString)
 					.collect(Collectors.toList()))
 				.build();
-			loggerManager.logWithLevel(LogLevel.ERROR,
+			loggerManager.logWithLevel(LogLevel.ERROR, topic,
 				LoggingUtils.prettify(structuredMessage,
 					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
 				contextualData);
 		} else {
-			logThrowable(throwable, contextualData);
+			logThrowable(throwable, topic, contextualData);
 		}
     }
 
-    /**
+	/**
+	 * Logs an exception or an error thrown during a method invocation, with a specific logger name.
+	 *
+	 * @param throwable 	 The exception or error to log.
+	 * @param topic			 The logger name.
+	 * @param contextualData The data to store into the log context.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	public void logThrowable(@NonNull final Throwable throwable, final String topic,
+							 final Map<String, String> contextualData) {
+		loggerManager.logWithLevel(LogLevel.ERROR, topic, MethodOutputLoggingConfiguration.THROWABLE_MESSAGE_TEMPLATE,
+			contextualData, throwable.getClass().getName(), throwable.getMessage(), throwable);
+	}
+
+	/**
      * Logs an exception or an error thrown during a method invocation.
      *
      * @param throwable 	 The exception or error to log.
      * @param contextualData The data to store into the log context.
      */
+	@API(status = API.Status.STABLE, since = "1.1.0")
     public void logThrowable(@NonNull final Throwable throwable, final Map<String, String> contextualData) {
-    	loggerManager.logWithLevel(LogLevel.ERROR, MethodOutputLoggingConfiguration.THROWABLE_MESSAGE_TEMPLATE,
-			contextualData, throwable.getClass().getName(), throwable.getMessage(), throwable);
+    	logThrowable(throwable, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, contextualData);
     }
 
 	/**

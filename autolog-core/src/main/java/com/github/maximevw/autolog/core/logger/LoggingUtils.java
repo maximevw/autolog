@@ -26,6 +26,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodInOut;
 import com.github.maximevw.autolog.core.configuration.MethodInputLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
+import lombok.NonNull;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
@@ -56,6 +57,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -159,11 +161,47 @@ public final class LoggingUtils {
 	 *         otherwise.
 	 */
 	static String getMethodName(final Method method, final boolean prefixWithClassName) {
-		String methodName = StringUtils.defaultString(method.getName(), UNKNOWN_METHOD_NAME);
+		final String methodName = StringUtils.defaultString(method.getName(), UNKNOWN_METHOD_NAME);
+		return getMethodName(methodName, method.getDeclaringClass(), prefixWithClassName);
+	}
+
+	/**
+	 * Gets the qualified (if requested) method name.
+	 *
+	 * @param methodName            The method name.
+	 * @param clazz                 The declaring class corresponding to the method name.
+	 * @param prefixWithClassName   Whether the method name must be prefixed by the declaring class name.
+	 * @return The qualified method name if {@code prefixWithClassName} is {@code true}, the simple method name
+	 *         otherwise.
+	 */
+	static String getMethodName(@NonNull final String methodName, final Class<?> clazz,
+								final boolean prefixWithClassName) {
 		if (prefixWithClassName) {
-			methodName = String.format(METHOD_NAME_FORMATTER, method.getDeclaringClass().getSimpleName(), methodName);
+			return String.format(METHOD_NAME_FORMATTER, clazz.getSimpleName(), methodName);
 		}
 		return methodName;
+	}
+
+	/**
+	 * Computes the logger name to use according to the given configuration.
+	 * <p>
+	 *     If the custom logger name is left blank, the default value {@value AUTOLOG_DEFAULT_TOPIC} will be returned
+	 *     except if the caller class name must used. Otherwise, the custom logger name will be returned.
+	 * </p>
+	 *
+	 * @param callerClass			The caller class.
+	 * @param topic					The custom logger name (can be {@code null} or blank).
+	 * @param useCallerClassName	Whether the caller class name must be used as logger name if no custom name is
+	 *                              specified.
+	 * @return The logger name to use.
+	 */
+	static String computeTopic(@NonNull final Class<?> callerClass, final String topic,
+							   final boolean useCallerClassName) {
+		if (useCallerClassName && StringUtils.isBlank(topic)) {
+			return Optional.ofNullable(callerClass.getCanonicalName()).orElse(callerClass.getName());
+		} else {
+			return StringUtils.defaultIfBlank(topic, AUTOLOG_DEFAULT_TOPIC);
+		}
 	}
 
 	/**

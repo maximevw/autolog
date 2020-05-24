@@ -206,10 +206,19 @@ public class MethodPerformanceLoggingConfiguration {
 
 	/**
 	 * The logger name to use. If not specified, the default value {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} will be
-	 * used.
+	 * used. To use the caller class name as logger name, keep this {@code null} or blank and set the property
+	 * {@link #isCallerClassUsedAsTopic()} to {@code true}.
 	 */
 	@API(status = API.Status.STABLE, since = "1.2.0")
 	private String topic;
+
+	/**
+	 * Whether the caller class name must be used as logger name when no custom logger name is specified in the property
+	 * {@link #getTopic()} ({@code null} or blank). By default: {@code false}.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	@Builder.Default
+	private boolean callerClassUsedAsTopic = false;
 
 	/**
 	 * Builds a new instance of configuration for auto-logging of performance data of methods invocations based on an
@@ -232,6 +241,7 @@ public class MethodPerformanceLoggingConfiguration {
 			.structuredMessage(autoLogPerformance.structuredMessage())
 			.dataLoggedInContext(autoLogPerformance.logDataInContext())
 			.topic(autoLogPerformance.topic())
+			.callerClassUsedAsTopic(autoLogPerformance.callerClassAsTopic())
 			.build();
 	}
 }

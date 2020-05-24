@@ -138,16 +138,19 @@ public class LoggerManager {
 	void logWithLevel(final LogLevel logLevel, final String topic, final String message,
 					  final Map<String, String> contextualData, final Object... arguments) {
 		final String logMethodName = logLevel.name().toLowerCase();
+		final String safeTopic = StringUtils.defaultIfBlank(topic, LoggingUtils.AUTOLOG_DEFAULT_TOPIC);
+
 		this.registeredLoggers.forEach(logger -> {
 			try {
 				final Method logMethod;
 				if (contextualData == null) {
 					logMethod = logger.getClass().getMethod(logMethodName, String.class, String.class, Object[].class);
-					logMethod.invoke(logger, topic, StringUtils.defaultString(message, StringUtils.EMPTY), arguments);
+					logMethod.invoke(logger, safeTopic, StringUtils.defaultString(message, StringUtils.EMPTY),
+						arguments);
 				} else {
 					logMethod = logger.getClass().getMethod(logMethodName, String.class, String.class, Map.class,
 						Object[].class);
-					logMethod.invoke(logger, topic, StringUtils.defaultString(message, StringUtils.EMPTY),
+					logMethod.invoke(logger, safeTopic, StringUtils.defaultString(message, StringUtils.EMPTY),
 						contextualData, arguments);
 				}
 			} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {

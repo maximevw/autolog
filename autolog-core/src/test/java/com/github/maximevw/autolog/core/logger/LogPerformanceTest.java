@@ -175,8 +175,8 @@ class LogPerformanceTest {
 	 */
 	@Test
 	void givenNullMethod_whenStartTimerWithMethodNameAndHttpMethod_throwsException() {
-		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(), null,
-			"GET"));
+		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(),
+			(String) null, "GET"));
 	}
 
 	/**

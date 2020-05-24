@@ -250,8 +250,17 @@ public @interface AutoLogPerformance {
 	boolean logDataInContext() default false;
 
 	/**
-	 * @return The logger name to use. If not specified, the default value "Autolog" will be used.
+	 * @return The logger name to use. If not specified or left blank, the default value "Autolog" will be used.
+	 * 		   To use the caller class name as logger name, keep the default value and set the property
+	 * 		   {@code callerClassAsTopic} to {@code true}.
 	 */
 	@API(status = API.Status.STABLE, since = "1.2.0")
 	String topic() default StringUtils.EMPTY;
+
+	/**
+	 * @return Whether the caller class name must be used as logger name when no custom logger name is specified in
+	 * 		   the property {@code topic} (default value or blank one). By default: {@code false}.
+	 */
+	@API(status = API.Status.STABLE, since = "1.2.0")
+	boolean callerClassAsTopic() default false;
 }

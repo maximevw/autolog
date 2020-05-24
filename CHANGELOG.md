@@ -8,8 +8,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Add the ability to use custom logger names instead of the default one (`"Autolog"`):
   - Add a parameter `topic` on all the annotations `@AutoLog*` to specify a custom logger name.
+  - Add a parameter `callerClassAsTopic` on all the annotations `@AutoLog*` to use the caller class name as logger name
+  when there is no custom logger name specified.
+  - Add new methods in `MethodCallLogger`:
+    - `logMethodInput(MethodInputLoggingConfiguration, String, String, List)`
+    - `logMethodOutput(MethodOutputLoggingConfiguration, String, String)`
+    - `logMethodOutput(MethodOutputLoggingConfiguration, String, String, Object)`
+    - `logThrowable(Throwable, String, Map)`
+  - Add new methods in `MethodPerformanceLogger`:
+    - `start(MethodPerformanceLoggingConfiguration, Class, String)`
+    - `start(MethodPerformanceLoggingConfiguration, String, String, String)`
   - Regarding `SystemOutAdapter`, the log format is modified: it is now prefixed by the logger name (for example, by
-  default we get now: `[Autolog] DEBUG: A logged message.`)
+  default we get now: `[Autolog] DEBUG: A logged message.`).
+### Deprecated
+- As a consequence of the new feature relative to the custom logger names, deprecate the following methods:
+  - in `MethodCallLogger`:
+    - `logMethodInput(MethodInputLoggingConfiguration, String, List)`
+    - `logMethodOutput(MethodOutputLoggingConfiguration, String)`
+    - `logMethodOutput(MethodOutputLoggingConfiguration, String, Object)`
+  - in `MethodPerformanceLogger`:
+    - `start(MethodPerformanceLoggingConfiguration, String, String)`
 
 ## [1.1.0] - 2020-05-08
 ### Added

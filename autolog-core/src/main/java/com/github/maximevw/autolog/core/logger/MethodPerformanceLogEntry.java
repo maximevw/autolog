@@ -20,6 +20,7 @@
 
 package com.github.maximevw.autolog.core.logger;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.github.maximevw.autolog.core.annotations.AutoLogPerformance;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
@@ -104,6 +105,14 @@ public class MethodPerformanceLogEntry {
 	@Builder.Default
 	@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 	private List<String> comments = new ArrayList<>();
+
+	/**
+	 * The logger name used for this log entry.
+	 */
+	@Builder.Default
+	@JsonIgnore
+	@API(status = API.Status.INTERNAL, since = "1.2.0")
+	private String topic = LoggingUtils.AUTOLOG_DEFAULT_TOPIC;
 
 	/**
 	 * Gets the total execution time of the invoked method formatted to be human readable.
