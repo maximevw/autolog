@@ -20,7 +20,6 @@
 
 package com.github.maximevw.autolog.core.logger;
 
-import com.github.maximevw.autolog.core.configuration.MethodInputLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.MethodPerformanceLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimer;
@@ -128,7 +127,7 @@ public class MethodPerformanceLogger {
 	 * @deprecated Use {@link #start(MethodPerformanceLoggingConfiguration, String, String, String)} instead. This
 	 * 			   method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
 	 */
-	@Deprecated
+	@Deprecated(since = "1.2.0")
 	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	public PerformanceTimer start(@NonNull final MethodPerformanceLoggingConfiguration configuration,
 								  @NonNull final String methodName, final String httpMethod) {

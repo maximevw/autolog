@@ -22,7 +22,6 @@ package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LogLevel;
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import org.apiguardian.api.API;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
@@ -47,18 +46,8 @@ public class SystemOutAdapter implements LoggerInterface {
 	}
 
 	@Override
-	public void trace(final String format, final Object... arguments) {
-		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void trace(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.TRACE, format, arguments);
-	}
-
-	@Override
-	public void debug(final String format, final Object... arguments) {
-		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	@Override
@@ -67,28 +56,13 @@ public class SystemOutAdapter implements LoggerInterface {
 	}
 
 	@Override
-	public void info(final String format, final Object... arguments) {
-		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void info(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.INFO, format, arguments);
 	}
 
 	@Override
-	public void warn(final String format, final Object... arguments) {
-		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void warn(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.WARN, format, arguments);
-	}
-
-	@Override
-	public void error(final String format, final Object... arguments) {
-		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	@Override

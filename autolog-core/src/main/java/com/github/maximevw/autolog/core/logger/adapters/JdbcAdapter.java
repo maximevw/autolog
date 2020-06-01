@@ -115,18 +115,8 @@ public class JdbcAdapter implements ConfigurableLoggerInterface {
 	}
 
 	@Override
-	public void trace(final String format, final Object... arguments) {
-		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void trace(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.TRACE, format, arguments);
-	}
-
-	@Override
-	public void debug(final String format, final Object... arguments) {
-		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	@Override
@@ -135,28 +125,13 @@ public class JdbcAdapter implements ConfigurableLoggerInterface {
 	}
 
 	@Override
-	public void info(final String format, final Object... arguments) {
-		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void info(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.INFO, format, arguments);
 	}
 
 	@Override
-	public void warn(final String format, final Object... arguments) {
-		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void warn(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.WARN, format, arguments);
-	}
-
-	@Override
-	public void error(final String format, final Object... arguments) {
-		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	@Override

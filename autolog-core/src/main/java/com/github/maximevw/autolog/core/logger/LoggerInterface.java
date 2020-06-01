@@ -46,8 +46,14 @@ public interface LoggerInterface {
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
+	 * @deprecated Use {@link #trace(String, String, Object...)} instead. The default implementation now uses this
+	 * 			   implementation with {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	void trace(String format, Object... arguments);
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	default void trace(String format, Object... arguments) {
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
 
 	/**
 	 * Logs a message at the TRACE level with the given name, according to the specified format and arguments.
@@ -67,10 +73,13 @@ public interface LoggerInterface {
 	 * @param contextualData	The structured data stored into the log context. When it is possible the default
 	 *                          implementation (simply calling {@link #trace(String, Object...)}) must be overridden.
 	 * @param arguments			The list of arguments.
+	 * @deprecated Use {@link #trace(String, String, Map, Object...)} instead. The default implementation now uses
+	 * 			   {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	default void trace(String format, Map<String, String> contextualData, Object... arguments) {
-		trace(format, arguments);
+		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	/**
@@ -93,8 +102,14 @@ public interface LoggerInterface {
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
+	 * @deprecated Use {@link #debug(String, String, Object...)} instead. The default implementation now uses this
+	 * 			   implementation with {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	void debug(String format, Object... arguments);
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	default void debug(String format, Object... arguments) {
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
 
 	/**
 	 * Logs a message at the DEBUG level with the given name, according to the specified format and arguments.
@@ -114,10 +129,13 @@ public interface LoggerInterface {
 	 * @param contextualData	The structured data stored into the log context. When it is possible the default
 	 *                          implementation (simply calling {@link #debug(String, Object...)}) must be overridden.
 	 * @param arguments			The list of arguments.
+	 * @deprecated Use {@link #debug(String, String, Map, Object...)} instead. The default implementation now uses
+	 * 			   {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	default void debug(String format, Map<String, String> contextualData, Object... arguments) {
-		debug(format, arguments);
+		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	/**
@@ -140,8 +158,14 @@ public interface LoggerInterface {
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
+	 * @deprecated Use {@link #info(String, String, Object...)} instead. The default implementation now uses this
+	 * 			   implementation with {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	void info(String format, Object... arguments);
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	default void info(String format, Object... arguments) {
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
 
 	/**
 	 * Logs a message at the INFO level with the given name, according to the specified format and arguments.
@@ -161,10 +185,13 @@ public interface LoggerInterface {
 	 * @param contextualData	The structured data stored into the log context. When it is possible the default
 	 *                          implementation (simply calling {@link #info(String, Object...)}) must be overridden.
 	 * @param arguments			The list of arguments.
+	 * @deprecated Use {@link #info(String, String, Map, Object...)} instead. The default implementation now uses
+	 * 			   {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	default void info(String format, Map<String, String> contextualData, Object... arguments) {
-		info(format, arguments);
+		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	/**
@@ -187,8 +214,14 @@ public interface LoggerInterface {
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
+	 * @deprecated Use {@link #warn(String, String, Object...)} instead. The default implementation now uses this
+	 * 			   implementation with {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	void warn(String format, Object... arguments);
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	default void warn(String format, Object... arguments) {
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
 
 	/**
 	 * Logs a message at the WARN level with the given name, according to the specified format and arguments.
@@ -208,10 +241,13 @@ public interface LoggerInterface {
 	 * @param contextualData	The structured data stored into the log context. When it is possible the default
 	 *                          implementation (simply calling {@link #warn(String, Object...)}) must be overridden.
 	 * @param arguments			The list of arguments.
+	 * @deprecated Use {@link #warn(String, String, Map, Object...)} instead. The default implementation now uses
+	 * 			   {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	default void warn(String format, Map<String, String> contextualData, Object... arguments) {
-		warn(format, arguments);
+		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	/**
@@ -234,8 +270,14 @@ public interface LoggerInterface {
 	 *
 	 * @param format    The format string.
 	 * @param arguments The list of arguments.
+	 * @deprecated Use {@link #error(String, String, Object...)} instead. The default implementation now uses this
+	 * 			   implementation with {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	void error(String format, Object... arguments);
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
+	default void error(String format, Object... arguments) {
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
+	}
 
 	/**
 	 * Logs a message at the ERROR level with the given name, according to the specified format and arguments.
@@ -255,10 +297,13 @@ public interface LoggerInterface {
 	 * @param contextualData	The structured data stored into the log context. When it is possible the default
 	 *                          implementation (simply calling {@link #error(String, Object...)}) must be overridden.
 	 * @param arguments			The list of arguments.
+	 * @deprecated Use {@link #error(String, String, Map, Object...)} instead. The default implementation now uses
+	 * 			   {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as default logger name.
 	 */
-	@API(status = API.Status.STABLE, since = "1.1.0")
+	@Deprecated(since = "1.2.0")
+	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	default void error(String format, Map<String, String> contextualData, Object... arguments) {
-		error(format, arguments);
+		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	/**

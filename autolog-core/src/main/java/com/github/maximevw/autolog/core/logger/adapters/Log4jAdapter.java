@@ -37,7 +37,7 @@ import java.lang.reflect.Method;
  * @deprecated Use {@link Log4j2Adapter} with Log4J2 instead. Indeed, Log4J is deprecated and now classified as highly
  * 			   vulnerable (see <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-17571">CVE-2019-17571</a>).
  */
-@Deprecated
+@Deprecated(since = "1.1.0")
 @API(status = API.Status.DEPRECATED, since = "1.1.0")
 public class Log4jAdapter extends LoggerFactoryBasedAdapter<Logger> implements LoggerInterface {
 
@@ -55,18 +55,8 @@ public class Log4jAdapter extends LoggerFactoryBasedAdapter<Logger> implements L
 	}
 
 	@Override
-	public void trace(final String format, final Object... arguments) {
-		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void trace(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.TRACE, format, arguments);
-	}
-
-	@Override
-	public void debug(final String format, final Object... arguments) {
-		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	@Override
@@ -75,28 +65,13 @@ public class Log4jAdapter extends LoggerFactoryBasedAdapter<Logger> implements L
 	}
 
 	@Override
-	public void info(final String format, final Object... arguments) {
-		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void info(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.INFO, format, arguments);
 	}
 
 	@Override
-	public void warn(final String format, final Object... arguments) {
-		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void warn(final String topic, final String format, final Object... arguments) {
 		log(topic, LogLevel.WARN, format, arguments);
-	}
-
-	@Override
-	public void error(final String format, final Object... arguments) {
-		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
 	}
 
 	@Override

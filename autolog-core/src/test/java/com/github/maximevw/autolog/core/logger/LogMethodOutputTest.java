@@ -82,6 +82,7 @@ class LogMethodOutputTest {
 	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, Method, Object)
 	 */
 	@Test
+	@SuppressWarnings("ConstantConditions")
 	void givenNullConfiguration_whenLogMethodOutput_throwsException() {
 		assertThrows(NullPointerException.class, () ->
 			sut.logMethodOutput(null, LogTestingClass.class.getMethod("noOp"), null));
@@ -102,45 +103,49 @@ class LogMethodOutputTest {
 	/**
 	 * Verifies that logging output data with a null configuration throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, String, Object)
 	 */
 	@Test
 	@SuppressWarnings("ConstantConditions")
 	void givenNullConfiguration_whenLogMethodOutputByName_throwsException() {
-		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(null, "noOp", null));
+		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(null, LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+			"noOp", null));
 	}
 
 	/**
 	 * Verifies that logging output data with a null method name throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, String, Object)
 	 */
 	@Test
 	void givenNullMethodName_whenLogMethodOutputByName_throwsException() {
 		assertThrows(NullPointerException.class, () ->
-			sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(), (String) null, null));
+			sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(), LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+				null, null));
 	}
 
 	/**
 	 * Verifies that logging output data with a null configuration throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String)
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, String)
 	 */
 	@Test
 	@SuppressWarnings("ConstantConditions")
 	void givenNullConfiguration_whenLogMethodExitingByName_throwsException() {
-		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(null, "noOp"));
+		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(null, LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+			"noOp"));
 	}
 
 	/**
 	 * Verifies that logging output data with a null method name throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String)
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, String)
 	 */
 	@Test
 	void givenNullMethodName_whenLogMethodExitingByName_throwsException() {
 		assertThrows(NullPointerException.class, () ->
-			sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(), null));
+			sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(), LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+				null));
 	}
 
 	/**
@@ -148,7 +153,6 @@ class LogMethodOutputTest {
 	 *
 	 * @param withDataLoggedInContext Whether the method output data must be stored in the log context.
 	 * @throws NoSuchMethodException if method {@link LogTestingClass#methodReturningVoid()} is not defined.
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
 	@ParameterizedTest
 	@ValueSource(strings = {"true", "false"})
@@ -172,7 +176,6 @@ class LogMethodOutputTest {
 	 * message.
 	 *
 	 * @throws NoSuchMethodException if method {@link LogTestingClass#methodReturningVoid()} is not defined.
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
 	@Test
 	void givenMethodReturningVoid_whenLogMethodOutputAsStructuredMessage_generatesLog() throws NoSuchMethodException {
@@ -194,7 +197,6 @@ class LogMethodOutputTest {
 	 *
 	 * @param withDataLoggedInContext Whether the method output data must be stored in the log context.
 	 * @throws NoSuchMethodException if method {@link LogTestingClass#methodOutputData()} is not defined.
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
 	@ParameterizedTest
 	@ValueSource(strings = {"true", "false"})
@@ -218,7 +220,6 @@ class LogMethodOutputTest {
 	 * Verifies the effective logging of output data for a given method as a structured message.
 	 *
 	 * @throws NoSuchMethodException if method {@link LogTestingClass#methodOutputData()} is not defined.
-	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
 	 */
 	@Test
 	void givenMethod_whenLogMethodOutputAsStructuredMessage_generatesLog() throws NoSuchMethodException {

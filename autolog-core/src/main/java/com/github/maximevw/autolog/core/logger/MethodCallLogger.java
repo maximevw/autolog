@@ -117,7 +117,7 @@ public class MethodCallLogger {
 	 * @deprecated Use {@link #logMethodInput(MethodInputLoggingConfiguration, String, String, List)} instead. This
 	 * 			   method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
 	 */
-	@Deprecated
+	@Deprecated(since = "1.2.0")
 	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	public void logMethodInput(@NonNull final MethodInputLoggingConfiguration configuration,
 							   @NonNull final String methodName, @NonNull final List<Pair<String, Object>> args) {
@@ -210,7 +210,7 @@ public class MethodCallLogger {
 	 * @deprecated Use {@link #logMethodOutput(MethodOutputLoggingConfiguration, String, String, Object)} instead. This
 	 * 			   method always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
 	 */
-	@Deprecated
+	@Deprecated(since = "1.2.0")
 	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
 								@NonNull final String methodName, final Object outputValue) {
@@ -272,7 +272,7 @@ public class MethodCallLogger {
 	 * @deprecated Use {@link #logMethodOutput(MethodOutputLoggingConfiguration, String, String)} instead. This method
 	 * 			   always uses {@value LoggingUtils#AUTOLOG_DEFAULT_TOPIC} as logger name.
 	 */
-	@Deprecated
+	@Deprecated(since = "1.2.0")
 	@API(status = API.Status.DEPRECATED, since = "1.2.0")
 	public void logMethodOutput(@NonNull final MethodOutputLoggingConfiguration configuration,
 								@NonNull final String methodName) {

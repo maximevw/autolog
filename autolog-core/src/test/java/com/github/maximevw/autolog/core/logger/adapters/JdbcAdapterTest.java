@@ -92,7 +92,7 @@ class JdbcAdapterTest {
 	@Test
 	void givenNullDataSource_whenLogEvent_logsWarningAndPersistsNothing() {
 		final JdbcAdapter sut = JdbcAdapter.getInstance(mock(JdbcAdapterConfiguration.class));
-		sut.debug("Test logging a message without data source.");
+		sut.debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, "Test logging a message without data source.");
 		assertThat(STD_OUT.toString(),
 			containsString("[WARN] Autolog: No data source configured: unable to persist log event."));
 	}
@@ -112,7 +112,7 @@ class JdbcAdapterTest {
 				.build()
 		);
 
-		sut.debug("Test logging a message without connection.");
+		sut.debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, "Test logging a message without connection.");
 		assertThat(STD_ERR.toString(),
 			containsString("[ERROR] Autolog: Unable to persist log event in the specified database."));
 	}
@@ -154,7 +154,7 @@ class JdbcAdapterTest {
 				final ResultSet rsCount = connection.createStatement()
 					.executeQuery("SELECT COUNT(*) FROM " + tableName);
 				if (rsCount.next()) {
-					assertEquals(2, rsCount.getInt(1));
+					assertEquals(1, rsCount.getInt(1));
 				}
 				rsCount.close();
 
@@ -162,7 +162,7 @@ class JdbcAdapterTest {
 				final ResultSet rsLogEvents = connection.createStatement()
 					.executeQuery("SELECT TOPIC, LOG_LEVEL, MESSAGE FROM " + tableName);
 				while (rsLogEvents.next()) {
-					assertLogCategory(rsLogEvents.getString(1), rsLogEvents.getRow());
+					assertEquals(CUSTOM_LOG_CATEGORY, rsLogEvents.getString(1));
 					assertEquals(logLevel.name(), rsLogEvents.getString(2));
 					assertEquals("This is a test: " + logLevel.name(), rsLogEvents.getString(3));
 				}
@@ -190,45 +190,25 @@ class JdbcAdapterTest {
 	}
 
 	private static void log(final JdbcAdapter sut, final LogLevel logLevel) {
-		// For each log level, insert two entries:
-		// - the first one using the default 'Autolog' category.
-		// - the second one using a custom log category.
+		// For each log level, insert an entry using a custom log category.
 		switch (logLevel) {
 			case TRACE:
-				sut.trace("This is a test: {}", logLevel);
 				sut.trace(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
 				break;
 			case DEBUG:
-				sut.debug("This is a test: {}", logLevel);
 				sut.debug(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
 				break;
 			case INFO:
-				sut.info("This is a test: {}", logLevel);
 				sut.info(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
 				break;
 			case WARN:
-				sut.warn("This is a test: {}", logLevel);
 				sut.warn(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
 				break;
 			case ERROR:
-				sut.error("This is a test: {}", logLevel);
 				sut.error(CUSTOM_LOG_CATEGORY, "This is a test: {}", logLevel);
 				break;
 			default:
 				fail("Unknown level of log: " + logLevel);
-		}
-	}
-
-	private static void assertLogCategory(final String actualValue, final int rowNumber) {
-		switch (rowNumber) {
-			case 1:
-				assertEquals(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, actualValue);
-				break;
-			case 2:
-				assertEquals(CUSTOM_LOG_CATEGORY, actualValue);
-				break;
-			default:
-				fail("Unexpected row number: " + rowNumber);
 		}
 	}
 }

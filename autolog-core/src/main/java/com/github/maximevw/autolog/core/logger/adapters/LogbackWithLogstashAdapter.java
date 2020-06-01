@@ -21,7 +21,6 @@
 package com.github.maximevw.autolog.core.logger.adapters;
 
 import com.github.maximevw.autolog.core.logger.LoggerInterface;
-import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import net.logstash.logback.argument.StructuredArgument;
 import net.logstash.logback.encoder.LogstashEncoder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -58,18 +57,8 @@ public class LogbackWithLogstashAdapter extends LoggerFactoryBasedAdapter<Logger
 	}
 
 	@Override
-	public void trace(final String format, final Object... arguments) {
-		trace(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void trace(final String topic, final String format, final Object... arguments) {
 		getLogger(topic).trace(format, arguments);
-	}
-
-	@Override
-	public void trace(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		trace(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -79,18 +68,8 @@ public class LogbackWithLogstashAdapter extends LoggerFactoryBasedAdapter<Logger
 	}
 
 	@Override
-	public void debug(final String format, final Object... arguments) {
-		debug(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void debug(final String topic, final String format, final Object... arguments) {
 		getLogger(topic).debug(format, arguments);
-	}
-
-	@Override
-	public void debug(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		debug(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -100,18 +79,8 @@ public class LogbackWithLogstashAdapter extends LoggerFactoryBasedAdapter<Logger
 	}
 
 	@Override
-	public void info(final String format, final Object... arguments) {
-		info(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void info(final String topic, final String format, final Object... arguments) {
 		getLogger(topic).info(format, arguments);
-	}
-
-	@Override
-	public void info(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		info(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -121,18 +90,8 @@ public class LogbackWithLogstashAdapter extends LoggerFactoryBasedAdapter<Logger
 	}
 
 	@Override
-	public void warn(final String format, final Object... arguments) {
-		warn(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void warn(final String topic, final String format, final Object... arguments) {
 		getLogger(topic).warn(format, arguments);
-	}
-
-	@Override
-	public void warn(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		warn(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override
@@ -142,18 +101,8 @@ public class LogbackWithLogstashAdapter extends LoggerFactoryBasedAdapter<Logger
 	}
 
 	@Override
-	public void error(final String format, final Object... arguments) {
-		error(LoggingUtils.AUTOLOG_DEFAULT_TOPIC, format, arguments);
-	}
-
-	@Override
 	public void error(final String topic, final String format, final Object... arguments) {
 		getLogger(topic).error(format, arguments);
-	}
-
-	@Override
-	public void error(final String format, final Map<String, String> contextualData, final Object... arguments) {
-		error(format, ArrayUtils.addAll(arguments, toStructuredArguments(contextualData)));
 	}
 
 	@Override

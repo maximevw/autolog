@@ -351,7 +351,7 @@ class LoggerManagerTest {
 	 */
 	private void verifyLogWarnWithContextualDataCalled(final LoggerInterface loggerInterface) {
 		verify(loggerInterface, times(1)).warn(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
-			argThat((ArgumentMatcher<Map<String, String>>) argument -> argument.containsKey("testContext")
+			argThat(argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.WARN.name())), eq(LogLevel.WARN.name()));
 	}
 
@@ -396,7 +396,7 @@ class LoggerManagerTest {
 	 */
 	private void verifyLogErrorWithContextualDataCalled(final LoggerInterface loggerInterface) {
 		verify(loggerInterface, times(1)).error(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test: {}."),
-			argThat((ArgumentMatcher<Map<String, String>>) argument -> argument.containsKey("testContext")
+			argThat(argument -> argument.containsKey("testContext")
 				&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(LogLevel.ERROR.name()));
 	}
 

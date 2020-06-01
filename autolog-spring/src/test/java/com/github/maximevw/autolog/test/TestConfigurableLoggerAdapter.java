@@ -47,17 +47,7 @@ public class TestConfigurableLoggerAdapter implements ConfigurableLoggerInterfac
 	}
 
 	@Override
-	public void trace(final String format, final Object... arguments) {
-		// Do nothing: for test purpose only.
-	}
-
-	@Override
 	public void trace(final String topic, final String format, final Object... arguments) {
-		// Do nothing: for test purpose only.
-	}
-
-	@Override
-	public void debug(final String format, final Object... arguments) {
 		// Do nothing: for test purpose only.
 	}
 
@@ -67,27 +57,12 @@ public class TestConfigurableLoggerAdapter implements ConfigurableLoggerInterfac
 	}
 
 	@Override
-	public void info(final String format, final Object... arguments) {
-		// Do nothing: for test purpose only.
-	}
-
-	@Override
 	public void info(final String topic, final String format, final Object... arguments) {
 		// Do nothing: for test purpose only.
 	}
 
 	@Override
-	public void warn(final String format, final Object... arguments) {
-		// Do nothing: for test purpose only.
-	}
-
-	@Override
 	public void warn(final String topic, final String format, final Object... arguments) {
-		// Do nothing: for test purpose only.
-	}
-
-	@Override
-	public void error(final String format, final Object... arguments) {
 		// Do nothing: for test purpose only.
 	}
 

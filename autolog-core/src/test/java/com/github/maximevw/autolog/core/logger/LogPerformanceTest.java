@@ -160,23 +160,24 @@ class LogPerformanceTest {
 	/**
 	 * Verifies that starting performance monitoring with a null configuration throws a {@link NullPointerException}.
 	 *
-	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String)
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String, String)
 	 */
 	@Test
 	@SuppressWarnings("ConstantConditions")
 	void givenNullConfiguration_whenStartTimerWithMethodNameAndHttpMethod_throwsException() {
-		assertThrows(NullPointerException.class, () -> sut.start(null, "noOp", "GET"));
+		assertThrows(NullPointerException.class, () ->
+			sut.start(null, LoggingUtils.AUTOLOG_DEFAULT_TOPIC, "noOp", "GET"));
 	}
 
 	/**
 	 * Verifies that starting performance monitoring with a null method name throws a {@link NullPointerException}.
 	 *
-	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String)
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String, String)
 	 */
 	@Test
 	void givenNullMethod_whenStartTimerWithMethodNameAndHttpMethod_throwsException() {
 		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(),
-			(String) null, "GET"));
+			LoggingUtils.AUTOLOG_DEFAULT_TOPIC, null, "GET"));
 	}
 
 	/**

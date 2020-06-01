@@ -118,33 +118,36 @@ class LogMethodInputTest {
 	/**
 	 * Verifies that logging input data with a null method name throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)
+	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, String, List)
 	 */
 	@Test
 	void givenNullMethodName_whenLogMethodInputByName_throwsException() {
 		assertThrows(NullPointerException.class, () ->
-			sut.logMethodInput(MethodInputLoggingConfiguration.builder().build(), null, Collections.emptyList()));
+			sut.logMethodInput(MethodInputLoggingConfiguration.builder().build(), LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+				null, Collections.emptyList()));
 	}
 
 	/**
 	 * Verifies that logging input data with a null configuration throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)
+	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, String, List)
 	 */
 	@Test
 	void givenNullConfiguration_whenLogMethodInputByName_throwsException() {
-		assertThrows(NullPointerException.class, () -> sut.logMethodInput(null, "noOp", Collections.emptyList()));
+		assertThrows(NullPointerException.class, () -> sut.logMethodInput(null, LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+			"noOp", Collections.emptyList()));
 	}
 
 	/**
 	 * Verifies that logging input data with a null list of arguments name throws a {@link NullPointerException}.
 	 *
-	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)
+	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, String, List)
 	 */
 	@Test
 	void givenNullArgumentsList_whenLogMethodInputByName_throwsException() {
 		assertThrows(NullPointerException.class, () ->
-			sut.logMethodInput(MethodInputLoggingConfiguration.builder().build(), "noOp", null));
+			sut.logMethodInput(MethodInputLoggingConfiguration.builder().build(), LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
+				"noOp", null));
 	}
 
 	/**
