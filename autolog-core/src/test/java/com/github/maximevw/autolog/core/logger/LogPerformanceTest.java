@@ -52,6 +52,7 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasKey;
@@ -63,6 +64,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for the class {@link MethodPerformanceLogger}.
@@ -70,6 +76,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class LogPerformanceTest {
 
 	private static TestLogger logger;
+	private static TestLogger loggerByClass;
 	private static MethodPerformanceLogger sut;
 
 	/**
@@ -78,9 +85,10 @@ class LogPerformanceTest {
 	@BeforeAll
 	static void init() {
 		logger = TestLoggerFactory.getTestLogger("Autolog");
-		sut = new MethodPerformanceLogger(
+		loggerByClass = TestLoggerFactory.getTestLogger(LogTestingClass.class);
+		sut = spy(new MethodPerformanceLogger(
 			new LoggerManager().register(Slf4jAdapter.getInstance())
-		);
+		));
 	}
 
 	/**
@@ -178,6 +186,81 @@ class LogPerformanceTest {
 	void givenNullMethod_whenStartTimerWithMethodNameAndHttpMethod_throwsException() {
 		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(),
 			LoggingUtils.AUTOLOG_DEFAULT_TOPIC, null, "GET"));
+	}
+
+	/**
+	 * Verifies that starting performance monitoring with a null configuration throws a {@link NullPointerException}.
+	 *
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, Class, String)
+	 */
+	@Test
+	void givenNullConfiguration_whenStartTimerWithClassAndMethodName_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.start(null, this.getClass(), "noOp"));
+	}
+
+	/**
+	 * Verifies that starting performance monitoring with a null class throws a {@link NullPointerException}.
+	 *
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, Class, String)
+	 */
+	@Test
+	void givenNullClass_whenStartTimerWithClassAndMethodName_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(),
+			(Class<?>) null, "noOp"));
+	}
+
+	/**
+	 * Verifies that starting performance monitoring with a null method name throws a {@link NullPointerException}.
+	 *
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, Class, String)
+	 */
+	@Test
+	void givenNullMethodName_whenStartTimerWithClassAndMethodName_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(),
+			this.getClass(), null));
+	}
+
+	/**
+	 * Verifies that starting performance monitoring with a null method name throws a {@link NullPointerException}.
+	 *
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenNullMethodName_whenStartTimerWithMethodName_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.start(new MethodPerformanceLoggingConfiguration(),
+			(String) null, null));
+	}
+
+	/**
+	 * Verifies that starting performance monitoring with a null configuration throws a {@link NullPointerException}.
+	 *
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenMethodNameAndNullConfiguration_whenStartTimerWithMethodName_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.start(null, "testMethodName", null));
+	}
+
+	/**
+	 * Verifies the deprecated method
+	 * {@link MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String)} calls the new
+	 * implementation
+	 * {@link MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, String, String, String)}.
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenConfigurationAndMethodName_whenLogMethodInputWithDefaultTopic_generatesLog() {
+		final MethodPerformanceLoggingConfiguration configuration = MethodPerformanceLoggingConfiguration.builder()
+			.build();
+		final String methodName = "testMethodName";
+		sut.start(configuration, methodName, null);
+		verify(sut, times(1)).start(eq(configuration), eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC),
+			eq(methodName), isNull());
 	}
 
 	/**
@@ -577,6 +660,34 @@ class LogPerformanceTest {
 			Arguments.of(logTestingClass, "noOp", null, StringUtils.EMPTY, "LogTestingClass.noOp"),
 			// Test not annotated method with fallback name.
 			Arguments.of(logTestingClass, "noOp", "fallbackName", StringUtils.EMPTY, "fallbackName")
+		);
+	}
+
+	/**
+	 * Verifies the effective logging of the performance data for a given method using a class as logger name.
+	 *
+	 * @see MethodPerformanceLogger#start(MethodPerformanceLoggingConfiguration, Class, String)
+	 */
+	@Test
+	void givenConfigurationWithClassAsLoggerName_whenLogPerformance_generatesLog() {
+		final MethodPerformanceLoggingConfiguration configuration = MethodPerformanceLoggingConfiguration.builder()
+			.callerClassUsedAsTopic(true)
+			.build();
+		final PerformanceTimer timer = sut.start(configuration, LogTestingClass.class, "noOp");
+		new LogTestingClass().noOp();
+		sut.stopAndLog(configuration, timer);
+
+		assertFalse(timer.isRunning());
+		assertThat(logger.getLoggingEvents(), is(empty()));
+		assertThat(loggerByClass.getLoggingEvents(), hasItem(allOf(
+			hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
+			hasProperty("arguments", allOf(
+				hasItem(is("LogTestingClass.noOp")),
+				hasItem(matchesRegex("\\d+ ms")),
+				hasItem(instanceOf(LocalDateTime.class))
+			)),
+			hasProperty("level", is(Level.valueOf(configuration.getLogLevel().name()))
+			)))
 		);
 	}
 }

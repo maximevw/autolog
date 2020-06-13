@@ -36,6 +36,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -120,6 +121,26 @@ class LoggingUtilsTest {
 			Arguments.of(3_665_010, "1 h 1 m 5 s 010 ms"),
 			Arguments.of(87_005_010, "1 day(s) 0 h 10 m 5 s 010 ms")
 		);
+	}
+
+	/**
+	 * Verifies that getting the qualified method name with a null method name throws a {@link NullPointerException}.
+	 *
+	 * @see LoggingUtils#getMethodName(String, Class, boolean)
+	 */
+	@Test
+	void givenNullMethodName_whenGetMethodName_throwsException() {
+		assertThrows(NullPointerException.class, () -> LoggingUtils.getMethodName(null, Object.class, true));
+	}
+
+	/**
+	 * Verifies that computing the topic name with a null caller class throws a {@link NullPointerException}.
+	 *
+	 * @see LoggingUtils#computeTopic(Class, String, boolean)
+	 */
+	@Test
+	void givenNullCallerClass_whenComputeTopic_throwsException() {
+		assertThrows(NullPointerException.class, () -> LoggingUtils.computeTopic(null, "topic", true));
 	}
 
 }

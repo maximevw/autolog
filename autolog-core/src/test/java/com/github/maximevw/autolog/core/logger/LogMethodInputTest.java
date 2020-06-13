@@ -64,6 +64,11 @@ import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for the input data logging methods in the class {@link MethodCallLogger}.
@@ -79,9 +84,9 @@ class LogMethodInputTest {
 	@BeforeAll
 	static void init() {
 		logger = TestLoggerFactory.getTestLogger("Autolog");
-		sut = new MethodCallLogger(
+		sut = spy(new MethodCallLogger(
 			new LoggerManager().register(Slf4jAdapter.getInstance())
-		);
+		));
 	}
 
 	/**
@@ -148,6 +153,61 @@ class LogMethodInputTest {
 		assertThrows(NullPointerException.class, () ->
 			sut.logMethodInput(MethodInputLoggingConfiguration.builder().build(), LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
 				"noOp", null));
+	}
+
+	/**
+	 * Verifies that logging input data with a null method name throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenNullMethodName_whenLogMethodInput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodInput(new MethodInputLoggingConfiguration(),
+			null, Collections.emptyList()));
+	}
+
+	/**
+	 * Verifies that logging input data with a null configuration throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenMethodNameAndNullConfiguration_whenLogMethodInput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodInput(null, "testMethodName",
+			Collections.emptyList()));
+	}
+
+	/**
+	 * Verifies that logging input data with a null list of arguments throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenMethodNameAndNullArgsList_whenLogMethodInput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodInput(new MethodInputLoggingConfiguration(),
+			"testMethodName", null));
+	}
+
+	/**
+	 * Verifies the deprecated method
+	 * {@link MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, List)} calls the new
+	 * implementation {@link MethodCallLogger#logMethodInput(MethodInputLoggingConfiguration, String, String, List)}.
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenConfigurationAndMethodName_whenLogMethodInputWithDefaultTopic_generatesLog() {
+		final MethodInputLoggingConfiguration configuration = MethodInputLoggingConfiguration.builder().build();
+		final String methodName = "testMethodName";
+		sut.logMethodInput(configuration, methodName, Collections.emptyList());
+		verify(sut, times(1)).logMethodInput(eq(configuration), eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC),
+			eq(methodName), anyList());
 	}
 
 	/**

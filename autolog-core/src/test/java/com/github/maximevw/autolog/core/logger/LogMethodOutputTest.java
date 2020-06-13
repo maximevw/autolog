@@ -48,6 +48,10 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Unit tests for the output data logging methods in the class {@link MethodCallLogger}.
@@ -63,9 +67,9 @@ class LogMethodOutputTest {
 	@BeforeAll
 	static void init() {
 		logger = TestLoggerFactory.getTestLogger("Autolog");
-		sut = new MethodCallLogger(
+		sut = spy(new MethodCallLogger(
 			new LoggerManager().register(Slf4jAdapter.getInstance())
-		);
+		));
 	}
 
 	/**
@@ -146,6 +150,90 @@ class LogMethodOutputTest {
 		assertThrows(NullPointerException.class, () ->
 			sut.logMethodOutput(MethodOutputLoggingConfiguration.builder().build(), LoggingUtils.AUTOLOG_DEFAULT_TOPIC,
 				null));
+	}
+
+	/**
+	 * Verifies that logging output data with a null method name throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenNullMethodReturningVoidName_whenLogMethodOutput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(new MethodOutputLoggingConfiguration(),
+			null));
+	}
+
+	/**
+	 * Verifies that logging output data with a null configuration throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenMethodReturningVoidNameAndNullConfiguration_whenLogMethodOutput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(null, "testMethodName"));
+	}
+
+	/**
+	 * Verifies that logging output data with a null method name throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenNullMethodName_whenLogMethodOutput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(new MethodOutputLoggingConfiguration(),
+			(String) null, new Object()));
+	}
+
+	/**
+	 * Verifies that logging output data with a null configuration throws a {@link NullPointerException}.
+	 *
+	 * @see MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenMethodNameAndNullConfiguration_whenLogMethodOutput_throwsException() {
+		assertThrows(NullPointerException.class, () -> sut.logMethodOutput(null, "testMethodName", new Object()));
+	}
+
+	/**
+	 * Verifies the deprecated method
+	 * {@link MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String)} calls the new
+	 * implementation {@link MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, String)}.
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenConfigurationAndMethodReturningVoidName_whenLogMethodOutputWithDefaultTopic_generatesLog() {
+		final MethodOutputLoggingConfiguration configuration = MethodOutputLoggingConfiguration.builder().build();
+		final String methodName = "testMethodName";
+		sut.logMethodOutput(configuration, methodName);
+		verify(sut, times(1)).logMethodOutput(eq(configuration), eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC),
+			eq(methodName));
+	}
+
+	/**
+	 * Verifies the deprecated method
+	 * {@link MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, Object)} calls the new
+	 * implementation
+	 * {@link MethodCallLogger#logMethodOutput(MethodOutputLoggingConfiguration, String, String, Object)}.
+	 * @deprecated This test will be removed as soon as the deprecated tested method is removed.
+	 */
+	@Test
+	@Deprecated(forRemoval = true)
+	void givenConfigurationAndMethodName_whenLogMethodOutputWithDefaultTopic_generatesLog() {
+		final MethodOutputLoggingConfiguration configuration = MethodOutputLoggingConfiguration.builder().build();
+		final String methodName = "testMethodName";
+		final Object returnedValue = new Object();
+		sut.logMethodOutput(configuration, methodName, returnedValue);
+		verify(sut, times(1)).logMethodOutput(eq(configuration), eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC),
+			eq(methodName), eq(returnedValue));
 	}
 
 	/**

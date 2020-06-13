@@ -81,11 +81,13 @@ class LogThrowableTest {
 	 *
 	 * @see MethodCallLogger#logThrowable(Throwable)
 	 * @see MethodCallLogger#logThrowable(Throwable, Map)
+	 * @see MethodCallLogger#logThrowable(Throwable, String, Map)
 	 */
 	@Test
     void givenNull_whenLogThrowable_throwsException() {
         assertThrows(NullPointerException.class, () -> sut.logThrowable(null));
 		assertThrows(NullPointerException.class, () -> sut.logThrowable(null, null));
+		assertThrows(NullPointerException.class, () -> sut.logThrowable(null, (String) null, null));
     }
 
 	/**
