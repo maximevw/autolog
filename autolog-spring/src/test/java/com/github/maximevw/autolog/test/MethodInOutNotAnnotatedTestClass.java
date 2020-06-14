@@ -227,4 +227,74 @@ public class MethodInOutNotAnnotatedTestClass {
 	public String testThriceAnnotatedMethodReturningString(final String strArg, final int intArg) {
 		return strArg.concat(String.valueOf(intArg));
 	}
+
+	/**
+	 * Test annotated method in a non-annotated class using custom logger.
+	 * <ul>
+	 *     <li>Input: none</li>
+	 *     <li>Output: none</li>
+	 *     <li>@AutoLogMethodInOut at method level with specific parameters:
+	 *         <ul>
+	 *             <li>Custom logger named {@code custom-logger}.</li>
+	 *         </ul>
+	 *     </li>
+	 * </ul>
+	 */
+	@AutoLogMethodInOut(topic = "custom-logger")
+	public void testMethodWithCustomLogger() {
+		// Do nothing: for test purpose only.
+	}
+
+	/**
+	 * Test annotated method in a non-annotated class using custom logger.
+	 * <ul>
+	 *     <li>Input: none</li>
+	 *     <li>Output: none</li>
+	 *     <li>@AutoLogMethodInOut at method level with specific parameters:
+	 *         <ul>
+	 *             <li>Use caller class as logger name.</li>
+	 *         </ul>
+	 *     </li>
+	 * </ul>
+	 */
+	@AutoLogMethodInOut(callerClassAsTopic = true)
+	public void testMethodWithCallerClassLogger() {
+		// Do nothing: for test purpose only.
+	}
+
+	/**
+	 * Test @AutoLogMethodInput and @AutoLogMethodOutput annotated method in a non-annotated class using custom logger.
+	 * <ul>
+	 *     <li>Input: none</li>
+	 *     <li>Output: none</li>
+	 *     <li>@AutoLogMethodInput and @AutoLogMethodOutput at method level with specific parameters:
+	 *         <ul>
+	 *             <li>Custom logger named {@code custom-logger}.</li>
+	 *         </ul>
+	 *     </li>
+	 * </ul>
+	 */
+	@AutoLogMethodInput(topic = "custom-logger")
+	@AutoLogMethodOutput(topic = "custom-logger")
+	public void testTwiceAnnotatedMethodWithCustomLogger() {
+		// Do nothing: for test purpose only.
+	}
+
+	/**
+	 * Test @AutoLogMethodInput and @AutoLogMethodOutput annotated method in a non-annotated class using custom logger.
+	 * <ul>
+	 *     <li>Input: none</li>
+	 *     <li>Output: none</li>
+	 *     <li>@AutoLogMethodInput and @AutoLogMethodOutput at method level with specific parameters:
+	 *         <ul>
+	 *             <li>Use caller class as logger name.</li>
+	 *         </ul>
+	 *     </li>
+	 * </ul>
+	 */
+	@AutoLogMethodInput(callerClassAsTopic = true)
+	@AutoLogMethodOutput(callerClassAsTopic = true)
+	public void testTwiceAnnotatedMethodWithCallerClassLogger() {
+		// Do nothing: for test purpose only.
+	}
 }

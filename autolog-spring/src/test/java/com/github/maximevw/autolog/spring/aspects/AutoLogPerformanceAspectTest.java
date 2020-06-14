@@ -55,6 +55,7 @@ import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.matchesRegex;
@@ -62,6 +63,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for the aspect class {@link AutoLogPerformanceAspect}.
@@ -170,6 +172,26 @@ class AutoLogPerformanceAspectTest {
 				.forEach(apiTestClass -> arguments.add(Arguments.of(apiTestClass, httpMethod)))
 			);
 		return arguments.stream();
+	}
+
+	/**
+	 * Builds arguments for the parameterized tests relative to the usage of other logger names than the default one:
+	 * {@link #givenMethodAnnotatedToNotUseDefaultLoggerName_whenLogPerformanceByAspect_generateExpectedLog(String,
+	 * String)}.
+	 * <p>
+	 *     It provides the name of the method from {@link MethodPerformanceNotAnnotatedTestClass} to call during the
+	 *     test and the logger name which is expected to be used.
+	 * </p>
+	 *
+	 * @return The arguments required by the parameterized tests.
+	 */
+	private static Stream<Arguments> provideMethodAnnotatedToNotUseDefaultLoggerName() {
+		final String customLoggerName = "custom-logger";
+		final String callerClassLoggerName = "com.github.maximevw.autolog.test.MethodPerformanceNotAnnotatedTestClass";
+		return Stream.of(
+			Arguments.of("testMethodWithCustomLogger", customLoggerName),
+			Arguments.of("testMethodWithCallerClassLogger", callerClassLoggerName)
+		);
 	}
 
 	/**
@@ -461,6 +483,39 @@ class AutoLogPerformanceAspectTest {
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
 			hasProperty("arguments", hasItem("[" + httpMethod + "] /apiTest/test")),
+			hasProperty("arguments", hasItem(matchesRegex("\\d+ ms"))),
+			hasProperty("arguments", hasItem(instanceOf(LocalDateTime.class))),
+			hasProperty("level", is(Level.DEBUG))
+		)));
+	}
+
+	/**
+	 * Verifies that the performance data are correctly logged by aspect are correctly logged by aspect for a method
+	 * annotated with {@link AutoLogPerformance} and configured to not use the default logger name.
+	 *
+	 * @param executedMethodName 	The name of the method from {@link MethodPerformanceNotAnnotatedTestClass} to
+	 *                              execute.
+	 * @param targetLoggerName 		The logger name which should be used during the test.
+	 * @see #provideMethodAnnotatedToNotUseDefaultLoggerName()
+	 */
+	@ParameterizedTest
+	@MethodSource("provideMethodAnnotatedToNotUseDefaultLoggerName")
+	void givenMethodAnnotatedToNotUseDefaultLoggerName_whenLogPerformanceByAspect_generateExpectedLog(
+		final String executedMethodName, final String targetLoggerName) {
+		final String prefixedMethodName = String.format("MethodPerformanceNotAnnotatedTestClass.%s",
+			executedMethodName);
+		final TestLogger targetLogger = TestLoggerFactory.getTestLogger(targetLoggerName);
+
+		try {
+			proxyNotAnnotatedTestClass.getClass().getMethod(executedMethodName).invoke(proxyNotAnnotatedTestClass);
+		} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			fail("Unable to execute the method " + executedMethodName, e);
+		}
+
+		assertThat(logger.getLoggingEvents(), is(empty()));
+		assertThat(targetLogger.getLoggingEvents(), hasItem(allOf(
+			hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
+			hasProperty("arguments", hasItem(prefixedMethodName)),
 			hasProperty("arguments", hasItem(matchesRegex("\\d+ ms"))),
 			hasProperty("arguments", hasItem(instanceOf(LocalDateTime.class))),
 			hasProperty("level", is(Level.DEBUG))

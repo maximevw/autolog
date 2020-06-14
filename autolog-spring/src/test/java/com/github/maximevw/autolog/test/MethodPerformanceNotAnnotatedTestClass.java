@@ -110,4 +110,32 @@ public class MethodPerformanceNotAnnotatedTestClass {
 	public void testMethodToMonitorXmlStructuredMessage() {
 		// Do nothing: for test purpose only.
 	}
+
+	/**
+	 * Test annotated method in a non-annotated class using custom logger.
+	 * <p>
+	 *     {@literal @}AutoLogPerformance at method level with specific parameters:
+	 *     <ul>
+	 *         <li>Custom logger named {@code custom-logger}.</li>
+	 *     </ul>
+	 * </p>
+	 */
+	@AutoLogPerformance(topic = "custom-logger")
+	public void testMethodWithCustomLogger() {
+		// Do nothing: for test purpose only.
+	}
+
+	/**
+	 * Test annotated method in a non-annotated class using custom logger.
+	  <p>
+	 *     {@literal @}AutoLogPerformance at method level with specific parameters:
+	 *     <ul>
+	 *         <li>Use caller class as logger name.</li>
+	 *     </ul>
+	 * </p>
+	 */
+	@AutoLogPerformance(callerClassAsTopic = true)
+	public void testMethodWithCallerClassLogger() {
+		// Do nothing: for test purpose only.
+	}
 }

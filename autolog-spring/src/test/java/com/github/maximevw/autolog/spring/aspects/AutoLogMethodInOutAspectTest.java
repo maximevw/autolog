@@ -36,22 +36,29 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import uk.org.lidalia.slf4jext.Level;
 import uk.org.lidalia.slf4jtest.TestLogger;
 import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasProperty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Unit tests for the aspect class {@link AutoLogMethodInOutAspect}.
@@ -118,6 +125,28 @@ class AutoLogMethodInOutAspectTest {
 	@AfterEach
 	void clearLoggers() {
 		TestLoggerFactory.clear();
+	}
+
+	/**
+	 * Builds arguments for the parameterized tests relative to the usage of other logger names than the default one:
+	 * {@link #givenMethodAnnotatedToNotUseDefaultLoggerName_whenLogDataInOutByAspect_generateExpectedLog(String,
+	 * String)}.
+	 * <p>
+	 *     It provides the name of the method from {@link MethodInOutNotAnnotatedTestClass} to call during the test and
+	 *     the logger name which is expected to be used.
+	 * </p>
+	 *
+	 * @return The arguments required by the parameterized tests.
+	 */
+	private static Stream<Arguments> provideMethodAnnotatedToNotUseDefaultLoggerName() {
+		final String customLoggerName = "custom-logger";
+		final String callerClassLoggerName = "com.github.maximevw.autolog.test.MethodInOutNotAnnotatedTestClass";
+		return Stream.of(
+			Arguments.of("testMethodWithCustomLogger", customLoggerName),
+			Arguments.of("testTwiceAnnotatedMethodWithCustomLogger", customLoggerName),
+			Arguments.of("testMethodWithCallerClassLogger", callerClassLoggerName),
+			Arguments.of("testTwiceAnnotatedMethodWithCallerClassLogger", callerClassLoggerName)
+		);
 	}
 
 	/**
@@ -593,4 +622,39 @@ class AutoLogMethodInOutAspectTest {
 		)));
 	}
 
+	/**
+	 * Verifies that the input data and the end of method invocation are correctly logged by aspect for a method
+	 * annotated with {@link AutoLogMethodInOut}, {@link AutoLogMethodInput} or {@link AutoLogMethodOutput} and
+	 * configured to not use the default logger name.
+	 *
+	 * @param executedMethodName 	The name of the method from {@link MethodInOutNotAnnotatedTestClass} to execute.
+	 * @param targetLoggerName 		The logger name which should be used during the test.
+	 * @see #provideMethodAnnotatedToNotUseDefaultLoggerName()
+	 */
+	@ParameterizedTest
+	@MethodSource("provideMethodAnnotatedToNotUseDefaultLoggerName")
+	void givenMethodAnnotatedToNotUseDefaultLoggerName_whenLogDataInOutByAspect_generateExpectedLog(
+		final String executedMethodName, final String targetLoggerName) {
+		final String prefixedMethodName = String.format("MethodInOutNotAnnotatedTestClass.%s", executedMethodName);
+		final TestLogger targetLogger = TestLoggerFactory.getTestLogger(targetLoggerName);
+
+		try {
+			proxyNotAnnotatedTestClass.getClass().getMethod(executedMethodName).invoke(proxyNotAnnotatedTestClass);
+		} catch (final IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			fail("Unable to execute the method " + executedMethodName, e);
+		}
+
+		assertThat(logger.getLoggingEvents(), is(empty()));
+		assertThat(targetLogger.getLoggingEvents(), hasItem(allOf(
+			hasProperty("message", is(AutoLogMethodInOut.INPUT_DEFAULT_MESSAGE_TEMPLATE)),
+			hasProperty("arguments", hasItem(prefixedMethodName)),
+			hasProperty("level", is(Level.INFO))
+		)));
+
+		assertThat(targetLogger.getLoggingEvents(), hasItem(allOf(
+			hasProperty("message", is(AutoLogMethodInOut.VOID_OUTPUT_DEFAULT_MESSAGE_TEMPLATE)),
+			hasProperty("arguments", hasItem(prefixedMethodName)),
+			hasProperty("level", is(Level.INFO))
+		)));
+	}
 }
