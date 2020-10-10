@@ -1,0 +1,33 @@
+## Prefix the invoked method name by HTTP method if applicable.
+#set( $formattedInvokedMethod = $invokedMethod )
+#if( $httpMethod && ! $httpMethod.isEmpty() )
+    #set( $formattedInvokedMethod = "[" + $httpMethod + "] " + $invokedMethod )
+#end
+## Build the execution time part of the message.
+#if( $isFailed )
+    #set( $executionTimePart = "failed after " + $executionTime )
+#elseif( $!processedItems )
+#if( ! $averageExecutionTimeByItem )
+    #set( $averageExecutionTimeByItem = "0 ms" )
+#end
+    #set( $executionTimePart = "processed " + $processedItems + " item(s) (avg. "
+    + $averageExecutionTimeByItem + "/item) in " + $executionTime )
+#else
+    #set( $executionTimePart = "executed in " + $executionTime )
+#end
+## Build the details part (if applicable) of the message.
+#set( $detailsPart = "" )
+#if( $comments && $comments.size() > 0 )
+    #set( $detailsContent = "")
+    #foreach( $comment in $comments )
+        #if( $velocityHasNext )
+            #set( $separator = ", " )
+        #else
+            #set( $separator = "." )
+        #end
+        #set( $detailsContent = $detailsContent + $comment + $separator )
+    #end
+    #set( $detailsPart = " Details: " + $detailsContent )
+#end
+## Build the full message.
+Method $formattedInvokedMethod $executionTimePart (started: $startTime, ended: $endTime).$detailsPart

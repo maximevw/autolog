@@ -41,11 +41,9 @@ import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
@@ -78,6 +76,8 @@ class LogPerformanceTest {
 	private static TestLogger logger;
 	private static TestLogger loggerByClass;
 	private static MethodPerformanceLogger sut;
+
+	private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{0,6}";
 
 	/**
 	 * Initializes the context for all the tests in this class.
@@ -312,14 +312,14 @@ class LogPerformanceTest {
 		assertFalse(timer.isRunning());
 
 		if (logEachTimer) {
-			assertThat(logger.getLoggingEvents(), hasItem(allOf(
-				hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
-				hasProperty("arguments", hasItem("LogTestingClass.methodCallingAnotherMonitoredOne"))
-			)));
-			assertThat(logger.getLoggingEvents(), hasItem(allOf(
-				hasProperty("message", is("Method {} " + methodStateVerb + " {} (started: {}, ended: {}).")),
-				hasProperty("arguments", hasItem("calledMethod"))
-			)));
+			assertThat(logger.getLoggingEvents(), hasItem(
+				hasProperty("message", matchesRegex("Method LogTestingClass\\.methodCallingAnotherMonitoredOne "
+					+ "executed in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
+			));
+			assertThat(logger.getLoggingEvents(), hasItem(
+				hasProperty("message", matchesRegex("Method calledMethod " + methodStateVerb + " \\d+ ms "
+					+ "\\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
+			));
 		}
 
 		if (dumpStackOfCalls) {
@@ -359,7 +359,6 @@ class LogPerformanceTest {
 	 * @param configuration				The configuration to use.
 	 * @param method					The invoked method for which the performance is logged.
 	 * @param expectedMessageMatchers	The set of matchers to verify the logged message.
-	 * @param expectedArgsMatchers		The set of matchers to verify the arguments of the log event.
 	 * @param expectedMdcMatcher		The matcher to verify the MDC values of the log event. It can be {@code null}.
 	 * @param methodArgs				The arguments to pass to the invoked method.
 	 * @throws IllegalAccessException if the invoked method cannot be executed.
@@ -371,7 +370,6 @@ class LogPerformanceTest {
 	void givenConfiguration_whenLogPerformance_generatesLog(final MethodPerformanceLoggingConfiguration configuration,
 															final Method method,
 															final Matcher<? super Object>[] expectedMessageMatchers,
-															final Matcher<? super Object>[] expectedArgsMatchers,
 															final Matcher<? super Object> expectedMdcMatcher,
 															final Object[] methodArgs)
 		throws IllegalAccessException {
@@ -410,9 +408,8 @@ class LogPerformanceTest {
 			mdcMatcher = expectedMdcMatcher;
 		}
 		final Matcher<? super Object> messageMatcher = hasProperty("message", allOf(List.of(expectedMessageMatchers)));
-		final Matcher<? super Object> argumentsMatcher = hasProperty("arguments", allOf(List.of(expectedArgsMatchers)));
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			messageMatcher, argumentsMatcher, mdcMatcher,
+			messageMatcher, mdcMatcher,
 			hasProperty("level", is(Level.valueOf(configuration.getLogLevel().name()))
 			))));
 	}
@@ -458,7 +455,7 @@ class LogPerformanceTest {
 	/**
 	 * Builds arguments for the parameterized test relative to the logging of the performance data for a given method:
 	 * {@link #givenConfiguration_whenLogPerformance_generatesLog(MethodPerformanceLoggingConfiguration, Method,
-	 * Matcher[], Matcher[], Matcher, Object[])}
+	 * Matcher[], Matcher, Object[])}
 	 *
 	 * @return The arguments to execute the different test cases.
 	 * @throws NoSuchMethodException if the invoked method is not defined in {@link LogTestingClass}.
@@ -469,12 +466,8 @@ class LogPerformanceTest {
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder().build(),
 				LogTestingClass.class.getMethod("noOp"),
 				new Matcher[]{
-					is("Method {} executed in {} (started: {}, ended: {}).")
-				},
-				new Matcher[]{
-					hasItem(is("LogTestingClass.noOp")),
-					hasItem(matchesRegex("\\d+ ms")),
-					hasItem(instanceOf(LocalDateTime.class))
+					matchesRegex("Method LogTestingClass\\.noOp executed in \\d+ ms \\(started: "
+						+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")
 				},
 				null,
 				new Object[]{}),
@@ -484,12 +477,8 @@ class LogPerformanceTest {
 					.build(),
 				LogTestingClass.class.getMethod("methodThrowingThrowable"),
 				new Matcher[]{
-					is("Method {} failed after {} (started: {}, ended: {}).")
-				},
-				new Matcher[]{
-					hasItem(is("LogTestingClass.methodThrowingThrowable")),
-					hasItem(matchesRegex("\\d+ ms")),
-					hasItem(instanceOf(LocalDateTime.class))
+					matchesRegex("Method LogTestingClass\\.methodThrowingThrowable failed after \\d+ ms \\(started: "
+						+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")
 				},
 				buildMdcMatcher("LogTestingClass.methodThrowingThrowable", true, null, null),
 				new Object[]{}),
@@ -501,13 +490,8 @@ class LogPerformanceTest {
 					.build(),
 				LogTestingClass.class.getMethod("noOp"),
 				new Matcher[]{
-					is("Method {} executed in {} (started: {}, ended: {}). Details: {}.")
-				},
-				new Matcher[]{
-					hasItem(is("noOp")),
-					hasItem(matchesRegex("\\d+ ms")),
-					hasItem(instanceOf(LocalDateTime.class)),
-					hasItem(is("comment1, comment2"))
+					matchesRegex("Method noOp executed in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
+						+ TIMESTAMP_REGEX + "\\)\\. Details: comment1, comment2\\.")
 				},
 				null,
 				new Object[]{}),
@@ -524,7 +508,6 @@ class LogPerformanceTest {
 					containsString("\"startTime\":"),
 					containsString("\"endTime\":")
 				},
-				new Matcher[]{},
 				buildMdcMatcher("LogTestingClass.noOp", false, null, null),
 				new Object[]{}),
 			// Log performance data as structured message XML-formatted.
@@ -541,7 +524,6 @@ class LogPerformanceTest {
 					matchesRegex(".+<startTime>.+</startTime>.+"),
 					matchesRegex(".+<endTime>.+</endTime>.+")
 				},
-				new Matcher[]{},
 				null,
 				new Object[]{}),
 			// Method processing 100 items with configured additional data provider: the additional data provider
@@ -555,14 +537,9 @@ class LogPerformanceTest {
 					.build(),
 				LogTestingClass.class.getMethod("methodUsingAdditionalDataProvider", int.class),
 				new Matcher[]{
-					is("Method {} processed {} item(s) (avg. {}/item) in {} (started: {}, ended: {}). Details: {}.")
-				},
-				new Matcher[]{
-					hasItem(is("LogTestingClass.methodUsingAdditionalDataProvider")),
-					hasItem(is(100)),
-					hasItem(matchesRegex("\\d+ ms")),
-					hasItem(instanceOf(LocalDateTime.class)),
-					hasItem(is("additionalDataProviderUsed")),
+					matchesRegex("Method LogTestingClass\\.methodUsingAdditionalDataProvider processed 100 item\\(s\\) "
+						+ "\\(avg\\. \\d+ ms\\/item\\) in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
+						+ TIMESTAMP_REGEX + "\\)\\. Details: additionalDataProviderUsed\\.")
 				},
 				buildMdcMatcher("LogTestingClass.methodUsingAdditionalDataProvider", false,
 					"additionalDataProviderUsed", 100),
@@ -573,14 +550,9 @@ class LogPerformanceTest {
 					.build(),
 				LogTestingClass.class.getMethod("methodUsingAdditionalDataProvider", int.class),
 				new Matcher[]{
-					is("Method {} processed {} item(s) (avg. {}/item) in {} (started: {}, ended: {}). Details: {}.")
-				},
-				new Matcher[]{
-					hasItem(is("LogTestingClass.methodUsingAdditionalDataProvider")),
-					hasItem(is(0)),
-					hasItem(matchesRegex("\\d+ ms")),
-					hasItem(instanceOf(LocalDateTime.class)),
-					hasItem(is("additionalDataProviderUsed")),
+					matchesRegex("Method LogTestingClass\\.methodUsingAdditionalDataProvider processed 0 item\\(s\\) "
+						+ "\\(avg\\. \\d+ ms\\/item\\) in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
+						+ TIMESTAMP_REGEX + "\\)\\. Details: additionalDataProviderUsed\\.")
 				},
 				null,
 				new Object[]{0})
@@ -620,11 +592,15 @@ class LogPerformanceTest {
 		method.invoke(testingClass);
 		sut.stopAndLog(configuration, timer);
 
-		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
-			hasProperty("arguments", hasItem(containsString(expectedMethodName))),
-			hasProperty("arguments", hasItem(containsString(httpMethod)))
-		)));
+		String expectedHttpMethod = StringUtils.EMPTY;
+		if (StringUtils.isNotBlank(httpMethod)) {
+			expectedHttpMethod = "\\[" + httpMethod + "] ";
+		}
+		assertThat(logger.getLoggingEvents(), hasItem(
+			hasProperty("message", matchesRegex("Method " + expectedHttpMethod
+				+ expectedMethodName.replace("/", "\\/").replace(".", "\\.") + " executed in \\d+ ms \\(started: "
+				+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
+		));
 	}
 
 	/**
@@ -680,12 +656,8 @@ class LogPerformanceTest {
 		assertFalse(timer.isRunning());
 		assertThat(logger.getLoggingEvents(), is(empty()));
 		assertThat(loggerByClass.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", is("Method {} executed in {} (started: {}, ended: {}).")),
-			hasProperty("arguments", allOf(
-				hasItem(is("LogTestingClass.noOp")),
-				hasItem(matchesRegex("\\d+ ms")),
-				hasItem(instanceOf(LocalDateTime.class))
-			)),
+			hasProperty("message", matchesRegex("Method LogTestingClass\\.noOp executed in \\d+ ms \\(started: "
+				+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.valueOf(configuration.getLogLevel().name()))
 			)))
 		);

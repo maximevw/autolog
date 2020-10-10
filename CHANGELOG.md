@@ -20,6 +20,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
     - `start(MethodPerformanceLoggingConfiguration, String, String, String)`
   - Regarding `SystemOutAdapter`, the log format is modified: it is now prefixed by the logger name (for example, by
   default we get now: `[Autolog] DEBUG: A logged message.`).
+- Add a parameter `messageTemplate` on the annotation `@AutoLogPerformance` to define a custom message template using
+Velocity Template Language.
 ### Deprecated
 - As a consequence of the new feature relative to the custom logger names, deprecate the following methods:
   - in `MethodCallLogger`:

@@ -22,6 +22,7 @@ package com.github.maximevw.autolog.core.logger;
 
 import com.github.maximevw.autolog.core.configuration.MethodPerformanceLoggingConfiguration;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
+import com.github.maximevw.autolog.core.logger.performance.PerformanceMessageTemplateProcessor;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimer;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimerContext;
 import lombok.NonNull;
@@ -31,9 +32,7 @@ import org.apiguardian.api.API;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -244,44 +243,10 @@ public class MethodPerformanceLogger {
 					Optional.ofNullable(configuration.getPrettyFormat()).orElse(PrettyDataFormat.JSON)),
 				contextualData);
 		} else {
-			final List<Object> performanceMessageArgs = new ArrayList<>();
-			String performanceMessageTemplate = "Method {}";
-			if (StringUtils.isNotEmpty(methodPerformanceLogEntry.getHttpMethod())) {
-				performanceMessageArgs.add(String.format("[%s] %s", methodPerformanceLogEntry.getHttpMethod(),
-					methodPerformanceLogEntry.getInvokedMethod()));
-			} else {
-				performanceMessageArgs.add(methodPerformanceLogEntry.getInvokedMethod());
-			}
-
-			if (methodPerformanceLogEntry.isFailed()) {
-				performanceMessageTemplate = performanceMessageTemplate.concat(" failed after {}");
-				performanceMessageArgs.add(methodPerformanceLogEntry.getExecutionTime());
-			} else if (methodPerformanceLogEntry.getProcessedItems() != null) {
-				performanceMessageTemplate = performanceMessageTemplate
-					.concat(" processed {} item(s) (avg. {}/item) in {}");
-				performanceMessageArgs.add(methodPerformanceLogEntry.getProcessedItems());
-				performanceMessageArgs.add(
-					Optional.ofNullable(methodPerformanceLogEntry.getAverageExecutionTimeByItem())
-						.orElse(LoggingUtils.formatDuration(0))
-				);
-				performanceMessageArgs.add(methodPerformanceLogEntry.getExecutionTime());
-			} else {
-				performanceMessageTemplate = performanceMessageTemplate.concat(" executed in {}");
-				performanceMessageArgs.add(methodPerformanceLogEntry.getExecutionTime());
-			}
-
-			performanceMessageTemplate = performanceMessageTemplate.concat(" (started: {}, ended: {}).");
-			performanceMessageArgs.add(methodPerformanceLogEntry.getStartTime());
-			performanceMessageArgs.add(methodPerformanceLogEntry.getEndTime());
-
-			if (!methodPerformanceLogEntry.getComments().isEmpty()) {
-				performanceMessageTemplate = performanceMessageTemplate.concat(" Details: {}.");
-				performanceMessageArgs.add(String.join(LoggingUtils.LIST_ITEMS_DELIMITER,
-					methodPerformanceLogEntry.getComments()));
-			}
-
+			final String performanceMessage = PerformanceMessageTemplateProcessor.getInstance()
+				.generateMessage(configuration.getMessageTemplate(), methodPerformanceLogEntry);
 			loggerManager.logWithLevel(configuration.getLogLevel(), methodPerformanceLogEntry.getTopic(),
-				performanceMessageTemplate, contextualData, performanceMessageArgs.toArray());
+				performanceMessage, contextualData);
 		}
 	}
 

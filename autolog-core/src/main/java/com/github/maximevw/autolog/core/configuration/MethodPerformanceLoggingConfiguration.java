@@ -33,6 +33,9 @@ import lombok.Setter;
 import net.logstash.logback.argument.StructuredArguments;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.CloseableThreadContext;
+import org.apache.velocity.Template;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.runtime.resource.ResourceManager;
 import org.apiguardian.api.API;
 import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -221,6 +224,48 @@ public class MethodPerformanceLoggingConfiguration {
 	private boolean callerClassUsedAsTopic = false;
 
 	/**
+	 * The Velocity message template that will be used to log the performance information. By default:
+	 * {@value AutoLogPerformance#DEFAULT_VELOCITY_TEMPLATE_NAME} (this template is provided by the Autolog library).
+	 * <p>
+	 *     The value of this property can be:
+	 *     <ul>
+	 *         <li>the template content itself;</li>
+	 *         <li>an available resource in the application classpath or a path to a file containing the template. In
+	 *         both cases, the template name must be prefixed with "{@code file:}", e.g.
+	 *         {@code file:custom_template.vm}</li>
+	 *     </ul>
+	 * </p>
+	 * <p>
+	 *     The defined template uses Velocity Template Language (see:
+	 *     <a href="https://velocity.apache.org/engine/2.0/vtl-reference.html">Velocity documentation</a>) and can use
+	 *     the following variables:
+	 *     <ul>
+	 *         <li><b>{@code isFailed}</b> ({@code boolean}) indicating if the execution of the invoked method has
+	 *         failed;</li>
+	 *         <li><b>{@code invokedMethod}</b> ({@code String}) containing the name of the invoked method;</li>
+	 *         <li><b>{@code httpMethod}</b> ({@code String}) containing the HTTP method (if applicable);</li>
+	 *         <li><b>{@code executionTime}</b> ({@code String}) containing the execution time of the invoked method in
+	 *         a human-readable format;</li>
+	 *         <li><b>{@code processedItems}</b> ({@code Integer}) containing the number of items processed by the
+	 *         invoked method, only if an {@link AdditionalDataProvider} is provided in the context;</li>
+	 *         <li><b>{@code averageExecutionTimeByItem}</b> ({@code String}) containing the average execution time by
+	 *         processed item in a human-readable format, only if an {@link AdditionalDataProvider} is provided in the
+	 *         context;</li>
+	 *         <li><b>{@code startTime}</b> ({@code String}) containing the start time of the invocation;</li>
+	 *         <li><b>{@code endTime}</b> ({@code String}) containing the end time of the invocation;</li>
+	 *         <li><b>{@code comments}</b> ({@code List<String>}) containing the optional comments, only if an
+	 *         {@link AdditionalDataProvider} is provided in the context.</li>
+	 *     </ul>
+	 * </p>
+	 * @see VelocityEngine
+	 * @see Template
+	 * @see ResourceManager
+	 */
+	@API(status = API.Status.INTERNAL, since = "1.2.0")
+	@Builder.Default
+	private String messageTemplate = AutoLogPerformance.DEFAULT_VELOCITY_TEMPLATE_NAME;
+
+	/**
 	 * Builds a new instance of configuration for auto-logging of performance data of methods invocations based on an
 	 * annotation {@link AutoLogPerformance}.
 	 *
@@ -242,6 +287,7 @@ public class MethodPerformanceLoggingConfiguration {
 			.dataLoggedInContext(autoLogPerformance.logDataInContext())
 			.topic(autoLogPerformance.topic())
 			.callerClassUsedAsTopic(autoLogPerformance.callerClassAsTopic())
+			.messageTemplate(autoLogPerformance.messageTemplate())
 			.build();
 	}
 }

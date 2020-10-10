@@ -73,6 +73,7 @@ public class MethodInOutAnnotatedTestClass {
 	 * </ul>
 	 *
 	 * @param strArg Fake string argument for test purpose.
+	 * @throws IllegalArgumentException Generated exception for test purpose.
 	 */
 	public void testMethodThrowingExceptionMustNotBeLogged(final String strArg) {
 		throw new IllegalArgumentException("Wrong value: " + strArg);
@@ -92,6 +93,7 @@ public class MethodInOutAnnotatedTestClass {
 	 * </ul>
 	 *
 	 * @param strArg Fake string argument for test purpose.
+	 * @throws IllegalArgumentException Generated exception for test purpose.
 	 */
 	@AutoLogMethodInOut(level = LogLevel.DEBUG, logThrowable = true)
 	public void testMethodThrowingException(final String strArg) {
