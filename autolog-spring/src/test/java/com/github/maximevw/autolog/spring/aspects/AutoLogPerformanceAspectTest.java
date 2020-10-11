@@ -326,10 +326,10 @@ class AutoLogPerformanceAspectTest {
 
 	/**
 	 * Verifies that the performance data are correctly logged by aspect for a method annotated with
-	 * {@link AutoLogPerformance} configured to use an {@link AdditionalDataProvider}, in a class not annotated with
+	 * {@link AutoLogPerformance} configured to use a custom message template, in a class not annotated with
 	 * {@link AutoLogPerformance}.
 	 *
-	 * @see MethodPerformanceNotAnnotatedTestClass#testMethodToMonitorWithAdditionalDataProvider(String, List)
+	 * @see MethodPerformanceNotAnnotatedTestClass#testMethodWithCustomMessageTemplate()
 	 */
 	@Test
 	void givenMethodWithCustomMessageTemplate_whenLogPerformanceByAspect_generateExpectedLog() {
