@@ -138,4 +138,18 @@ public class MethodPerformanceNotAnnotatedTestClass {
 	public void testMethodWithCallerClassLogger() {
 		// Do nothing: for test purpose only.
 	}
+
+	/**
+	 * Test annotated method in a non-annotated class using custom message template.
+	 * <p>
+	 *     {@literal @}AutoLogPerformance at method level with specific parameters:
+	 *     <ul>
+	 *         <li>Custom message template.</li>
+	 *     </ul>
+	 * </p>
+	 */
+	@AutoLogPerformance(messageTemplate = "Method $invokedMethod finished in $executionTime")
+	public void testMethodWithCustomMessageTemplate() {
+		// Do nothing: for test purpose only.
+	}
 }

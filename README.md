@@ -194,11 +194,6 @@ Find below a non-exhaustive (and not sorted by priority) list of features we've 
   In addition to the Spring AOP implementation, a new module `autolog-aspectj` provides aspects to handle Autolog
   annotations in applications using AspectJ without Spring Framework.
 
-* **Custom message templates for `@LogPerformance` annotation**
-
-  Make the messages relative to the performance information of methods invocations customizable (as for the input/output
-  data annotations).
-
 * **Additional logger**
 
   Provide new implementation `KafkaAdapter` of `LoggerInterface` to directly publish the generated logs in Kafka topics.

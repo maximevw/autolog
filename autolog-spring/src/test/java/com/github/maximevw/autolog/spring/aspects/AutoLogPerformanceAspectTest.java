@@ -72,6 +72,7 @@ class AutoLogPerformanceAspectTest {
 	private static ByteArrayOutputStream stdOut = new ByteArrayOutputStream();
 
 	private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{0,6}";
+	private static final String DURATION_REGEX = "(\\d+ s )?\\d+ ms";
 
 	// Proxies on which the test are run.
 	private static MethodPerformanceAnnotatedTestClass proxyAnnotatedTestClass;
@@ -206,8 +207,8 @@ class AutoLogPerformanceAspectTest {
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message",
-				matchesRegex("Method MethodPerformanceAnnotatedTestClass\\.testMethodToMonitor executed in \\d+ ms "
-					+ "\\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+				matchesRegex("Method MethodPerformanceAnnotatedTestClass\\.testMethodToMonitor executed in "
+					+ DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 	}
@@ -224,8 +225,9 @@ class AutoLogPerformanceAspectTest {
 		proxyAnnotatedTestClass.testAnnotatedMethodToMonitor();
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", matchesRegex("Method methodPerformance executed in \\d+ ms \\(started: "
-				+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\. Details: comment1, comment2.")),
+			hasProperty("message", matchesRegex("Method methodPerformance executed in " + DURATION_REGEX
+				+ " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX
+				+ "\\)\\. Details: comment1, comment2.")),
 			hasProperty("level", is(Level.INFO))
 		)));
 	}
@@ -243,7 +245,7 @@ class AutoLogPerformanceAspectTest {
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message",
 				matchesRegex("Method MethodPerformanceAnnotatedTestClass\\.testMethodCallingAnotherOne executed in "
-						+ "\\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+					+ DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 
@@ -255,13 +257,15 @@ class AutoLogPerformanceAspectTest {
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message",
-				matchesRegex("> MethodPerformanceAnnotatedTestClass.testMethodCallingAnotherOne executed in \\d+ ms")),
+				matchesRegex("> MethodPerformanceAnnotatedTestClass.testMethodCallingAnotherOne executed in "
+					+ DURATION_REGEX)),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message",
-				matchesRegex("\\|_ > MethodPerformanceNotAnnotatedTestClass.testMethodToMonitor executed in \\d+ ms")),
+				matchesRegex("\\|_ > MethodPerformanceNotAnnotatedTestClass.testMethodToMonitor executed in "
+					+ DURATION_REGEX)),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 
@@ -287,7 +291,8 @@ class AutoLogPerformanceAspectTest {
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message",
 				matchesRegex("Method MethodPerformanceAnnotatedTestClass\\.testMethodToMonitorThrowingException failed "
-					+ "after \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+					+ "after " + DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: "
+					+ TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 
@@ -313,8 +318,27 @@ class AutoLogPerformanceAspectTest {
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message",
 				matchesRegex("Method testMethodToMonitorWithAdditionalDataProvider processed 2 item\\(s\\) "
-					+ "\\(avg\\. \\d+ ms\\/item\\) in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
-					+ TIMESTAMP_REGEX + "\\)\\. Details: additional comment, abc.")),
+					+ "\\(avg\\. " + DURATION_REGEX + "\\/item\\) in " + DURATION_REGEX + " \\(started: "
+					+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\. Details: additional comment, abc.")),
+			hasProperty("level", is(Level.DEBUG))
+		)));
+	}
+
+	/**
+	 * Verifies that the performance data are correctly logged by aspect for a method annotated with
+	 * {@link AutoLogPerformance} configured to use an {@link AdditionalDataProvider}, in a class not annotated with
+	 * {@link AutoLogPerformance}.
+	 *
+	 * @see MethodPerformanceNotAnnotatedTestClass#testMethodToMonitorWithAdditionalDataProvider(String, List)
+	 */
+	@Test
+	void givenMethodWithCustomMessageTemplate_whenLogPerformanceByAspect_generateExpectedLog() {
+		proxyNotAnnotatedTestClass.testMethodWithCustomMessageTemplate();
+
+		assertThat(logger.getLoggingEvents(), hasItem(allOf(
+			hasProperty("message",
+				matchesRegex("Method MethodPerformanceNotAnnotatedTestClass.testMethodWithCustomMessageTemplate "
+					+ "finished in " + DURATION_REGEX)),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 	}
@@ -333,7 +357,8 @@ class AutoLogPerformanceAspectTest {
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
 			hasProperty("message", matchesRegex("Method "
 				+ "MethodPerformanceNotAnnotatedTestClass\\.testMethodToMonitorWithWrongAdditionalDataProvider "
-				+ "executed in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+				+ "executed in " + DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: "
+				+ TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 
@@ -358,7 +383,7 @@ class AutoLogPerformanceAspectTest {
 			hasProperty("message", containsString("\"invokedMethod\":"
 				+ "\"MethodPerformanceNotAnnotatedTestClass.testMethodToMonitorJsonStructuredMessage\"")),
 			hasProperty("message", matchesRegex(".+\\\"executionTimeInMs\\\":\\d+.+")),
-			hasProperty("message", matchesRegex(".+\\\"executionTime\\\":\\\"\\d+ ms\\\".+")),
+			hasProperty("message", matchesRegex(".+\\\"executionTime\\\":\\\"" + DURATION_REGEX + "\\\".+")),
 			hasProperty("message", containsString("\"startTime\":")),
 			hasProperty("message", containsString("\"endTime\":")),
 			hasProperty("level", is(Level.DEBUG))
@@ -381,7 +406,7 @@ class AutoLogPerformanceAspectTest {
 			hasProperty("message", containsString("<invokedMethod>"
 				+ "MethodPerformanceNotAnnotatedTestClass.testMethodToMonitorXmlStructuredMessage</invokedMethod>")),
 			hasProperty("message", matchesRegex(".+<executionTimeInMs>\\d+</executionTimeInMs>.+")),
-			hasProperty("message", matchesRegex(".+<executionTime>\\d+ ms</executionTime>.+")),
+			hasProperty("message", matchesRegex(".+<executionTime>" + DURATION_REGEX + "</executionTime>.+")),
 			hasProperty("message", matchesRegex(".+<startTime>.+</startTime>.+")),
 			hasProperty("message", matchesRegex(".+<endTime>.+</endTime>.+")),
 			hasProperty("level", is(Level.DEBUG))
@@ -407,8 +432,8 @@ class AutoLogPerformanceAspectTest {
 		apiTestClass.getClass().getMethod("testApiBadEndpointMethod").invoke(apiTestClass);
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", matchesRegex("Method \\/apiTest executed in \\d+ ms \\(started: " + TIMESTAMP_REGEX
-				+ ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+			hasProperty("message", matchesRegex("Method \\/apiTest executed in " + DURATION_REGEX + " \\(started: "
+				+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 	}
@@ -435,8 +460,8 @@ class AutoLogPerformanceAspectTest {
 		apiTestClass.getClass().getMethod("testApiEndpointMethodNoAutoconfig").invoke(apiTestClass);
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", matchesRegex("Method testApiEndpointMethodNoAutoconfig executed in \\d+ ms "
-				+ "\\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+			hasProperty("message", matchesRegex("Method testApiEndpointMethodNoAutoconfig executed in "
+				+ DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 	}
@@ -464,8 +489,8 @@ class AutoLogPerformanceAspectTest {
 		apiTestClass.getClass().getMethod("testApi" + httpMethod + "EndpointMethod").invoke(apiTestClass);
 
 		assertThat(logger.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", matchesRegex("Method \\[" + httpMethod + "] \\/apiTest\\/test executed in \\d+ ms "
-				+ "\\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+			hasProperty("message", matchesRegex("Method \\[" + httpMethod + "] \\/apiTest\\/test executed in "
+				+ DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 	}
@@ -495,8 +520,8 @@ class AutoLogPerformanceAspectTest {
 
 		assertThat(logger.getLoggingEvents(), is(empty()));
 		assertThat(targetLogger.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", matchesRegex("Method " + prefixedMethodName + " executed in \\d+ ms "
-				+ "\\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+			hasProperty("message", matchesRegex("Method " + prefixedMethodName + " executed in " + DURATION_REGEX
+				+ " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.DEBUG))
 		)));
 	}

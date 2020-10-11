@@ -78,6 +78,7 @@ class LogPerformanceTest {
 	private static MethodPerformanceLogger sut;
 
 	private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{0,6}";
+	private static final String DURATION_REGEX = "(\\d+ s )?\\d+ ms";
 
 	/**
 	 * Initializes the context for all the tests in this class.
@@ -314,11 +315,12 @@ class LogPerformanceTest {
 		if (logEachTimer) {
 			assertThat(logger.getLoggingEvents(), hasItem(
 				hasProperty("message", matchesRegex("Method LogTestingClass\\.methodCallingAnotherMonitoredOne "
-					+ "executed in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
+					+ "executed in " + DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: "
+					+ TIMESTAMP_REGEX + "\\)\\."))
 			));
 			assertThat(logger.getLoggingEvents(), hasItem(
-				hasProperty("message", matchesRegex("Method calledMethod " + methodStateVerb + " \\d+ ms "
-					+ "\\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
+				hasProperty("message", matchesRegex("Method calledMethod " + methodStateVerb + StringUtils.SPACE
+					+ DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
 			));
 		}
 
@@ -329,10 +331,11 @@ class LogPerformanceTest {
 			)));
 			assertThat(logger.getLoggingEvents(), hasItem(allOf(
 				hasProperty("message",
-					matchesRegex("> LogTestingClass.methodCallingAnotherMonitoredOne executed in \\d+ ms"))
+					matchesRegex("> LogTestingClass.methodCallingAnotherMonitoredOne executed in " + DURATION_REGEX))
 			)));
 			assertThat(logger.getLoggingEvents(), hasItem(allOf(
-				hasProperty("message", matchesRegex("\\|_ > calledMethod " + methodStateVerb + " \\d+ ms"))
+				hasProperty("message",
+					matchesRegex("\\|_ > calledMethod " + methodStateVerb + StringUtils.SPACE + DURATION_REGEX))
 			)));
 		}
 	}
@@ -466,8 +469,18 @@ class LogPerformanceTest {
 			Arguments.of(MethodPerformanceLoggingConfiguration.builder().build(),
 				LogTestingClass.class.getMethod("noOp"),
 				new Matcher[]{
-					matchesRegex("Method LogTestingClass\\.noOp executed in \\d+ ms \\(started: "
+					matchesRegex("Method LogTestingClass\\.noOp executed in " + DURATION_REGEX + " \\(started: "
 						+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")
+				},
+				null,
+				new Object[]{}),
+			// Configuration with custom message template and simple method call.
+			Arguments.of(MethodPerformanceLoggingConfiguration.builder()
+					.messageTemplate("Method $invokedMethod executed in $executionTime")
+					.build(),
+				LogTestingClass.class.getMethod("noOp"),
+				new Matcher[]{
+					matchesRegex("Method LogTestingClass\\.noOp executed in " + DURATION_REGEX)
 				},
 				null,
 				new Object[]{}),
@@ -477,8 +490,8 @@ class LogPerformanceTest {
 					.build(),
 				LogTestingClass.class.getMethod("methodThrowingThrowable"),
 				new Matcher[]{
-					matchesRegex("Method LogTestingClass\\.methodThrowingThrowable failed after \\d+ ms \\(started: "
-						+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")
+					matchesRegex("Method LogTestingClass\\.methodThrowingThrowable failed after " + DURATION_REGEX
+						+ " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")
 				},
 				buildMdcMatcher("LogTestingClass.methodThrowingThrowable", true, null, null),
 				new Object[]{}),
@@ -490,8 +503,8 @@ class LogPerformanceTest {
 					.build(),
 				LogTestingClass.class.getMethod("noOp"),
 				new Matcher[]{
-					matchesRegex("Method noOp executed in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
-						+ TIMESTAMP_REGEX + "\\)\\. Details: comment1, comment2\\.")
+					matchesRegex("Method noOp executed in " + DURATION_REGEX + " \\(started: " + TIMESTAMP_REGEX
+						+ ", ended: " + TIMESTAMP_REGEX + "\\)\\. Details: comment1, comment2\\.")
 				},
 				null,
 				new Object[]{}),
@@ -504,7 +517,7 @@ class LogPerformanceTest {
 				new Matcher[]{
 					containsString("\"invokedMethod\":\"LogTestingClass.noOp\""),
 					matchesRegex(".+\\\"executionTimeInMs\\\":\\d+.+"),
-					matchesRegex(".+\\\"executionTime\\\":\\\"\\d+ ms\\\".+"),
+					matchesRegex(".+\\\"executionTime\\\":\\\"" + DURATION_REGEX + "\\\".+"),
 					containsString("\"startTime\":"),
 					containsString("\"endTime\":")
 				},
@@ -520,7 +533,7 @@ class LogPerformanceTest {
 					matchesRegex("<MethodPerformanceLogEntry>.+</MethodPerformanceLogEntry>$"),
 					containsString("<invokedMethod>LogTestingClass.noOp</invokedMethod>"),
 					matchesRegex(".+<executionTimeInMs>\\d+</executionTimeInMs>.+"),
-					matchesRegex(".+<executionTime>\\d+ ms</executionTime>.+"),
+					matchesRegex(".+<executionTime>" + DURATION_REGEX + "</executionTime>.+"),
 					matchesRegex(".+<startTime>.+</startTime>.+"),
 					matchesRegex(".+<endTime>.+</endTime>.+")
 				},
@@ -538,8 +551,9 @@ class LogPerformanceTest {
 				LogTestingClass.class.getMethod("methodUsingAdditionalDataProvider", int.class),
 				new Matcher[]{
 					matchesRegex("Method LogTestingClass\\.methodUsingAdditionalDataProvider processed 100 item\\(s\\) "
-						+ "\\(avg\\. \\d+ ms\\/item\\) in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
-						+ TIMESTAMP_REGEX + "\\)\\. Details: additionalDataProviderUsed\\.")
+						+ "\\(avg\\. " + DURATION_REGEX + "\\/item\\) in " + DURATION_REGEX + " \\(started: "
+						+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX
+						+ "\\)\\. Details: additionalDataProviderUsed\\.")
 				},
 				buildMdcMatcher("LogTestingClass.methodUsingAdditionalDataProvider", false,
 					"additionalDataProviderUsed", 100),
@@ -551,8 +565,9 @@ class LogPerformanceTest {
 				LogTestingClass.class.getMethod("methodUsingAdditionalDataProvider", int.class),
 				new Matcher[]{
 					matchesRegex("Method LogTestingClass\\.methodUsingAdditionalDataProvider processed 0 item\\(s\\) "
-						+ "\\(avg\\. \\d+ ms\\/item\\) in \\d+ ms \\(started: " + TIMESTAMP_REGEX + ", ended: "
-						+ TIMESTAMP_REGEX + "\\)\\. Details: additionalDataProviderUsed\\.")
+						+ "\\(avg\\. " + DURATION_REGEX + "\\/item\\) in " + DURATION_REGEX + " \\(started: "
+						+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX
+						+ "\\)\\. Details: additionalDataProviderUsed\\.")
 				},
 				null,
 				new Object[]{0})
@@ -598,8 +613,8 @@ class LogPerformanceTest {
 		}
 		assertThat(logger.getLoggingEvents(), hasItem(
 			hasProperty("message", matchesRegex("Method " + expectedHttpMethod
-				+ expectedMethodName.replace("/", "\\/").replace(".", "\\.") + " executed in \\d+ ms \\(started: "
-				+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
+				+ expectedMethodName.replace("/", "\\/").replace(".", "\\.") + " executed in " + DURATION_REGEX
+				+ " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\."))
 		));
 	}
 
@@ -656,8 +671,8 @@ class LogPerformanceTest {
 		assertFalse(timer.isRunning());
 		assertThat(logger.getLoggingEvents(), is(empty()));
 		assertThat(loggerByClass.getLoggingEvents(), hasItem(allOf(
-			hasProperty("message", matchesRegex("Method LogTestingClass\\.noOp executed in \\d+ ms \\(started: "
-				+ TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
+			hasProperty("message", matchesRegex("Method LogTestingClass\\.noOp executed in " + DURATION_REGEX
+				+ " \\(started: " + TIMESTAMP_REGEX + ", ended: " + TIMESTAMP_REGEX + "\\)\\.")),
 			hasProperty("level", is(Level.valueOf(configuration.getLogLevel().name()))
 			)))
 		);
