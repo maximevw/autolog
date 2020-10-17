@@ -61,9 +61,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
- * Unit tests for the aspect class {@link AutoLogMethodInOutAspect}.
+ * Unit tests for the aspect class {@link AutoLogMethodInOutSpringAspect}.
  */
-class AutoLogMethodInOutAspectTest {
+class AutoLogMethodInOutSpringAspectTest {
 
 	private static TestLogger logger;
 
@@ -84,8 +84,8 @@ class AutoLogMethodInOutAspectTest {
 	@BeforeAll
 	static void init() {
 		// Setup aspect.
-		final AutoLogMethodInOutAspect sut =
-			new AutoLogMethodInOutAspect(new LoggerManager().register(Slf4jAdapter.getInstance()));
+		final AutoLogMethodInOutSpringAspect sut =
+			new AutoLogMethodInOutSpringAspect(new LoggerManager().register(Slf4jAdapter.getInstance()));
 
 		final MethodInOutAnnotatedTestClass annotatedTestClassTarget = new MethodInOutAnnotatedTestClass();
 		final AspectJProxyFactory annotatedTestClassFactory = new AspectJProxyFactory(annotatedTestClassTarget);

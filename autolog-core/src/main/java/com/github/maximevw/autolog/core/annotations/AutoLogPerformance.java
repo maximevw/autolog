@@ -65,13 +65,20 @@ import java.lang.annotation.Target;
  * <h1>Log automation by aspect programming</h1>
  * <p>
  *     In order to automate the logging of performance of methods invocations, this annotation is activated by aspect
- *     programming. Currently, the only available implementation is based on Spring AOP.
+ *     programming. The available implementations are based on Spring AOP or AspectJ weaving.
  * </p>
  *
  * <h2>Important warning</h2>
  * <p>
  *     The usage of this annotation may impact the performance of your application. If you need high performance during
  *     the execution of your code, don't use it (especially in production).
+ * </p>
+ *
+ * <h2>Usage with AspectJ weaving</h2>
+ * <p>
+ *     To use this annotation in non-Spring applications and using AspectJ weaving, you must add module
+ *     {@code autolog-aspectj} as dependency of your project. Then, this annotation will be taken into account by
+ *     AspectJ weaving.
  * </p>
  *
  * <h2>Usage with Spring AOP</h2>

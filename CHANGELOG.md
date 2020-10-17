@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 ### Added
+- Add a new module `autolog-aspectj` to allow usage of Autolog annotations in applications using AspectJ weaving.
 - Add the ability to use custom logger names instead of the default one (`"Autolog"`):
   - Add a parameter `topic` on all the annotations `@AutoLog*` to specify a custom logger name.
   - Add a parameter `callerClassAsTopic` on all the annotations `@AutoLog*` to use the caller class name as logger name

@@ -2,7 +2,7 @@
  * #%L
  * Autolog Spring integration module
  * %%
- * Copyright (C) 2019 Maxime WIEWIORA
+ * Copyright (C) 2019 - 2020 Maxime WIEWIORA
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@
  * #L%
  */
 
-package com.github.maximevw.autolog.spring.aspects;
+package com.github.maximevw.autolog.aspectj.aspects;
 
+import com.github.maximevw.autolog.aspectj.configuration.AspectJLoggerManager;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodInOut;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodInput;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodOutput;
@@ -34,38 +35,34 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 
 /**
- * Spring AOP aspect allowing to automatically log the input and output data of public methods annotated with
- * {@link AutoLogMethodInOut}, {@link AutoLogMethodInput} and/or {@link AutoLogMethodOutput} or included in classes
- * annotated with such annotations.
- * <p>
- * Be careful with usage of this aspect and please read
- * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#aop">Spring AOP documentation</a>
- * and especially the section about <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#aop-understanding-aop-proxies">
- * proxy-based aspects</a> to be aware of the limitations implied by Spring AOP.
- * </p>
+ * Aspect allowing to automatically log the input and output data of methods annotated with {@link AutoLogMethodInOut},
+ * {@link AutoLogMethodInput} and/or {@link AutoLogMethodOutput} or included in classes annotated with such annotations.
  */
-@API(status = API.Status.STABLE, since = "1.0.0")
+@API(status = API.Status.STABLE, since = "1.2.0")
 @Aspect
-@Component
 public class AutoLogMethodInOutAspect {
 
-	private MethodCallLogger methodCallLogger;
+	private final MethodCallLogger methodCallLogger;
+
+	/**
+	 * Default constructor.
+	 * <p>
+	 *     It uses the logger manager defined in the singleton {@link AspectJLoggerManager}.
+	 * </p>
+	 */
+	public AutoLogMethodInOutAspect() {
+		this(AspectJLoggerManager.getInstance().getLoggerManager());
+	}
 
 	/**
 	 * Constructor.
-	 * <p>
-	 *     It autowires a bean of type {@link LoggerManager}.
-	 * </p>
 	 *
 	 * @param loggerManager The logger manager instance used by the aspect.
 	 */
-	@Autowired
 	public AutoLogMethodInOutAspect(final LoggerManager loggerManager) {
 		this.methodCallLogger = new MethodCallLogger(loggerManager);
 	}

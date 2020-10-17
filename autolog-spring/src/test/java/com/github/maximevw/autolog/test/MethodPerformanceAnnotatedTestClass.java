@@ -22,11 +22,11 @@ package com.github.maximevw.autolog.test;
 
 import com.github.maximevw.autolog.core.annotations.AutoLogPerformance;
 import com.github.maximevw.autolog.core.logger.LogLevel;
-import com.github.maximevw.autolog.spring.aspects.AutoLogPerformanceAspect;
+import com.github.maximevw.autolog.spring.aspects.AutoLogPerformanceSpringAspect;
 
 /**
  * This class annotated with {@link AutoLogPerformance} contains methods specially designed to test
- * {@link AutoLogPerformanceAspect}.
+ * {@link AutoLogPerformanceSpringAspect}.
  */
 @AutoLogPerformance
 public class MethodPerformanceAnnotatedTestClass {

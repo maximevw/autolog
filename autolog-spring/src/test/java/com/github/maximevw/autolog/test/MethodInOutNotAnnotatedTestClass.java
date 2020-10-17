@@ -25,7 +25,7 @@ import com.github.maximevw.autolog.core.annotations.AutoLogMethodInput;
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodOutput;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.LogLevel;
-import com.github.maximevw.autolog.spring.aspects.AutoLogMethodInOutAspect;
+import com.github.maximevw.autolog.spring.aspects.AutoLogMethodInOutSpringAspect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * This class contains methods annotated with {@link AutoLogMethodInOut}, {@link AutoLogMethodInput} and
- * {@link AutoLogMethodOutput} specially designed to test {@link AutoLogMethodInOutAspect}.
+ * {@link AutoLogMethodOutput} specially designed to test {@link AutoLogMethodInOutSpringAspect}.
  */
 public class MethodInOutNotAnnotatedTestClass {
 

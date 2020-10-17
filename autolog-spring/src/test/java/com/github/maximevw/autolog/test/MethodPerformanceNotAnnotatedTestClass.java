@@ -23,13 +23,13 @@ package com.github.maximevw.autolog.test;
 import com.github.maximevw.autolog.core.annotations.AutoLogPerformance;
 import com.github.maximevw.autolog.core.configuration.PrettyDataFormat;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
-import com.github.maximevw.autolog.spring.aspects.AutoLogPerformanceAspect;
+import com.github.maximevw.autolog.spring.aspects.AutoLogPerformanceSpringAspect;
 
 import java.util.List;
 
 /**
  * This class contains methods annotated with {@link AutoLogPerformance} specially designed to test
- * {@link AutoLogPerformanceAspect}.
+ * {@link AutoLogPerformanceSpringAspect}.
  */
 public class MethodPerformanceNotAnnotatedTestClass {
 

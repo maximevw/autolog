@@ -53,6 +53,7 @@
 
     <modules>
         <module>autolog-core</module>
+        <module>autolog-aspectj</module>
         <module>autolog-spring</module>
         <module>autolog-coverage-reporting</module>
     </modules>

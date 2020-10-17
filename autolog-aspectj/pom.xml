@@ -10,73 +10,33 @@
         <version>1.1.0</version>
     </parent>
 
-    <artifactId>autolog-spring</artifactId>
+    <artifactId>autolog-aspectj</artifactId>
     <packaging>jar</packaging>
 
-    <name>Autolog Spring integration module</name>
-    <description>Module to integrate automatic logging in Spring applications</description>
+    <name>Autolog AspectJ integration module</name>
+    <description>Module to integrate automatic logging using AspectJ weaving</description>
 
     <dependencies>
         <dependency>
             <groupId>com.github.maximevw</groupId>
-            <artifactId>autolog-aspectj</artifactId>
+            <artifactId>autolog-core</artifactId>
             <version>1.1.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
             <exclusions>
-                <!-- Do not include default Logback implementation for the applications not using it -->
-                <exclusion>
-                    <groupId>spring-boot-starter-logging</groupId>
-                    <artifactId>org.springframework.boot</artifactId>
-                </exclusion>
+                <!-- Do not include Logback transitively for the applications not using it -->
                 <exclusion>
                     <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
+                    <artifactId>logback-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
 
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-        </dependency>
-
         <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -109,34 +69,10 @@
             <artifactId>hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>uk.org.lidalia</groupId>
-            <artifactId>slf4j-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jdbc</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <!-- Delomboking source code -->
-            <plugin>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok-maven-plugin</artifactId>
-            </plugin>
-
             <!-- Compilation -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -147,11 +83,6 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
-                        <configuration>
-                            <!-- Only compile original source code and ignore delomboked files (since Delombok Maven
-                            plugin is active here) to avoid classes duplication at compiling time.-->
-                            <compileSourceRoots>${project.build.sourceDirectory}</compileSourceRoots>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -177,23 +108,34 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <!-- Use delomboked source code to generate a correct Javadoc including the code generated by
-                    Lombok. -->
-                    <sourcepath>${delombok.outputDirectory}</sourcepath>
-                </configuration>
             </plugin>
 
             <!-- Checkstyle -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
             </plugin>
 
             <!-- Code coverage -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <!-- Skip rules check for this specific module since the coverage is mainly ensured by the tests
+                    of the module 'autolog-spring' -->
+                    <execution>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

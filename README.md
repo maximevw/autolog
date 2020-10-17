@@ -12,6 +12,10 @@ A library providing capabilities for automatic logging in Java applications.
 This is the core module of the library: it provides the core logging features independently of the implementation chosen
 for automation.
 
+### autolog-aspectj
+This module provides aspects for logging automation based on AspectJ weaving and using annotations defined in
+`autolog-core` module.
+
 ### autolog-spring
 This module is the implementation of the logging automation based on Spring AOP and using annotations defined in
 `autolog-core` module. It acts as a Spring Boot starter by providing auto-configuration class for Autolog.
@@ -36,6 +40,14 @@ the following Maven dependencies:
     <version>1.1.0</version>
 </dependency>
 ```
+* In an application using AspectJ weaving for logging automation by AOP:
+```xml
+<dependency>
+    <groupId>com.github.maximevw</groupId>
+    <artifactId>autolog-aspectj</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
 * In a classic Java application, you can use logging methods provided by Autolog without automation by AOP (not
 recommended):
 ```xml
@@ -51,7 +63,7 @@ recommended):
 
 Basically, Autolog provides two types of annotations used to automatically generates log thanks to [AOP](https://en.wikipedia.org/wiki/Aspect-oriented_programming)
 (using [Spring AOP](https://docs.spring.io/spring/docs/current/spring-framework-reference/core.html#aop) implementation
-in the module `autolog-spring`):
+in the module `autolog-spring` or [AspectJ](https://www.eclipse.org/aspectj/) weaving in the module `autolog-aspectj`):
 
 * **`@AutoLogMethodInOut`**, **`@AutoLogMethodInput`** and **`@AutoLogMethodOutput`**: it helps to log, respectively,
 the input and output data of methods, the input data only and the output data only. It can also be used to automatically
@@ -188,11 +200,6 @@ Find below a non-exhaustive (and not sorted by priority) list of features we've 
 
   In Spring Boot auto-configuration, the profiles could be directly defined in the application property
   `autolog.profiles`.
-
-* **Implementation using AspectJ weaving**
-
-  In addition to the Spring AOP implementation, a new module `autolog-aspectj` provides aspects to handle Autolog
-  annotations in applications using AspectJ without Spring Framework.
 
 * **Additional logger**
 

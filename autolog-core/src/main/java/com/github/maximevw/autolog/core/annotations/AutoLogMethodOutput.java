@@ -55,8 +55,16 @@ import java.lang.annotation.Target;
  * <h1>Log automation by aspect programming</h1>
  * <p>
  *     In order to automate the logging of output value of methods calls, this annotation is activated by aspect
- *     programming. Currently, the only available implementation is based on Spring AOP.
+ *     programming. The available implementations are based on Spring AOP or AspectJ weaving.
  * </p>
+ *
+ * <h2>Usage with AspectJ weaving</h2>
+ * <p>
+ *     To use this annotation in non-Spring applications and using AspectJ weaving, you must add module
+ *     {@code autolog-aspectj} as dependency of your project. Then, this annotation will be taken into account by
+ *     AspectJ weaving.
+ * </p>
+ *
  * <h2>Usage with Spring AOP</h2>
  * <p>
  *     To use this annotation in Spring applications, you must activate Spring AOP and add module {@code autolog-spring}

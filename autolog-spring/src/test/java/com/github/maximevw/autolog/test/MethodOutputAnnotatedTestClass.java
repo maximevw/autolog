@@ -22,11 +22,11 @@ package com.github.maximevw.autolog.test;
 
 import com.github.maximevw.autolog.core.annotations.AutoLogMethodOutput;
 import com.github.maximevw.autolog.core.logger.LogLevel;
-import com.github.maximevw.autolog.spring.aspects.AutoLogMethodInOutAspect;
+import com.github.maximevw.autolog.spring.aspects.AutoLogMethodInOutSpringAspect;
 
 /**
  * This class annotated with {@link AutoLogMethodOutput} contains methods specially designed to test
- * {@link AutoLogMethodInOutAspect}.
+ * {@link AutoLogMethodInOutSpringAspect}.
  */
 @AutoLogMethodOutput
 public class MethodOutputAnnotatedTestClass {
