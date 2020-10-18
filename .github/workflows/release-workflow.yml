@@ -40,7 +40,7 @@ jobs:
       - name: Create GitHub release
         uses: ncipollo/release-action@v1.7.3
         with:
-          artifacts: "autolog-core/target/autolog-core-${{ env.RELEASE_VERSION }}-bundle.jar,autolog-spring/target/autolog-spring-${{ env.RELEASE_VERSION }}-bundle.jar"
+          artifacts: "autolog-core/target/autolog-core-${{ env.RELEASE_VERSION }}-bundle.jar,autolog-aspectj/target/autolog-aspectj-${{ env.RELEASE_VERSION }}-bundle.jar,autolog-spring/target/autolog-spring-${{ env.RELEASE_VERSION }}-bundle.jar"
           name: "${{ env.RELEASE_VERSION }}"
           tag: "v${{ env.RELEASE_VERSION }}"
           draft: true

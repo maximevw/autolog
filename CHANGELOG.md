@@ -31,6 +31,8 @@ Velocity Template Language.
     - `logMethodOutput(MethodOutputLoggingConfiguration, String, Object)`
   - in `MethodPerformanceLogger`:
     - `start(MethodPerformanceLoggingConfiguration, String, String)`
+### Removed
+- Remove `Log4jAdapter` (deprecated in 1.1.0).
 
 ## [1.1.0] - 2020-05-08
 ### Added

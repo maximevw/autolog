@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- Former suppression rules
     <suppress>
         <notes>
             <![CDATA[
@@ -11,4 +12,5 @@
         <packageUrl regex="true">^pkg:maven/log4j/log4j@.*$</packageUrl>
         <cpe>cpe:/a:apache:log4j</cpe>
     </suppress>
+    -->
 </suppressions>

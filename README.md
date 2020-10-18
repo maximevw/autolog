@@ -94,7 +94,6 @@ Logstash encoder
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
 * _(Experimental)_ `JdbcAdapter`: persists log events into a database using JDBC.
-* _(Deprecated - don't use anymore)_ `Log4jAdapter`: wraps an instance of `org.apache.log4j.Logger`
 
 In Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration

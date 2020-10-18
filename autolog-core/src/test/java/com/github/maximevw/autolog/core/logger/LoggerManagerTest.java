@@ -24,7 +24,6 @@ import com.github.maximevw.autolog.core.configuration.adapters.JdbcAdapterConfig
 import com.github.maximevw.autolog.core.logger.adapters.JavaLoggerAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.JdbcAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
-import com.github.maximevw.autolog.core.logger.adapters.Log4jAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.LogbackWithLogstashAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Slf4jAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.SystemOutAdapter;
@@ -67,7 +66,6 @@ class LoggerManagerTest {
 	private static SystemOutAdapter sysOutAdapter;
 	private static Slf4jAdapter slf4jAdapter;
 	private static XSlf4jAdapter xslf4jAdapter;
-	private static Log4jAdapter log4jAdapter;
 	private static Log4j2Adapter log4j2Adapter;
 	private static JavaLoggerAdapter javaLogAdapter;
 	private static LogbackWithLogstashAdapter logbackWithLogstashAdapter;
@@ -100,7 +98,6 @@ class LoggerManagerTest {
 		sysOutAdapter = spy(SystemOutAdapter.getInstance());
 		slf4jAdapter = spy(Slf4jAdapter.getInstance());
 		xslf4jAdapter = spy(XSlf4jAdapter.getInstance());
-		log4jAdapter = spy(Log4jAdapter.getInstance());
 		log4j2Adapter = spy(Log4j2Adapter.getInstance());
 		javaLogAdapter = spy(JavaLoggerAdapter.getInstance());
 		logbackWithLogstashAdapter = spy(LogbackWithLogstashAdapter.getInstance());
@@ -164,8 +161,8 @@ class LoggerManagerTest {
 	 * @return The set of registered loggers.
 	 */
 	private Set<LoggerInterface> prepareLogWithLevelTest(final LogLevel level) {
-		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4jAdapter,
-			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
+		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4j2Adapter,
+			javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		sut.logWithLevel(level, "This is a test: {}.", level.name());
 		return loggers;
@@ -417,8 +414,8 @@ class LoggerManagerTest {
 	 */
 	@Test
 	void givenLoggerManagerWithAdapters_whenLogThrowable_callsLogMethodInEachAdapter() {
-		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4jAdapter,
-			log4j2Adapter, javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
+		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4j2Adapter,
+			javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", throwable);

@@ -98,7 +98,6 @@
         <junit-platform.version>1.6.2</junit-platform.version>
         <h2.version>1.4.200</h2.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
-        <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.13.3</log4j2.version>
         <logback.version>1.2.3</logback.version>
         <logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
@@ -214,12 +213,6 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-ext</artifactId>
                 <version>${slf4j.version}</version>
-                <optional>true</optional>
-            </dependency>
-            <dependency>
-                <groupId>log4j</groupId>
-                <artifactId>log4j</artifactId>
-                <version>${log4j.version}</version>
                 <optional>true</optional>
             </dependency>
             <dependency>
