@@ -37,7 +37,7 @@ the following Maven dependencies:
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-spring</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 * In an application using AspectJ weaving for logging automation by AOP:
@@ -45,7 +45,7 @@ the following Maven dependencies:
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-aspectj</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 * In a classic Java application, you can use logging methods provided by Autolog without automation by AOP (not
@@ -54,7 +54,7 @@ recommended):
 <dependency>
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog-core</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -99,7 +99,31 @@ In Spring Boot applications, the `LoggerManager` can be configured in the applic
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration
 class `AutologAutoConfiguration`.
 
-### Basic example
+### Usage with AspectJ weaving
+
+In order to use AspectJ weaving for logging automation by AOP, in addition to the dependency to `autolog-aspectj`,
+ensure to have `org.aspectj:aspectjrt` in your classpath and to compile your application using AspectJ weaving,
+including the dependency to `autolog-aspectj` in the weaved dependencies.
+
+At the starting of your application, insert the following code to instantiate the `LoggerManager` required by Autolog
+for logging automation:
+```java
+public class HelloApplication {
+    public static void main(final String[] args) {
+        // Instantiate Autolog.
+        final LoggerManager loggerManager = new LoggerManager();
+        // Register any loggers you want to use. See LoggerManager documentation for further details.
+        // loggerManager.register(...);
+        AspectJLoggerManager.getInstance().init(loggerManager);
+
+        // Put the code of your application here...
+    }
+}
+```
+
+Now, you can use Autolog annotations into your application.
+
+### Basic example with a Spring application
 
 Assuming your application is a REST API developed with Spring Web framework using an implementation of Slf4j for
 logging.

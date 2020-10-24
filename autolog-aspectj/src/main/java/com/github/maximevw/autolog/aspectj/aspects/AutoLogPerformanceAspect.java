@@ -28,7 +28,6 @@ import com.github.maximevw.autolog.core.logger.LoggerManager;
 import com.github.maximevw.autolog.core.logger.LoggingUtils;
 import com.github.maximevw.autolog.core.logger.MethodPerformanceLogEntry;
 import com.github.maximevw.autolog.core.logger.MethodPerformanceLogger;
-import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
 import com.github.maximevw.autolog.core.logger.performance.AdditionalDataProvider;
 import com.github.maximevw.autolog.core.logger.performance.PerformanceTimer;
 import org.apache.commons.lang3.StringUtils;

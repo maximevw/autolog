@@ -6,7 +6,7 @@
 
     <groupId>com.github.maximevw</groupId>
     <artifactId>autolog</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
 
     <name>Autolog</name>
@@ -84,41 +84,41 @@
         <!-- Dependencies and plugins versions management -->
         <apiguardian.version>1.1.0</apiguardian.version>
         <aspectj.version>1.9.5</aspectj.version>
-        <checkstyle.version>8.32</checkstyle.version>
-        <commons-lang.version>3.10</commons-lang.version>
-        <commons-text.version>1.8</commons-text.version>
-        <compile-testing.version>0.18</compile-testing.version>
-        <guava.version>29.0-jre</guava.version>
+        <checkstyle.version>8.36.2</checkstyle.version>
+        <commons-lang.version>3.11</commons-lang.version>
+        <commons-text.version>1.9</commons-text.version>
+        <compile-testing.version>0.19</compile-testing.version>
+        <guava.version>30.0-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <jackson-databind.version>2.11.0</jackson-databind.version>
-        <jackson-dataformat-xml.version>2.11.0</jackson-dataformat-xml.version>
-        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+        <jackson-databind.version>2.11.3</jackson-databind.version>
+        <jackson-dataformat-xml.version>2.11.3</jackson-dataformat-xml.version>
+        <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
         <jakarta-ws-rs.version>2.1.6</jakarta-ws-rs.version>
-        <junit-jupiter.version>5.6.2</junit-jupiter.version>
-        <junit-platform.version>1.6.2</junit-platform.version>
+        <junit-jupiter.version>5.7.0</junit-jupiter.version>
+        <junit-platform.version>1.7.0</junit-platform.version>
         <h2.version>1.4.200</h2.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <log4j2.version>2.13.3</log4j2.version>
         <logback.version>1.2.3</logback.version>
-        <logstash-logback-encoder.version>6.3</logstash-logback-encoder.version>
-        <lombok.version>1.18.12</lombok.version>
-        <lombok-maven-plugin.version>1.18.10.0</lombok-maven-plugin.version>
+        <logstash-logback-encoder.version>6.4</logstash-logback-encoder.version>
+        <lombok.version>1.18.16</lombok.version>
+        <lombok-maven-plugin.version>1.18.16.0</lombok-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-        <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
+        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+        <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-        <mockito.version>3.3.3</mockito.version>
-        <owasp-dependency-check.version>5.3.2</owasp-dependency-check.version>
+        <mockito.version>3.5.15</mockito.version>
+        <owasp-dependency-check.version>6.0.2</owasp-dependency-check.version>
         <slf4j.version>1.7.30</slf4j.version>
         <slf4j-test.version>1.2.0</slf4j-test.version>
-        <spring.version>5.2.5.RELEASE</spring.version>
-        <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
+        <spring.version>5.2.9.RELEASE</spring.version>
+        <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
         <velocity.version>1.7</velocity.version>
         <velocity-tools.version>2.0</velocity-tools.version>
     </properties>
