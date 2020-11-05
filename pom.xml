@@ -88,6 +88,8 @@
         <commons-lang.version>3.11</commons-lang.version>
         <commons-text.version>1.9</commons-text.version>
         <compile-testing.version>0.19</compile-testing.version>
+        <errorprone.version>2.4.0</errorprone.version>
+        <flogger.version>0.5.1</flogger.version>
         <guava.version>30.0-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson-databind.version>2.11.3</jackson-databind.version>
@@ -227,8 +229,21 @@
                 <version>${log4j2.version}</version>
                 <optional>true</optional>
             </dependency>
-
-            <!-- Logback and Logstash encoder-->
+            <!-- Flogger API -->
+            <dependency>
+                <groupId>com.google.flogger</groupId>
+                <artifactId>flogger</artifactId>
+                <version>${flogger.version}</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- Required to use some internal classes from Flogger API -->
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_annotations</artifactId>
+                <version>${errorprone.version}</version>
+                <optional>true</optional>
+            </dependency>
+            <!-- Logback and Logstash encoder -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
@@ -313,6 +328,12 @@
                 <groupId>uk.org.lidalia</groupId>
                 <artifactId>slf4j-test</artifactId>
                 <version>${slf4j-test.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.google.flogger</groupId>
+                <artifactId>flogger-system-backend</artifactId>
+                <version>${flogger.version}</version>
                 <scope>test</scope>
             </dependency>
 

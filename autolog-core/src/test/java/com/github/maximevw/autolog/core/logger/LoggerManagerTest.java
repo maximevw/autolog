@@ -21,6 +21,7 @@
 package com.github.maximevw.autolog.core.logger;
 
 import com.github.maximevw.autolog.core.configuration.adapters.JdbcAdapterConfiguration;
+import com.github.maximevw.autolog.core.logger.adapters.FloggerAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.JavaLoggerAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.JdbcAdapter;
 import com.github.maximevw.autolog.core.logger.adapters.Log4j2Adapter;
@@ -31,7 +32,6 @@ import com.github.maximevw.autolog.core.logger.adapters.XSlf4jAdapter;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatcher;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
@@ -70,6 +70,7 @@ class LoggerManagerTest {
 	private static JavaLoggerAdapter javaLogAdapter;
 	private static LogbackWithLogstashAdapter logbackWithLogstashAdapter;
 	private static JdbcAdapter jdbcAdapter;
+	private static FloggerAdapter floggerAdapter;
 
 	private LoggerManager sut;
 
@@ -101,6 +102,7 @@ class LoggerManagerTest {
 		log4j2Adapter = spy(Log4j2Adapter.getInstance());
 		javaLogAdapter = spy(JavaLoggerAdapter.getInstance());
 		logbackWithLogstashAdapter = spy(LogbackWithLogstashAdapter.getInstance());
+		floggerAdapter = spy(FloggerAdapter.getInstance());
 
 		// Configure JdbcAdapter with a mocked data source.
 		final DataSource mockedDataSource = mock(DataSource.class);
@@ -162,7 +164,7 @@ class LoggerManagerTest {
 	 */
 	private Set<LoggerInterface> prepareLogWithLevelTest(final LogLevel level) {
 		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4j2Adapter,
-			javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
+			javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter, floggerAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		sut.logWithLevel(level, "This is a test: {}.", level.name());
 		return loggers;
@@ -176,7 +178,8 @@ class LoggerManagerTest {
 	 * @return The set of registered loggers.
 	 */
 	private Set<LoggerInterface> prepareLogWithLevelAndContextualDataTest(final LogLevel level) {
-		final Set<LoggerInterface> loggers = Set.of(slf4jAdapter, log4j2Adapter, logbackWithLogstashAdapter);
+		final Set<LoggerInterface> loggers = Set.of(slf4jAdapter, log4j2Adapter, logbackWithLogstashAdapter,
+			floggerAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		sut.logWithLevel(level, "This is a test: {}.", Map.of("testContext", level.name()), level.name());
 		return loggers;
@@ -415,7 +418,7 @@ class LoggerManagerTest {
 	@Test
 	void givenLoggerManagerWithAdapters_whenLogThrowable_callsLogMethodInEachAdapter() {
 		final Set<LoggerInterface> loggers = Set.of(sysOutAdapter, slf4jAdapter, xslf4jAdapter, log4j2Adapter,
-			javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter);
+			javaLogAdapter, logbackWithLogstashAdapter, jdbcAdapter, floggerAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", throwable);
@@ -432,13 +435,14 @@ class LoggerManagerTest {
 	 */
 	@Test
 	void givenLoggerManagerWithAdapters_whenLogThrowableWithContextualData_callsLogMethodInEachAdapter() {
-		final Set<LoggerInterface> loggers = Set.of(slf4jAdapter, log4j2Adapter, logbackWithLogstashAdapter);
+		final Set<LoggerInterface> loggers = Set.of(slf4jAdapter, log4j2Adapter, logbackWithLogstashAdapter,
+			floggerAdapter);
 		loggers.forEach(loggerInterface -> sut.register(loggerInterface));
 		final Throwable throwable = spy(new Throwable("Something went wrong."));
 		sut.logWithLevel(LogLevel.ERROR, "This is a test.", Map.of("testContext", LogLevel.ERROR.name()), throwable);
 		loggers.forEach(loggerInterface -> verify(loggerInterface, times(1))
 			.error(eq(LoggingUtils.AUTOLOG_DEFAULT_TOPIC), eq("This is a test."),
-				argThat((ArgumentMatcher<Map<String, String>>) argument -> argument.containsKey("testContext")
+				argThat(argument -> argument.containsKey("testContext")
 					&& argument.get("testContext").equals(LogLevel.ERROR.name())), eq(throwable)));
 	}
 }

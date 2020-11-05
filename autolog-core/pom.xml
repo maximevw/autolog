@@ -79,7 +79,16 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
         </dependency>
-
+        <!-- Flogger API -->
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger</artifactId>
+        </dependency>
+        <!-- Required to use some internal classes from Flogger API -->
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+        </dependency>
         <!-- Logback and Logstash encoder -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -154,6 +163,11 @@
         <dependency>
             <groupId>uk.org.lidalia</groupId>
             <artifactId>slf4j-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.flogger</groupId>
+            <artifactId>flogger-system-backend</artifactId>
             <scope>test</scope>
         </dependency>
 

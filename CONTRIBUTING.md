@@ -38,7 +38,7 @@ git clone https://github.com/{your username}/autolog.git
 
 ### Configure the project and run tests
 
-Once you cloned the repository to you local machine, open the project in your favorite IDE.
+Once you cloned the repository to your local machine, open the project in your favorite IDE.
 
 To build the project, execute the following command:
 ```
