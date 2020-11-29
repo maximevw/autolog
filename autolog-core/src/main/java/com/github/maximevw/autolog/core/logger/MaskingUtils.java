@@ -120,7 +120,7 @@ public final class MaskingUtils {
 	 * @return The rules of characters preservation based on the parsed expression.
 	 */
 	private static PreservationRules parsePreservedCharacters(final String preservedCharactersExpression) {
-		final String[] elements = preservedCharactersExpression.split(",");
+		final String[] elements = preservedCharactersExpression.split(LoggingUtils.COMMA);
 		final PreservationRules preservationRules = new PreservationRules();
 
 		Arrays.stream(elements)

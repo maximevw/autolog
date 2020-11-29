@@ -76,7 +76,7 @@ class JdbcAdapterConfigurationConverterTest {
 	}
 
 	/**
-	 * Verifies that an error is logged and an instance of {@link JdbcAdapterConfiguration} returned when no specific
+	 * Verifies that an error is logged and an instance of {@link JdbcAdapterConfiguration} is returned when no specific
 	 * data source is specified in the given {@link Properties} and no bean of type {@link DataSource} is available in
 	 * the Spring {@link ApplicationContext}.
 	 */
@@ -91,7 +91,7 @@ class JdbcAdapterConfigurationConverterTest {
 	}
 
 	/**
-	 * Verifies that an error is logged and an instance of {@link JdbcAdapterConfiguration} returned when a specific
+	 * Verifies that an error is logged and an instance of {@link JdbcAdapterConfiguration} is returned when a specific
 	 * data source is specified in the given {@link Properties} but there is no matching bean of type {@link DataSource}
 	 * available in the Spring {@link ApplicationContext}.
 	 */
@@ -112,8 +112,8 @@ class JdbcAdapterConfigurationConverterTest {
 	}
 
 	/**
-	 * Verifies that an instance of {@link JdbcAdapterConfiguration} returned when no specific data source is specified
-	 * in the given {@link Properties} but it exists a bean of type {@link DataSource} available in the Spring
+	 * Verifies that an instance of {@link JdbcAdapterConfiguration} is returned when no specific data source is
+	 * specified in the given {@link Properties} but it exists a bean of type {@link DataSource} available in the Spring
 	 * {@link ApplicationContext}.
 	 */
 	@Test

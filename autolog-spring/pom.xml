@@ -127,6 +127,12 @@
             <artifactId>spring-boot-starter-jdbc</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

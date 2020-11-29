@@ -94,6 +94,8 @@ Logstash encoder
 * `SystemOutAdapter`: wraps the standard output (`System.out` and `System.err`)
 * `XSlf4jAdapter`: wraps an instance of `org.slf4j.ext.XLogger`
 * _(Experimental)_ `JdbcAdapter`: persists log events into a database using JDBC.
+* _(Experimental)_ `FloggerAdapter`: wraps an instance of `com.google.common.flogger.AbstractLogger`.
+* _(Experimental)_ `KafkaAdapter`: publishes log events into Kafka topics.
 
 In Spring Boot applications, the `LoggerManager` can be configured in the application properties (by setting the list
 of `LoggerInterface` implementations to register in the property `autolog.loggers`) thanks to the auto-configuration
@@ -223,10 +225,6 @@ Find below a non-exhaustive (and not sorted by priority) list of features we've 
 
   In Spring Boot auto-configuration, the profiles could be directly defined in the application property
   `autolog.profiles`.
-
-* **Additional logger**
-
-  Provide new implementation `KafkaAdapter` of `LoggerInterface` to directly publish the generated logs in Kafka topics.
 
 * **Log HTTP requests and responses**
 

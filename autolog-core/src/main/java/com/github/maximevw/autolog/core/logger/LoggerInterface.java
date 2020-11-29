@@ -32,7 +32,7 @@ import java.util.Map;
  *     to implement in order to get a singleton instance is {@code getInstance()}.
  * </p>
  * <p>
- *     <i>Note: </i> The message template syntax used in the arguments {@code format} of the methods described in this
+ *     <i>Note:</i> The message template syntax used in the arguments {@code format} of the methods described in this
  *     interface is the same as the one used by SLF4J.
  * </p>
  * @see org.slf4j.Logger

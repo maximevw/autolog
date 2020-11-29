@@ -88,6 +88,7 @@
         <commons-lang.version>3.11</commons-lang.version>
         <commons-text.version>1.9</commons-text.version>
         <compile-testing.version>0.19</compile-testing.version>
+        <curator-test.version>5.1.0</curator-test.version>
         <errorprone.version>2.4.0</errorprone.version>
         <flogger.version>0.5.1</flogger.version>
         <guava.version>30.0-jre</guava.version>
@@ -99,6 +100,8 @@
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <junit-platform.version>1.7.0</junit-platform.version>
         <h2.version>1.4.200</h2.version>
+        <kafka.version>2.6.0</kafka.version>
+        <kafka-junit5.version>3.2.2</kafka-junit5.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <log4j2.version>2.13.3</log4j2.version>
         <logback.version>1.2.3</logback.version>
@@ -121,6 +124,7 @@
         <slf4j-test.version>1.2.0</slf4j-test.version>
         <spring.version>5.2.9.RELEASE</spring.version>
         <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
+        <spring-kafka.version>2.6.2</spring-kafka.version>
         <velocity.version>1.7</velocity.version>
         <velocity-tools.version>2.0</velocity-tools.version>
     </properties>
@@ -257,6 +261,14 @@
                 <optional>true</optional>
             </dependency>
 
+            <!-- Kafka client -->
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>${kafka.version}</version>
+                <optional>true</optional>
+            </dependency>
+
             <!-- Velocity -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
@@ -368,6 +380,25 @@
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
                 <version>${h2.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.salesforce.kafka.test</groupId>
+                <artifactId>kafka-junit5</artifactId>
+                <version>${kafka-junit5.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-test</artifactId>
+                <version>${curator-test.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.kafka</groupId>
+                <artifactId>spring-kafka</artifactId>
+                <version>${spring-kafka.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

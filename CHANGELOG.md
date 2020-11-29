@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 ### Added
-- _Experimental feature_: add `FloggerAdapter` to use Flogger API to log events.
+- _Experimental features_:
+  - add `FloggerAdapter` to use Flogger API to log events.
+  - add `KafkaAdapter` to directly publish the generated log events into Kafka topics.
 
 ## [1.2.0] - 2020-10-24
 ### Added

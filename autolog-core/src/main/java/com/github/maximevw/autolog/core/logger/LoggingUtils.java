@@ -73,9 +73,14 @@ public final class LoggingUtils {
 	public static final String AUTOLOG_DEFAULT_TOPIC = "Autolog";
 
 	/**
+	 * A String constant for comma character.
+	 */
+	public static final String COMMA = ",";
+
+	/**
 	 * Comma delimiter for string representation of list of values.
 	 */
-	static final String LIST_ITEMS_DELIMITER = ", ";
+	static final String LIST_ITEMS_DELIMITER = COMMA.concat(StringUtils.SPACE);
 
 	/**
 	 * Formatter to auto-generate method argument name when the original name is not available.

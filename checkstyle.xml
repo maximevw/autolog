@@ -197,7 +197,9 @@ Checkstyle configuration for Autolog project
         </module>
 
         <!-- Checks for modifiers -->
-        <module name="ClassMemberImpliedModifier"/>
+        <module name="ClassMemberImpliedModifier">
+            <property name="violateImpliedStaticOnNestedEnum" value="false"/>
+        </module>
         <module name="ModifierOrder"/>
         <module name="RedundantModifier"/>
 

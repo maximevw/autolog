@@ -41,9 +41,8 @@ import java.util.Properties;
  * </p>
  * <p>
  *     If a property {@code dataSource} is defined, the bean of type {@link DataSource} with the name provided into this
- *     property will be used into {@link JdbcAdapterConfiguration}. If a such bean doesn't exist or if no name is
- *     provided, any bean of type {@link DataSource} returned by the method {@link ApplicationContext#getBean(Class)}
- *     will be used.
+ *     property will be used into {@link JdbcAdapterConfiguration}. If no name is provided, any bean of type
+ *     {@link DataSource} returned by the method {@link ApplicationContext#getBean(Class)} will be used.
  * </p>
  *
  * @see Converter
@@ -59,11 +58,12 @@ public class JdbcAdapterConfigurationConverter implements Converter<Properties, 
 
 	@Override
 	public JdbcAdapterConfiguration convert(final Properties source) {
-		// Try to retrieve the DataSource bean with the given name in the ApplicationContext.
+		// Try to retrieve the DataSource bean with the given name in the ApplicationContext or any DataSource bean
+		// available in the ApplicationContext.
 		final String dataSourcePropertyValue = source.getProperty("dataSource");
 		DataSource dataSourceBean = null;
 		try {
-			if (dataSourcePropertyValue != null) {
+			if (StringUtils.isNotBlank(dataSourcePropertyValue)) {
 				dataSourceBean = this.applicationContext.getBean(dataSourcePropertyValue, DataSource.class);
 			} else {
 				dataSourceBean = this.applicationContext.getBean(DataSource.class);
