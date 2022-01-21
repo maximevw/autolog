@@ -96,7 +96,7 @@
         <jakarta-ws-rs.version>2.1.6</jakarta-ws-rs.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <junit-platform.version>1.7.0</junit-platform.version>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.1.210</h2.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <log4j2.version>2.13.3</log4j2.version>
         <logback.version>1.2.3</logback.version>
