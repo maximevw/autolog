@@ -90,7 +90,7 @@
         <compile-testing.version>0.19</compile-testing.version>
         <guava.version>30.0-jre</guava.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <jackson-databind.version>2.11.3</jackson-databind.version>
+        <jackson-databind.version>2.12.6.1</jackson-databind.version>
         <jackson-dataformat-xml.version>2.11.3</jackson-dataformat-xml.version>
         <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
         <jakarta-ws-rs.version>2.1.6</jakarta-ws-rs.version>
